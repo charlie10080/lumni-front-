@@ -1,0 +1,3086 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lumni - Plataforma Escolar Inteligente</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              300: '#a5b4fc',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- QRCode.js Library CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <!-- HTML5-QRCode Scanner Library CDN -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+      #print-modal-area, #print-modal-area *,
+      #print-parent-report, #print-parent-report * {
+        visibility: visible !important;
+      }
+      #print-modal-area, #print-parent-report {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 16px;
+        background: white;
+      }
+    }
+  </style>
+</head>
+
+<body class="h-full flex flex-col text-slate-800 antialiased selection:bg-brand-500 selection:text-white bg-slate-50/60">
+
+  <!-- Contenedor de Notificaciones Toast -->
+  <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+  <!-- ============================================================ -->
+  <!-- 1. VISTA: PANTALLA DE INICIO (LANDING DE ACCESOS MINIMALISTA) -->
+  <!-- ============================================================ -->
+  <main id="view-landing" class="flex-1 flex flex-col justify-center items-center px-4 py-12 sm:py-20">
+    <div class="max-w-3xl w-full text-center space-y-8 animate-in fade-in zoom-in-95 duration-200">
+      
+      <div class="space-y-4">
+        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-tr from-brand-600 via-indigo-600 to-indigo-500 flex items-center justify-center text-white shadow-xl shadow-brand-500/25 mx-auto">
+          <i data-lucide="sparkles" class="w-8 h-8 sm:w-10 sm:h-10 text-amber-300"></i>
+        </div>
+        
+        <div class="space-y-2">
+          <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900">
+            Lumni
+          </h1>
+          <p class="text-base sm:text-xl text-slate-600 font-medium max-w-lg mx-auto">
+            Plataforma de gestión escolar integral y comunicación asíncrona con familias.
+          </p>
+        </div>
+      </div>
+
+      <!-- Tarjetas de Acceso -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6 max-w-xl mx-auto pt-4">
+        
+        <!-- Soy Maestro -->
+        <div 
+          onclick="showView('view-auth-maestro')" 
+          class="bg-white rounded-3xl p-6 sm:p-7 border-2 border-slate-200/80 hover:border-brand-500 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-center text-center space-y-4 group"
+        >
+          <div class="w-14 h-14 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <i data-lucide="graduation-cap" class="w-7 h-7"></i>
+          </div>
+          <div class="space-y-1">
+            <h2 class="text-lg sm:text-xl font-bold text-slate-900 group-hover:text-brand-600 transition-colors">Soy Maestro</h2>
+            <p class="text-xs text-slate-500">Pase de lista con QR, Reporte de Evaluación, Proyectos, Tareas y Bandeja de Mensajes.</p>
+          </div>
+          <div class="w-full pt-1">
+            <span class="w-full py-2.5 px-4 bg-brand-600 group-hover:bg-brand-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-colors">
+              <span>Ingresar como Docente</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </span>
+          </div>
+        </div>
+
+        <!-- Soy Padre de Familia -->
+        <div 
+          onclick="showView('view-auth-padre')" 
+          class="bg-white rounded-3xl p-6 sm:p-7 border-2 border-slate-200/80 hover:border-indigo-500 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-center text-center space-y-4 group"
+        >
+          <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <i data-lucide="shield-check" class="w-7 h-7"></i>
+          </div>
+          <div class="space-y-1">
+            <h2 class="text-lg sm:text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">Soy Padre de Familia</h2>
+            <p class="text-xs text-slate-500">Sin registros. Consulta asistencias, boletas y envía mensajes directos al maestro con tu código.</p>
+          </div>
+          <div class="w-full pt-1">
+            <span class="w-full py-2.5 px-4 bg-indigo-600 group-hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-colors">
+              <span>Consultar Información</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ============================================================ -->
+  <!-- 2. VISTA: ACCESO DOCENTE (LOGIN / REGISTRO)                  -->
+  <!-- ============================================================ -->
+  <main id="view-auth-maestro" class="flex-1 flex flex-col justify-center items-center px-4 py-8 hidden">
+    <div class="max-w-md w-full bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-xl space-y-6 animate-in fade-in zoom-in-95 duration-200">
+      
+      <div class="text-center space-y-2">
+        <button onclick="showView('view-landing')" class="text-xs font-semibold text-slate-400 hover:text-slate-700 flex items-center justify-center gap-1 mx-auto mb-2 cursor-pointer">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>Volver al inicio</span>
+        </button>
+        <div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center mx-auto">
+          <i data-lucide="user-check" class="w-6 h-6"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-slate-900">Portal del Docente</h2>
+        <p class="text-xs text-slate-500">Ingresa tus datos o regístrate para administrar tu grupo.</p>
+      </div>
+
+      <!-- Selector de Pestañas -->
+      <div class="flex p-1 bg-slate-100 rounded-2xl">
+        <button 
+          id="tab-btn-login" 
+          onclick="toggleTeacherAuthMode('login')" 
+          class="flex-1 py-2 rounded-xl text-xs font-bold bg-white text-slate-900 shadow-xs transition-all cursor-pointer"
+        >
+          Iniciar Sesión
+        </button>
+        <button 
+          id="tab-btn-register" 
+          onclick="toggleTeacherAuthMode('register')" 
+          class="flex-1 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-900 transition-all cursor-pointer"
+        >
+          Registrarse
+        </button>
+      </div>
+
+      <!-- Formulario Login -->
+      <form id="form-teacher-login" onsubmit="handleTeacherLoginSubmit(event)" class="space-y-4">
+        <div>
+          <label for="login_correo" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Correo Electrónico *</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><i data-lucide="mail" class="w-4 h-4"></i></div>
+            <input type="email" id="login_correo" required placeholder="profesor@colegio.edu.mx" class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+          </div>
+        </div>
+
+        <div>
+          <label for="login_password" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Contraseña *</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><i data-lucide="lock" class="w-4 h-4"></i></div>
+            <input type="password" id="login_password" required placeholder="••••••••" class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-3 px-4 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-brand-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer">
+          <i data-lucide="log-in" class="w-4 h-4"></i>
+          <span>Ingresar al Dashboard</span>
+        </button>
+      </form>
+
+      <!-- Formulario Registro -->
+      <form id="form-teacher-register" onsubmit="handleTeacherRegisterSubmit(event)" class="space-y-4 hidden">
+        <div>
+          <label for="reg_nombre" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Nombre Completo *</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><i data-lucide="user" class="w-4 h-4"></i></div>
+            <input type="text" id="reg_nombre" required placeholder="Ej. Prof. Carlos Mendoza Morales" class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+          </div>
+        </div>
+
+        <div>
+          <label for="reg_correo" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Correo Electrónico *</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><i data-lucide="mail" class="w-4 h-4"></i></div>
+            <input type="email" id="reg_correo" required placeholder="profesor@colegio.edu.mx" class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+          </div>
+        </div>
+
+        <div>
+          <label for="reg_grupo" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Grado y Grupo Asignado *</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><i data-lucide="book" class="w-4 h-4"></i></div>
+            <input type="text" id="reg_grupo" required placeholder="Ej. 3er Grado Grupo B" class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+          </div>
+        </div>
+
+        <div>
+          <label for="reg_password" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Crear Contraseña *</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><i data-lucide="lock" class="w-4 h-4"></i></div>
+            <input type="password" id="reg_password" required placeholder="Mínimo 6 caracteres" class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-3 px-4 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-brand-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer">
+          <i data-lucide="user-plus" class="w-4 h-4"></i>
+          <span>Registrar y Abrir Dashboard</span>
+        </button>
+      </form>
+
+    </div>
+  </main>
+
+  <!-- ============================================================ -->
+  <!-- 3. VISTA: ACCESO PARA PADRES (CON ESCÁNER QR INTEGRADO)      -->
+  <!-- ============================================================ -->
+  <main id="view-auth-padre" class="flex-1 flex flex-col justify-center items-center px-4 py-8 hidden">
+    <div class="max-w-md w-full bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-xl space-y-6 animate-in fade-in zoom-in-95 duration-200">
+      
+      <div class="text-center space-y-2">
+        <button onclick="showView('view-landing')" class="text-xs font-semibold text-slate-400 hover:text-slate-700 flex items-center justify-center gap-1 mx-auto mb-2 cursor-pointer">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>Volver al inicio</span>
+        </button>
+        <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto">
+          <i data-lucide="shield-check" class="w-6 h-6"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-slate-900">Portal de Familias</h2>
+        <p class="text-xs text-slate-500">Ingresa el Código ID o escanea el código QR de la credencial con la cámara trasera.</p>
+      </div>
+
+      <!-- Botón Destacado para Escanear Código QR -->
+      <div class="space-y-3">
+        <button 
+          onclick="toggleParentScannerModal()" 
+          class="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-brand-600 hover:from-indigo-700 hover:to-brand-700 text-white rounded-2xl text-xs sm:text-sm font-bold shadow-md shadow-indigo-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <i data-lucide="camera" class="w-5 h-5 text-amber-300"></i>
+          <span>📷 Escanear código QR</span>
+        </button>
+
+        <div class="flex items-center gap-2 my-2">
+          <div class="flex-1 border-t border-slate-200"></div>
+          <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">o ingresar por código</span>
+          <div class="flex-1 border-t border-slate-200"></div>
+        </div>
+
+        <div>
+          <label for="padre_search_input" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Código ID / UUID del Alumno</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><i data-lucide="qr-code" class="w-4 h-4"></i></div>
+            <input 
+              type="text" 
+              id="padre_search_input" 
+              placeholder="Ej. alu-9b1d... o pega el código" 
+              onkeydown="if(event.key === 'Enter') handleParentSearchSubmit()"
+              class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600" 
+            />
+          </div>
+        </div>
+
+        <button 
+          onclick="handleParentSearchSubmit()" 
+          class="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <i data-lucide="search" class="w-4 h-4"></i>
+          <span>Consultar Reporte</span>
+        </button>
+
+        <!-- Chips de Alumnos Demo -->
+        <div class="pt-3 border-t border-slate-100 text-center space-y-2">
+          <span class="text-[11px] text-slate-400 font-medium block">Probar rápido con un alumno demo:</span>
+          <div id="parent-auth-demo-chips" class="flex flex-wrap items-center justify-center gap-1.5"></div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ============================================================ -->
+  <!-- 4. VISTA: PORTAL DEL MAESTRO (NUEVO LAYOUT SAAS CON SIDEBAR) -->
+  <!-- ============================================================ -->
+  <div id="view-portal-maestro" class="flex-1 flex flex-col lg:flex-row min-h-screen bg-slate-50/70 hidden">
+    
+    <!-- Telón de Fondo para Móviles (Backdrop) -->
+    <div id="sidebar-backdrop" onclick="toggleTeacherSidebar()" class="fixed inset-0 z-40 bg-slate-950/40 backdrop-blur-xs lg:hidden hidden"></div>
+
+    <!-- SIDEBAR LATERAL FIJO (PREMIUM & MINIMALISTA) -->
+    <aside id="teacher-sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200/80 flex flex-col justify-between transition-transform duration-300 transform -translate-x-full lg:translate-x-0 lg:static lg:z-auto shrink-0 shadow-2xl lg:shadow-none">
+      
+      <div class="flex flex-col flex-1 min-h-0">
+        <!-- Encabezado Sidebar con Logo Lumni -->
+        <div class="h-16 px-5 border-b border-slate-100 flex items-center justify-between shrink-0">
+          <button onclick="switchTeacherTab('dashboard'); closeMobileSidebarIfOpen();" class="flex items-center gap-2.5 group focus:outline-none text-left">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 via-indigo-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform shrink-0">
+              <i data-lucide="sparkles" class="w-4 h-4 text-amber-300"></i>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-xl font-extrabold bg-gradient-to-r from-brand-700 via-indigo-600 to-brand-500 bg-clip-text text-transparent">
+                Lumni
+              </span>
+              <span class="px-1.5 py-0.5 text-[9px] font-bold bg-brand-50 text-brand-700 rounded-md border border-brand-200">
+                SaaS
+              </span>
+            </div>
+          </button>
+
+          <button onclick="toggleTeacherSidebar()" class="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 focus:outline-none" aria-label="Cerrar menú">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <!-- Grupo Escolar Activo -->
+        <div class="px-5 py-3 bg-slate-50/70 border-b border-slate-100/80 flex items-center gap-2 text-xs">
+          <i data-lucide="school" class="w-3.5 h-3.5 text-brand-600 shrink-0"></i>
+          <span id="sidebar-group-badge" class="font-bold text-slate-700 truncate">3er Grado Grupo B</span>
+        </div>
+
+        <!-- Lista Vertical de Navegación -->
+        <nav class="p-3 space-y-1 flex-1 overflow-y-auto">
+
+          <button onclick="switchTeacherTab('dashboard'); closeMobileSidebarIfOpen();" id="sidebar-tab-dashboard" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-bold bg-brand-50 text-brand-700 group">
+            <i data-lucide="layout-dashboard" class="w-5 h-5 shrink-0 text-brand-600"></i>
+            <span class="whitespace-nowrap font-medium text-sm text-left">Dashboard</span>
+          </button>
+
+          <button onclick="switchTeacherTab('alumnos'); closeMobileSidebarIfOpen();" id="sidebar-tab-alumnos" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 hover:text-brand-700 hover:bg-brand-50 group">
+            <i data-lucide="users" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600"></i>
+            <span class="whitespace-nowrap font-medium text-sm text-left">Alumnos &amp; QR</span>
+          </button>
+
+          <button onclick="switchTeacherTab('asistencias'); closeMobileSidebarIfOpen();" id="sidebar-tab-asistencias" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 hover:text-brand-700 hover:bg-brand-50 group">
+            <i data-lucide="scan-line" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600"></i>
+            <span class="whitespace-nowrap font-medium text-sm text-left">Asistencias</span>
+          </button>
+
+          <button onclick="switchTeacherTab('calificaciones'); closeMobileSidebarIfOpen();" id="sidebar-tab-calificaciones" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 hover:text-brand-700 hover:bg-brand-50 group">
+            <i data-lucide="award" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600"></i>
+            <span class="whitespace-nowrap font-medium text-sm text-left">Reporte de Evaluación</span>
+          </button>
+
+          <button onclick="switchTeacherTab('proyectos'); closeMobileSidebarIfOpen();" id="sidebar-tab-proyectos" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 hover:text-brand-700 hover:bg-brand-50 group">
+            <i data-lucide="folder-kanban" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600"></i>
+            <span class="whitespace-nowrap font-medium text-sm text-left">Proyectos</span>
+          </button>
+
+          <button onclick="switchTeacherTab('tareas'); closeMobileSidebarIfOpen();" id="sidebar-tab-tareas" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 hover:text-brand-700 hover:bg-brand-50 group">
+            <i data-lucide="check-square" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600"></i>
+            <span class="whitespace-nowrap font-medium text-sm text-left">Tareas</span>
+          </button>
+
+          <!-- MENSAJES con badge de no leídos -->
+          <button onclick="switchTeacherTab('mensajes'); closeMobileSidebarIfOpen();" id="sidebar-tab-mensajes" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 hover:text-brand-700 hover:bg-brand-50 group">
+            <i data-lucide="inbox" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600"></i>
+            <span class="whitespace-nowrap font-medium text-sm text-left flex-1">Mensajes</span>
+            <span id="sidebar-unread-badge" class="bg-brand-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 hidden">0</span>
+          </button>
+
+          <button onclick="switchTeacherTab('reportes'); closeMobileSidebarIfOpen();" id="sidebar-tab-reportes" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 hover:text-brand-700 hover:bg-brand-50 group">
+            <i data-lucide="clipboard-list" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600"></i>
+            <span class="whitespace-nowrap font-medium text-sm text-left">Reportes</span>
+          </button>
+
+        </nav>
+      </div>
+
+      <!-- Pie del Sidebar: Capacidad y Perfil Rápido -->
+      <div class="p-4 border-t border-slate-100 bg-slate-50/50 space-y-3 shrink-0">
+        <div class="bg-white p-3 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1.5">
+          <div class="flex items-center justify-between text-[11px] font-bold">
+            <span class="text-slate-500">Capacidad</span>
+            <span id="sidebar-capacidad-txt" class="text-brand-700">3 / 50</span>
+          </div>
+          <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+            <div id="sidebar-progress-bar" class="h-full bg-brand-500 rounded-full transition-all duration-300" style="width: 6%;"></div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-1">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center shadow-xs shrink-0">
+              <span id="sidebar-avatar">C</span>
+            </div>
+            <div class="min-w-0">
+              <p id="sidebar-teacher-name" class="text-xs font-bold text-slate-800 truncate">Prof. Carlos</p>
+              <p class="text-[10px] text-slate-400 truncate">Docente Titular</p>
+            </div>
+          </div>
+          <button onclick="logout()" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer" title="Cerrar Sesión">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ÁREA PRINCIPAL DERECHA (TOP BAR LIMPIA + CANVAS DE CONTENIDO) -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+      
+      <!-- BARRA SUPERIOR LIMPIA (TOP BAR) -->
+      <header class="h-16 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-30 shrink-0">
+        
+        <!-- Izquierda: Botón Hamburguesa Móvil + Título de Sección -->
+        <div class="flex items-center gap-3">
+          <button onclick="toggleTeacherSidebar()" class="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 focus:outline-none" aria-label="Abrir menú">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+          
+          <div>
+            <h1 id="topbar-page-title" class="text-sm sm:text-base font-bold text-slate-900 leading-tight">Panel Principal</h1>
+            <p id="topbar-page-subtitle" class="text-[11px] text-slate-400 hidden sm:block">Visión general del ciclo escolar</p>
+          </div>
+        </div>
+
+        <!-- Derecha: Indicador Sutil "Sistema en Línea" y Salir -->
+        <div class="flex items-center gap-2.5 sm:gap-3">
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/70 text-[11px] font-semibold">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Sistema en Línea</span>
+          </div>
+
+          <div class="h-4 w-px bg-slate-200 hidden sm:block"></div>
+
+          <button 
+            onclick="logout()" 
+            class="px-2.5 py-1.5 text-xs font-semibold text-slate-500 hover:text-rose-700 hover:bg-rose-50 border border-transparent hover:border-rose-200 rounded-xl transition-all flex items-center gap-1 cursor-pointer"
+            title="Cerrar sesión"
+          >
+            <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+            <span class="hidden sm:inline">Salir</span>
+          </button>
+        </div>
+
+      </header>
+
+      <!-- CANVAS PRINCIPAL DE CONTENIDO -->
+      <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6 overflow-y-auto">
+        
+        <!-- SUB-VISTA: DASHBOARD -->
+        <div id="m-view-dashboard" class="space-y-6 block animate-in fade-in duration-150">
+          
+          <!-- Banner de Bienvenida -->
+          <div class="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-brand-800 via-brand-700 to-indigo-600 p-5 sm:p-7 text-white shadow-md shadow-brand-500/10">
+            <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+              <div class="space-y-1.5">
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 text-[11px] font-semibold backdrop-blur-md border border-white/20">
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300"></i>
+                  <span id="banner-group-badge">3er Grado Grupo B</span>
+                </div>
+                <h2 class="text-xl sm:text-2xl font-extrabold tracking-tight">
+                  Bienvenido(a), <span id="banner-teacher-name">Prof. Carlos Mendoza</span>
+                </h2>
+                <p class="text-brand-100 max-w-2xl text-xs sm:text-sm">
+                  Control de asistencias por QR, Reporte de Evaluación, Proyectos, Tareas y Bandeja de Mensajería con familias.
+                </p>
+              </div>
+              
+              <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+                <button onclick="switchTeacherTab('mensajes')" class="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl bg-white text-brand-700 font-bold text-xs sm:text-sm shadow-md hover:bg-brand-50 transition-all cursor-pointer">
+                  <i data-lucide="inbox" class="w-4 h-4"></i>
+                  <span>Bandeja de Mensajes</span>
+                </button>
+                <button onclick="switchTeacherTab('asistencias')" class="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl bg-brand-900/50 hover:bg-brand-900/80 text-white font-semibold text-xs sm:text-sm backdrop-blur-sm border border-white/20 transition-all cursor-pointer">
+                  <i data-lucide="scan-line" class="w-4 h-4"></i>
+                  <span>Pase de Lista QR</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 Tarjetas Métricas Minimalistas -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            
+            <!-- Capacidad -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Capacidad Alumnos</span>
+                <div class="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center"><i data-lucide="users" class="w-4 h-4"></i></div>
+              </div>
+              <div class="space-y-2">
+                <div class="flex items-baseline justify-between">
+                  <div class="flex items-baseline gap-1">
+                    <span id="dash-count-current" class="text-2xl font-extrabold text-slate-900">0</span>
+                    <span class="text-slate-400 text-sm font-medium">/</span>
+                    <span id="dash-count-max" class="text-sm font-semibold text-slate-500">50</span>
+                  </div>
+                  <span id="dash-limit-percent" class="text-xs font-bold text-brand-700 bg-brand-50 px-2 py-0.5 rounded-md border border-brand-100">0%</span>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                  <div id="dash-progress-bar" class="h-full rounded-full bg-gradient-to-r from-brand-500 to-indigo-600 transition-all duration-500" style="width: 0%;"></div>
+                </div>
+                <p class="text-[11px] text-slate-400 flex items-center justify-between pt-0.5">
+                  <span>Disponibles: <strong id="dash-disponibles-txt" class="text-slate-700">50</strong></span>
+                  <span class="text-brand-600 font-semibold">Límite 50</span>
+                </p>
+              </div>
+            </div>
+
+            <!-- Asistencia Hoy -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Asistencia Hoy</span>
+                <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center"><i data-lucide="check-check" class="w-4 h-4"></i></div>
+              </div>
+              <div class="space-y-1">
+                <div class="flex items-baseline gap-2">
+                  <h3 id="dash-asistencia-rate" class="text-2xl font-extrabold text-slate-900">0%</h3>
+                  <span id="dash-asistencia-count" class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">0 de 0</span>
+                </div>
+                <p class="text-[11px] text-slate-400">Pase de lista con QR y manual</p>
+              </div>
+              <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+                <button onclick="switchTeacherTab('asistencias')" class="text-brand-600 font-semibold hover:underline flex items-center gap-1">
+                  <span>Abrir escáner QR</span>
+                  <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Mensajes Nuevos -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Buzón de Mensajes</span>
+                <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center"><i data-lucide="inbox" class="w-4 h-4"></i></div>
+              </div>
+              <div class="space-y-1">
+                <div class="flex items-baseline gap-2">
+                  <h3 id="dash-unread-count" class="text-2xl font-extrabold text-slate-900">0</h3>
+                  <span class="text-xs font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">Sin leer</span>
+                </div>
+                <p class="text-[11px] text-slate-400">Comunicación con padres</p>
+              </div>
+              <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+                <button onclick="switchTeacherTab('mensajes')" class="text-brand-600 font-semibold hover:underline flex items-center gap-1">
+                  <span>Abrir bandeja</span>
+                  <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Actividades -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Actividades</span>
+                <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center"><i data-lucide="layers" class="w-4 h-4"></i></div>
+              </div>
+              <div class="space-y-1">
+                <div class="flex items-baseline gap-2">
+                  <h3 id="dash-actividades-count" class="text-2xl font-extrabold text-slate-900">4</h3>
+                  <span class="text-xs font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-100">Proyectos y Tareas</span>
+                </div>
+                <p class="text-[11px] text-slate-400">Con Campos Formativos</p>
+              </div>
+              <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+                <button onclick="switchTeacherTab('proyectos')" class="text-brand-600 font-semibold hover:underline flex items-center gap-1">
+                  <span>Ver proyectos</span>
+                  <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Actividad Reciente -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-xs">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <i data-lucide="activity" class="w-4 h-4 text-brand-600"></i>
+                <span>Asistencias Registradas Hoy</span>
+              </h3>
+              <button onclick="switchTeacherTab('asistencias')" class="text-xs font-semibold text-brand-600 hover:text-brand-700">Pase de lista</button>
+            </div>
+            <div id="dash-activity-list" class="divide-y divide-slate-100 text-xs"></div>
+          </div>
+
+        </div>
+
+        <!-- SUB-VISTA: ALUMNOS & QR -->
+        <div id="m-view-alumnos" class="space-y-6 hidden animate-in fade-in duration-150">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200/80 pb-4">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">Gestión de Alumnos & Credenciales QR</h2>
+              <p class="text-xs text-slate-500">Inscribe, edita y da de baja alumnos. Emite credenciales digitales de acceso.</p>
+            </div>
+            <span class="text-xs font-semibold px-3 py-1.5 bg-brand-50 text-brand-700 rounded-xl border border-brand-200 self-start sm:self-auto">
+              Cupo disponible: <strong id="cupo-disponible-tab" class="text-brand-800">50</strong> / 50
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Formulario Inscribir -->
+            <div class="lg:col-span-5">
+              <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
+                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  <i data-lucide="user-plus" class="w-4 h-4 text-brand-600"></i>
+                  <span>Inscribir Alumno</span>
+                </h3>
+
+                <form id="form-alumno" onsubmit="handleAlumnoSubmit(event)" class="space-y-3.5">
+                  <div>
+                    <label for="alumno_nombre" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Nombre Completo *</label>
+                    <input type="text" id="alumno_nombre" required placeholder="Ej. Sofía Martínez Ruiz" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                  </div>
+
+                  <div>
+                    <label for="alumno_tutor" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Nombre del Tutor *</label>
+                    <input type="text" id="alumno_tutor" required placeholder="Ej. Carmen Ruiz García" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                  </div>
+
+                  <div>
+                    <label for="alumno_telefono" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Teléfono WhatsApp *</label>
+                    <input type="tel" id="alumno_telefono" required placeholder="Ej. +52 55 9876 5432" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                  </div>
+
+                  <button type="submit" class="w-full py-2.5 px-4 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                    <i data-lucide="user-plus" class="w-4 h-4"></i>
+                    <span>Registrar y Generar Credencial QR</span>
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <!-- Tabla Alumnos -->
+            <div class="lg:col-span-7 space-y-4">
+              <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 shadow-xs flex items-center justify-between gap-3">
+                <div class="relative flex-1">
+                  <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                  <input type="text" id="search-alumnos-input" oninput="filterAlumnosTable()" placeholder="Buscar alumno..." class="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                </div>
+                <span id="tabla-total-badge" class="text-xs font-bold bg-slate-100 text-slate-700 px-3 py-1.5 rounded-xl shrink-0">0 Alumnos</span>
+              </div>
+
+              <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left text-xs min-w-[500px]">
+                    <thead class="bg-slate-50 text-slate-600 uppercase font-bold border-b border-slate-200/60">
+                      <tr>
+                        <th class="px-4 py-3">Alumno</th>
+                        <th class="px-4 py-3">Tutor / Teléfono</th>
+                        <th class="px-4 py-3">Código QR</th>
+                        <th class="px-4 py-3 text-right">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody id="alumnos-table-body" class="divide-y divide-slate-100 text-slate-700"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB-VISTA: ASISTENCIAS (CÁMARA TRASERA FORZADA) -->
+        <div id="m-view-asistencias" class="space-y-6 hidden animate-in fade-in duration-150">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200/80 pb-4">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">Control de Asistencia & Escáner QR</h2>
+              <p class="text-xs text-slate-500">Pase de lista con cámara trasera del dispositivo o lector de código ID.</p>
+            </div>
+            <span id="current-date-badge" class="text-xs font-bold px-3.5 py-1.5 bg-slate-100 text-slate-700 rounded-xl border border-slate-200 self-start sm:self-auto">📅 Hoy</span>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Escáner -->
+            <div class="lg:col-span-5 space-y-4">
+              <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs">
+                <div class="flex items-center justify-between mb-1">
+                  <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="camera" class="w-4 h-4 text-brand-600"></i>
+                    <span>Escáner QR</span>
+                  </h3>
+                  <span class="text-[10px] font-bold bg-brand-50 text-brand-700 px-2 py-0.5 rounded-full border border-brand-200">
+                    📷 Cámara Trasera
+                  </span>
+                </div>
+                <p class="text-xs text-slate-500 mb-4">Apunta la cámara trasera a la credencial del alumno.</p>
+
+                <div class="relative bg-slate-900 rounded-2xl overflow-hidden min-h-[200px] flex flex-col items-center justify-center p-3 text-center text-white border border-slate-800">
+                  <div id="qr-reader" class="w-full max-w-xs"></div>
+                  <div id="scanner-placeholder" class="py-6 flex flex-col items-center gap-2">
+                    <i data-lucide="scan-line" class="w-10 h-10 text-brand-400 animate-pulse"></i>
+                    <p class="text-xs text-slate-300">Cámara inactiva.</p>
+                  </div>
+                </div>
+
+                <div class="mt-3 flex gap-2">
+                  <button id="btn-toggle-camera" onclick="toggleQrCamera()" class="flex-1 py-2.5 px-4 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer">
+                    <i data-lucide="camera" class="w-4 h-4"></i>
+                    <span id="btn-camera-text">Activar Cámara Trasera</span>
+                  </button>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-slate-100 space-y-2">
+                  <label for="manual-scan-input" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">O registrar por Código ID:</label>
+                  <div class="flex gap-2">
+                    <input type="text" id="manual-scan-input" placeholder="Pega el UUID..." onkeydown="if(event.key === 'Enter') handleManualScan()" class="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                    <button onclick="handleManualScan()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold transition-all cursor-pointer">Registrar</button>
+                  </div>
+                </div>
+              </div>
+
+              <div id="last-scan-feedback" class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-emerald-900 hidden">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold"><i data-lucide="check" class="w-4 h-4"></i></div>
+                  <div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">¡Asistencia Confirmada!</span>
+                    <h4 id="last-scan-name" class="font-bold text-xs sm:text-sm text-emerald-950">Sofía Martínez</h4>
+                    <p id="last-scan-meta" class="text-xs text-emerald-700">Hora: 08:05 AM</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tabla Asistencias -->
+            <div class="lg:col-span-7 space-y-4">
+              <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                <div class="p-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2">
+                  <h3 class="font-bold text-slate-900 text-sm">Pase de Lista del Grupo</h3>
+                  <button onclick="markAllAttendance('presente')" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-bold transition-all">
+                    Marcar Todos Presentes
+                  </button>
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left text-xs min-w-[480px]">
+                    <thead class="bg-slate-50 text-slate-600 uppercase font-bold border-b border-slate-200/60">
+                      <tr>
+                        <th class="px-4 py-3">Alumno</th>
+                        <th class="px-4 py-3">Estado</th>
+                        <th class="px-4 py-3">Hora</th>
+                        <th class="px-4 py-3 text-right">Opciones</th>
+                      </tr>
+                    </thead>
+                    <tbody id="attendance-table-body" class="divide-y divide-slate-100 text-slate-700"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB-VISTA: REPORTE DE EVALUACIÓN (CALIFICACIONES SIN DECIMALES) -->
+        <div id="m-view-calificaciones" class="space-y-6 hidden animate-in fade-in duration-150">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200/80 pb-4">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">Reporte de Evaluación</h2>
+              <p class="text-xs text-slate-500">Configura la plantilla de materias y asienta las calificaciones oficiales (promedio entero sin decimales).</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="openMateriasModal()" class="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer">
+                <i data-lucide="settings" class="w-4 h-4 text-indigo-600"></i>
+                <span>⚙️ Configurar Materias</span>
+              </button>
+              <button onclick="saveAllGrades()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer">
+                <i data-lucide="save" class="w-4 h-4"></i>
+                <span>Guardar Reporte</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2 overflow-x-auto py-1">
+              <span class="text-xs font-bold text-slate-700 uppercase tracking-wider shrink-0">Materias Evaluadas:</span>
+              <div id="active-materias-badges" class="flex flex-wrap gap-1.5"></div>
+            </div>
+            <span class="text-[11px] font-semibold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-lg border border-brand-100">Escala de 5 a 10 (Promedio Entero)</span>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs min-w-[650px]">
+                <thead id="dynamic-grades-thead" class="bg-slate-50 text-slate-600 uppercase font-bold border-b border-slate-200/60"></thead>
+                <tbody id="dynamic-grades-tbody" class="divide-y divide-slate-100 text-slate-700"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB-VISTA: PROYECTOS -->
+        <div id="m-view-proyectos" class="space-y-6 hidden animate-in fade-in duration-150">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200/80 pb-4">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">Proyectos Escolares</h2>
+              <p class="text-xs text-slate-500">Planifica y evalúa proyectos integradores asignando Campos Formativos.</p>
+            </div>
+            <button onclick="openNewProjectModal()" class="px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 shadow-xs transition-all cursor-pointer self-start sm:self-auto">
+              <i data-lucide="plus-circle" class="w-4 h-4"></i>
+              <span>Nuevo Proyecto</span>
+            </button>
+          </div>
+          <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+        </div>
+
+        <!-- SUB-VISTA: TAREAS -->
+        <div id="m-view-tareas" class="space-y-6 hidden animate-in fade-in duration-150">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200/80 pb-4">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">Tareas y Asignaciones</h2>
+              <p class="text-xs text-slate-500">Asigna tareas escolares para la casa vinculando Campos Formativos y fechas de entrega.</p>
+            </div>
+            <button onclick="openNewTareaModal()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 shadow-xs transition-all cursor-pointer self-start sm:self-auto">
+              <i data-lucide="plus-circle" class="w-4 h-4"></i>
+              <span>Nueva Tarea</span>
+            </button>
+          </div>
+          <div id="tareas-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+        </div>
+
+        <!-- NUEVA SUB-VISTA: MENSAJES (BANDEJA 2 COLUMNAS ESTILO CORREO) -->
+        <div id="m-view-mensajes" class="space-y-6 hidden animate-in fade-in duration-150">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200/80 pb-4">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">Bandeja de Mensajes Asíncronos</h2>
+              <p class="text-xs text-slate-500">Comunicación directa con padres de familia, justificación de faltas y dudas académicas.</p>
+            </div>
+            <span id="teacher-inbox-stats" class="text-xs font-semibold px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-xl border border-indigo-200 self-start sm:self-auto">
+              2 Conversaciones
+            </span>
+          </div>
+
+          <!-- Layout 2 Columnas de Mensajería -->
+          <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col lg:flex-row min-h-[560px]">
+            
+            <!-- Columna Izquierda: Lista de Mensajes Recibidos -->
+            <div class="w-full lg:w-80 border-b lg:border-b-0 lg:border-r border-slate-200/80 flex flex-col shrink-0 bg-slate-50/40">
+              <div class="p-3.5 border-b border-slate-200/80 bg-white">
+                <div class="relative">
+                  <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                  <input type="text" id="search-messages-input" oninput="filterTeacherMessages()" placeholder="Buscar por alumno o asunto..." class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                </div>
+              </div>
+
+              <!-- Lista de Conversaciones -->
+              <div id="teacher-threads-list" class="flex-1 overflow-y-auto divide-y divide-slate-100 max-h-[220px] lg:max-h-none">
+                <!-- Hilos renderizados por JS -->
+              </div>
+            </div>
+
+            <!-- Columna Derecha: Panel de Lectura y Respuesta -->
+            <div class="flex-1 flex flex-col bg-white">
+              
+              <!-- Cabecera del Hilo Seleccionado -->
+              <div id="thread-header" class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between gap-3 bg-white shrink-0">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-700 flex items-center justify-center font-bold text-sm shrink-0" id="thread-student-avatar">
+                    S
+                  </div>
+                  <div class="min-w-0">
+                    <h3 id="thread-student-name" class="text-sm font-bold text-slate-900 truncate">Sofía Martínez Ruiz</h3>
+                    <p id="thread-tutor-info" class="text-xs text-slate-500 truncate">Tutor: Carmen Ruiz García</p>
+                  </div>
+                </div>
+                <div class="text-right shrink-0">
+                  <span id="thread-status-badge" class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    Al día
+                  </span>
+                  <p id="thread-last-date" class="text-[10px] text-slate-400 mt-0.5">24 Ago</p>
+                </div>
+              </div>
+
+              <!-- Área de Mensajes (Burbujas de Diálogo) -->
+              <div id="thread-messages-body" class="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 max-h-[340px] bg-slate-50/50">
+                <!-- Burbujas renderizadas por JS -->
+              </div>
+
+              <!-- Cuadro de Respuesta del Maestro -->
+              <div class="p-4 border-t border-slate-100 bg-white shrink-0">
+                <form onsubmit="handleTeacherSendReply(event)" class="space-y-2.5">
+                  <div class="relative">
+                    <textarea 
+                      id="teacher-reply-input" 
+                      rows="2" 
+                      required 
+                      placeholder="Escribe tu respuesta para el padre de familia..." 
+                      class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 resize-none"
+                    ></textarea>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-[11px] text-slate-400 hidden sm:inline">El padre de familia recibirá esta respuesta en su portal.</span>
+                    <button type="submit" class="ml-auto px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer">
+                      <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                      <span>Enviar Respuesta</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+        <!-- SUB-VISTA: REPORTES POR NIÑO -->
+        <div id="m-view-reportes" class="space-y-6 hidden animate-in fade-in duration-150">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200/80 pb-4">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">Módulo de Reportes por Niño</h2>
+              <p class="text-xs text-slate-500">Emite reportes de conducta, felicitaciones por mérito o citatorios a padres.</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Formulario Reporte -->
+            <div class="lg:col-span-5">
+              <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
+                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  <i data-lucide="file-plus" class="w-4 h-4 text-brand-600"></i>
+                  <span>Redactar Reporte</span>
+                </h3>
+
+                <form id="form-reporte" onsubmit="handleCreateReporte(event)" class="space-y-3.5">
+                  <div>
+                    <label for="reporte_alumno_uuid" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Seleccionar Alumno *</label>
+                    <select id="reporte_alumno_uuid" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600"></select>
+                  </div>
+
+                  <div>
+                    <label for="reporte_tipo" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Tipo de Reporte *</label>
+                    <select id="reporte_tipo" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600">
+                      <option value="Felicitación">🌟 Felicitación / Mérito Académico</option>
+                      <option value="Conducta">⚠️ Reporte de Conducta / Disciplina</option>
+                      <option value="Citatorio">📋 Citatorio a Padre de Familia</option>
+                      <option value="Aviso">📘 Aviso / Seguimiento General</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label for="reporte_titulo" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Título del Reporte *</label>
+                    <input type="text" id="reporte_titulo" required placeholder="Ej. Felicitación por proyecto" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                  </div>
+
+                  <div>
+                    <label for="reporte_desc" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Detalle / Observación *</label>
+                    <textarea id="reporte_desc" required rows="3" placeholder="Escribe el reporte para el padre de familia..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600"></textarea>
+                  </div>
+
+                  <button type="submit" class="w-full py-2.5 px-4 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                    <span>Emitir Reporte al Expediente</span>
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <!-- Lista Reportes -->
+            <div class="lg:col-span-7 space-y-4">
+              <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs flex items-center justify-between">
+                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  <i data-lucide="clipboard-list" class="w-4 h-4 text-brand-600"></i>
+                  <span>Historial de Reportes Emitidos</span>
+                </h3>
+                <span id="reportes-count-badge" class="text-xs font-bold bg-slate-100 text-slate-700 px-3 py-1 rounded-xl">0 Reportes</span>
+              </div>
+              <div id="reportes-list-container" class="space-y-3"></div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+
+    </div>
+
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 5. VISTA: PORTAL DE PADRES (CON CHAT DE MENSAJES AL MAESTRO) -->
+  <!-- ============================================================ -->
+  <main id="view-portal-padres" class="flex-1 max-w-4xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-6 hidden space-y-6 animate-in fade-in duration-150">
+    
+    <!-- Encabezado del Alumno -->
+    <div class="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-brand-600 text-white flex items-center justify-center font-extrabold text-xl shadow-md shrink-0">
+          <span id="p-avatar">S</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 id="p-nombre" class="text-lg sm:text-xl font-bold text-slate-900">Sofía Martínez Ruiz</h1>
+            <span class="px-2 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-800 rounded-full">Activo</span>
+          </div>
+          <p id="p-grupo-tutor" class="text-xs text-slate-500 mt-0.5">3er Grado Grupo B • Tutor: Carmen Ruiz García</p>
+          <p id="p-profesor" class="text-[11px] text-brand-600 font-semibold mt-0.5">Docente Titular: Prof. Carlos Mendoza</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 self-end sm:self-center">
+        <button onclick="window.print()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all">
+          <i data-lucide="printer" class="w-4 h-4"></i>
+          <span>Imprimir Reporte</span>
+        </button>
+        <button onclick="showView('view-landing')" class="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+          <span>Salir</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Módulos del Portal de Padres -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="print-parent-report">
+      
+      <!-- 1. ASISTENCIAS -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <i data-lucide="calendar-check-2" class="w-4 h-4 text-emerald-600"></i>
+            <span>Registro de Asistencias</span>
+          </h3>
+          <span id="p-asist-rate-badge" class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100">100%</span>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2.5 text-center">
+          <div class="bg-emerald-50/70 p-3 rounded-xl border border-emerald-100">
+            <span class="text-[10px] text-emerald-700 font-bold block">Presentes</span>
+            <strong id="p-asist-presentes" class="text-lg font-extrabold text-emerald-900">22</strong>
+          </div>
+          <div class="bg-amber-50/70 p-3 rounded-xl border border-amber-100">
+            <span class="text-[10px] text-amber-700 font-bold block">Retardos</span>
+            <strong id="p-asist-retardos" class="text-lg font-extrabold text-amber-900">1</strong>
+          </div>
+          <div class="bg-rose-50/70 p-3 rounded-xl border border-rose-100">
+            <span class="text-[10px] text-rose-700 font-bold block">Faltas</span>
+            <strong id="p-asist-faltas" class="text-lg font-extrabold text-rose-900">0</strong>
+          </div>
+        </div>
+
+        <div class="p-3 bg-slate-50 rounded-xl text-xs text-slate-600 flex items-center justify-between">
+          <span>Estado de hoy:</span>
+          <strong id="p-asist-hoy-badge" class="text-emerald-700 font-bold">Presente</strong>
+        </div>
+      </div>
+
+      <!-- 2. REPORTE DE EVALUACIÓN (SIN DECIMALES) -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <i data-lucide="award" class="w-4 h-4 text-brand-600"></i>
+            <span>Reporte de Evaluación</span>
+          </h3>
+          <span id="p-promedio-general" class="text-xs font-bold text-brand-700 bg-brand-50 px-2.5 py-0.5 rounded-full border border-brand-100">Promedio: 9</span>
+        </div>
+
+        <div id="p-materias-list" class="space-y-2 text-xs"></div>
+      </div>
+
+      <!-- 3. PROYECTOS ESCOLARES -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <i data-lucide="folder-kanban" class="w-4 h-4 text-indigo-600"></i>
+            <span>Proyectos</span>
+          </h3>
+          <span class="text-xs font-semibold text-slate-500">Campos Formativos</span>
+        </div>
+
+        <div id="p-proyectos-list" class="space-y-2.5 text-xs"></div>
+      </div>
+
+      <!-- 4. TAREAS Y ASIGNACIONES -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <i data-lucide="check-square" class="w-4 h-4 text-emerald-600"></i>
+            <span>Tareas</span>
+          </h3>
+          <span class="text-xs font-semibold text-slate-500">Actividades en Casa</span>
+        </div>
+
+        <div id="p-tareas-list" class="space-y-2.5 text-xs"></div>
+      </div>
+
+      <!-- 5. NUEVA SECCIÓN: MENSAJES AL MAESTRO (CHAT ASÍNCRONO FAMILIAS) -->
+      <div class="md:col-span-2 bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-xs space-y-5">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <i data-lucide="message-square" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-slate-900">Mensajes al Maestro</h3>
+              <p class="text-[11px] text-slate-400">Canal directo para avisos, justificantes y consultas académicas.</p>
+            </div>
+          </div>
+          <span class="px-2.5 py-0.5 text-[10px] font-bold bg-indigo-50 text-indigo-700 rounded-full border border-indigo-200">
+            Asíncrono
+          </span>
+        </div>
+
+        <!-- Formulario para Enviar Nuevo Mensaje -->
+        <form onsubmit="handleParentSendMessage(event)" class="bg-slate-50/70 p-4 rounded-2xl border border-slate-200/70 space-y-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label for="p_msg_asunto" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Motivo / Asunto *</label>
+              <select id="p_msg_asunto" required class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600">
+                <option value="Justificante de Inasistencia">📋 Justificante de Inasistencia / Salud</option>
+                <option value="Duda sobre Tarea o Proyecto">📚 Duda sobre Tarea o Proyecto</option>
+                <option value="Consulta sobre Calificación">📊 Consulta sobre Calificación</option>
+                <option value="Solicitud de Cita / Entrevista">🤝 Solicitud de Cita / Entrevista</option>
+                <option value="Aviso General">💬 Aviso General</option>
+              </select>
+            </div>
+            <div>
+              <label for="p_msg_tutor_name" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Nombre del Tutor</label>
+              <input type="text" id="p_msg_tutor_name" readonly class="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs text-slate-600 cursor-not-allowed" />
+            </div>
+          </div>
+
+          <div>
+            <label for="p_msg_texto" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Mensaje para el Docente *</label>
+            <textarea id="p_msg_texto" required rows="2" placeholder="Escribe tu mensaje o motivo detallado..." class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 resize-none"></textarea>
+          </div>
+
+          <div class="flex justify-end">
+            <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer">
+              <i data-lucide="send" class="w-3.5 h-3.5"></i>
+              <span>Enviar Mensaje al Maestro</span>
+            </button>
+          </div>
+        </form>
+
+        <!-- Historial Visual de Mensajes (Burbujas tipo Chat / Tickets) -->
+        <div class="space-y-3">
+          <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Historial de Comunicación</h4>
+          <div id="parent-chat-history" class="space-y-3 max-h-[320px] overflow-y-auto pr-1">
+            <!-- Conversaciones renderizadas por JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. REPORTES Y AVISOS INDIVIDUALES -->
+      <div class="md:col-span-2 bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <i data-lucide="clipboard-check" class="w-4 h-4 text-amber-600"></i>
+            <span>Reportes & Avisos del Maestro</span>
+          </h3>
+          <span id="p-reportes-count" class="text-xs font-semibold text-slate-500">0 Registros</span>
+        </div>
+
+        <div id="p-reportes-list" class="space-y-2.5 text-xs"></div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ============================================================ -->
+  <!-- MODAL: ESCÁNER QR PARA PADRES (CÁMARA TRASERA FORZADA)       -->
+  <!-- ============================================================ -->
+  <div id="modal-parent-scanner" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-sm w-full overflow-hidden shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
+      
+      <div class="bg-gradient-to-r from-indigo-700 to-brand-700 px-5 py-4 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="camera" class="w-5 h-5 text-amber-300"></i>
+          <span class="font-bold text-sm">Escanear Credencial QR</span>
+        </div>
+        <button onclick="toggleParentScannerModal()" class="text-white/80 hover:text-white p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-5 text-center space-y-4">
+        <div class="flex items-center justify-between">
+          <p class="text-xs text-slate-500 text-left">Apunta al código QR de la credencial escolar.</p>
+          <span class="text-[10px] font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200 shrink-0">
+            📷 Cámara Trasera
+          </span>
+        </div>
+        
+        <div class="relative bg-slate-900 rounded-2xl overflow-hidden min-h-[220px] flex items-center justify-center p-2 text-white border border-slate-800">
+          <div id="parent-qr-reader" class="w-full"></div>
+          <div id="parent-scanner-placeholder" class="flex flex-col items-center gap-2 py-6">
+            <i data-lucide="scan-line" class="w-10 h-10 text-brand-400 animate-pulse"></i>
+            <p class="text-xs text-slate-300">Iniciando cámara trasera...</p>
+          </div>
+        </div>
+
+        <button onclick="toggleParentScannerModal()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">
+          Cerrar Cámara
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIGURAR MATERIAS DINÁMICAS -->
+  <div id="modal-materias" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-100">
+      
+      <div class="bg-gradient-to-r from-indigo-700 to-brand-700 px-6 py-4 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="book-open" class="w-5 h-5 text-amber-300"></i>
+          <span class="font-bold text-sm">Configuración de Materias (Plantilla)</span>
+        </div>
+        <button onclick="closeMateriasModal()" class="text-white/80 hover:text-white p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-5">
+        <p class="text-xs text-slate-500">
+          Agrega o elimina las materias del Reporte de Evaluación. Esta plantilla se aplica automáticamente a todos los alumnos.
+        </p>
+
+        <form onsubmit="handleAddMateria(event)" class="flex gap-2">
+          <input type="text" id="new-materia-name" required placeholder="Nombre de la materia (ej. Robótica, Inglés...)" class="flex-1 px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+          <button type="submit" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold flex items-center gap-1 shrink-0 cursor-pointer">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Agregar</span>
+          </button>
+        </form>
+
+        <div class="border border-slate-200 rounded-2xl overflow-hidden divide-y divide-slate-100 max-h-60 overflow-y-auto" id="materias-modal-list"></div>
+
+        <div class="flex justify-end pt-2">
+          <button onclick="closeMateriasModal()" class="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold cursor-pointer">
+            Listo, Aplicar a Reportes
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: CREDENCIAL ESCOLAR QR -->
+  <div id="modal-qr-credential" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-100">
+      
+      <div class="bg-gradient-to-r from-brand-700 to-indigo-700 px-6 py-4 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="badge-check" class="w-5 h-5 text-amber-300"></i>
+          <span class="font-bold text-sm">Credencial Escolar Digital</span>
+        </div>
+        <button onclick="closeQrModal()" class="text-white/80 hover:text-white p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div id="print-modal-area" class="p-6 text-center space-y-4">
+        <div class="inline-flex items-center gap-2 px-3 py-1 bg-brand-50 text-brand-800 rounded-full text-[11px] font-bold border border-brand-200">
+          <i data-lucide="graduation-cap" class="w-3.5 h-3.5"></i>
+          <span id="qr-modal-school-name">Lumni • Escuela</span>
+        </div>
+
+        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 inline-block shadow-inner mx-auto">
+          <div id="modal-qrcode-target" class="w-[150px] h-[150px] flex items-center justify-center mx-auto"></div>
+          <span class="text-[10px] font-mono text-slate-400 block mt-2">CÓDIGO QR DE ASISTENCIA</span>
+        </div>
+
+        <div>
+          <h3 id="qr-modal-student-name" class="text-lg font-bold text-slate-900 leading-tight">Sofía Martínez Ruiz</h3>
+          <p id="qr-modal-student-group" class="text-xs text-brand-600 font-semibold mt-0.5">3er Grado Grupo B</p>
+          <p id="qr-modal-student-tutor" class="text-xs text-slate-500 mt-1">Tutor: Carmen Ruiz García</p>
+        </div>
+
+        <div class="bg-slate-100 py-1.5 px-3 rounded-xl border border-slate-200 font-mono text-[11px] text-slate-700 flex items-center justify-between">
+          <span>Código ID:</span>
+          <span id="qr-modal-uuid-txt" class="font-bold text-brand-700">alu-12345...</span>
+        </div>
+      </div>
+
+      <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-end gap-2">
+        <button onclick="window.print()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all">
+          <i data-lucide="printer" class="w-4 h-4"></i>
+          <span>Imprimir</span>
+        </button>
+        <button onclick="copyModalUuid()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all">
+          <i data-lucide="copy" class="w-4 h-4"></i>
+          <span>Copiar ID</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: EDITAR ALUMNO -->
+  <div id="modal-edit-alumno" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-100">
+      
+      <div class="bg-slate-900 px-6 py-4 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="edit-3" class="w-5 h-5 text-brand-400"></i>
+          <span class="font-bold text-sm">Editar Alumno</span>
+        </div>
+        <button onclick="closeEditModal()" class="text-slate-400 hover:text-white p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="form-edit-alumno" onsubmit="handleSaveEditAlumno(event)" class="p-6 space-y-4 text-left">
+        <input type="hidden" id="edit-alumno-uuid" />
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Nombre Completo</label>
+          <input type="text" id="edit-alumno-nombre" required class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Nombre del Tutor</label>
+          <input type="text" id="edit-alumno-tutor" required class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Teléfono</label>
+          <input type="tel" id="edit-alumno-tel" required class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeEditModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold">
+            Cancelar
+          </button>
+          <button type="submit" class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs">
+            <i data-lucide="check" class="w-4 h-4"></i>
+            <span>Guardar</span>
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- MODAL: CREAR PROYECTO -->
+  <div id="modal-new-project" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-100">
+      
+      <div class="bg-slate-900 px-6 py-4 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="folder-plus" class="w-5 h-5 text-brand-400"></i>
+          <span class="font-bold text-sm">Nuevo Proyecto Escolar</span>
+        </div>
+        <button onclick="closeNewProjectModal()" class="text-slate-400 hover:text-white p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="form-new-project" onsubmit="handleCreateProject(event)" class="p-6 space-y-4 text-left">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Título del Proyecto *</label>
+          <input type="text" id="proj-title" required placeholder="Ej. Feria de Ciencias: Ecosistemas" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">Campos Formativos Articulados *</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50 p-3 rounded-2xl border border-slate-200 text-xs">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" name="proj_campo" value="Lenguajes" class="rounded text-brand-600 focus:ring-brand-500" checked />
+              <span class="font-semibold text-slate-800">🗣️ Lenguajes</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" name="proj_campo" value="Saberes y Pensamiento Científico" class="rounded text-brand-600 focus:ring-brand-500" checked />
+              <span class="font-semibold text-slate-800">🔬 Saberes y Pensamiento</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" name="proj_campo" value="Ética, Naturaleza y Sociedades" class="rounded text-brand-600 focus:ring-brand-500" />
+              <span class="font-semibold text-slate-800">🌍 Ética y Sociedades</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" name="proj_campo" value="De lo Humano y lo Comunitario" class="rounded text-brand-600 focus:ring-brand-500" />
+              <span class="font-semibold text-slate-800">🤝 De lo Humano y Comunitario</span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Fecha de Entrega *</label>
+          <input type="date" id="proj-date" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Instrucciones</label>
+          <textarea id="proj-desc" rows="2" placeholder="Criterios y rúbrica..." class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600"></textarea>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeNewProjectModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold">
+            Cancelar
+          </button>
+          <button type="submit" class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Publicar Proyecto</span>
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- MODAL: CREAR TAREA -->
+  <div id="modal-new-tarea" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-100">
+      
+      <div class="bg-slate-900 px-6 py-4 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="check-square" class="w-5 h-5 text-indigo-400"></i>
+          <span class="font-bold text-sm">Nueva Tarea Escolar</span>
+        </div>
+        <button onclick="closeNewTareaModal()" class="text-slate-400 hover:text-white p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="form-new-tarea" onsubmit="handleCreateTarea(event)" class="p-6 space-y-4 text-left">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Título de la Tarea *</label>
+          <input type="text" id="tarea-title" required placeholder="Ej. Ejercicios de Fracciones y Lectura Comprensiva" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600" />
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">Campos Formativos Articulados *</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50 p-3 rounded-2xl border border-slate-200 text-xs">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" name="tarea_campo" value="Lenguajes" class="rounded text-indigo-600 focus:ring-indigo-500" checked />
+              <span class="font-semibold text-slate-800">🗣️ Lenguajes</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" name="tarea_campo" value="Saberes y Pensamiento Científico" class="rounded text-indigo-600 focus:ring-indigo-500" checked />
+              <span class="font-semibold text-slate-800">🔬 Saberes y Pensamiento</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" name="tarea_campo" value="Ética, Naturaleza y Sociedades" class="rounded text-indigo-600 focus:ring-indigo-500" />
+              <span class="font-semibold text-slate-800">🌍 Ética y Sociedades</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" name="tarea_campo" value="De lo Humano y lo Comunitario" class="rounded text-indigo-600 focus:ring-indigo-500" />
+              <span class="font-semibold text-slate-800">🤝 De lo Humano y Comunitario</span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Fecha de Entrega *</label>
+          <input type="date" id="tarea-date" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600" />
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Instrucciones para Casa</label>
+          <textarea id="tarea-desc" rows="2" placeholder="Páginas del libro o ejercicios a realizar..." class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600"></textarea>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeNewTareaModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold">
+            Cancelar
+          </button>
+          <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Publicar Tarea</span>
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- Footer en Vistas Sin Sidebar -->
+  <footer id="global-footer" class="bg-white border-t border-slate-200/80 py-4 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+      <div class="flex items-center gap-2">
+        <span class="font-extrabold text-slate-800">Lumni</span>
+        <span>• Plataforma Escolar Inteligente</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <span>Capacidad Máxima: <strong class="text-brand-600">50 Alumnos</strong></span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================================================ -->
+  <!-- JAVASCRIPT: LÓGICA DE ROLES, CÁMARA TRASERA Y MENSAJERÍA     -->
+  <!-- ============================================================ -->
+  <script>
+    // ==========================================================
+    // 1. ESTADO GLOBAL & PERSISTENCIA
+    // ==========================================================
+    const MAX_ALUMNOS = 50;
+    let isCameraActive = false;
+    let html5QrScannerInstance = null;
+    let isParentCameraActive = false;
+    let parentHtml5QrScannerInstance = null;
+    let currentActiveModalUuid = '';
+    let selectedThreadId = 1;
+    let currentParentStudent = null;
+
+    // Datos del Maestro
+    let maestroState = JSON.parse(localStorage.getItem('lumni_maestro')) || {
+      nombre: 'Prof. Carlos Mendoza Morales',
+      correo: 'carlos.mendoza@colegio.edu.mx',
+      grupo: '3er Grado Grupo B'
+    };
+
+    // Plantilla de Materias Dinámicas
+    let materiasState = JSON.parse(localStorage.getItem('lumni_materias')) || [
+      'Español',
+      'Matemáticas',
+      'Ciencias Naturales',
+      'Historia'
+    ];
+
+    // Alumnos Registrados
+    let alumnosState = JSON.parse(localStorage.getItem('lumni_alumnos')) || [
+      {
+        uuid: 'alu-9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d',
+        nombre: 'Sofía Martínez Ruiz',
+        tutor: 'Carmen Ruiz García',
+        telefono: '+52 55 9876 5432',
+        asistenciaHoy: 'presente',
+        horaAsistencia: '08:02 AM',
+        asistenciasTotales: { presentes: 22, retardos: 1, faltas: 0 },
+        calificaciones: { 'Español': 9.5, 'Matemáticas': 9.0, 'Ciencias Naturales': 10.0, 'Historia': 9.5 }
+      },
+      {
+        uuid: 'alu-1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d',
+        nombre: 'Mateo Hernández Vega',
+        tutor: 'Roberto Hernández',
+        telefono: '+52 55 4321 8765',
+        asistenciaHoy: 'presente',
+        horaAsistencia: '08:15 AM',
+        asistenciasTotales: { presentes: 20, retardos: 2, faltas: 1 },
+        calificaciones: { 'Español': 8.8, 'Matemáticas': 8.5, 'Ciencias Naturales': 9.0, 'Historia': 8.5 }
+      },
+      {
+        uuid: 'alu-5f6e7d8c-9b0a-1a2b-3c4d-5e6f7a8b9c0d',
+        nombre: 'Valentina López Cruz',
+        tutor: 'Laura Cruz Mendoza',
+        telefono: '+52 55 6789 0123',
+        asistenciaHoy: 'pendiente',
+        horaAsistencia: '--:--',
+        asistenciasTotales: { presentes: 19, retardos: 0, faltas: 2 },
+        calificaciones: { 'Español': 9.2, 'Matemáticas': 9.0, 'Ciencias Naturales': 9.5, 'Historia': 9.0 }
+      }
+    ];
+
+    // Proyectos Escolares
+    let proyectosState = JSON.parse(localStorage.getItem('lumni_proyectos')) || [
+      {
+        id: 1,
+        titulo: 'Feria de Ciencias: Ecosistemas',
+        campos: ['Saberes y Pensamiento Científico', 'Lenguajes'],
+        fecha: '2026-09-15',
+        desc: 'Elaboración de maqueta interactiva y exposición oral sobre biomas.',
+        calificaciones: {
+          'alu-9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d': 10,
+          'alu-1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d': 9
+        }
+      }
+    ];
+
+    // Tareas Escolares
+    let tareasState = JSON.parse(localStorage.getItem('lumni_tareas')) || [
+      {
+        id: 101,
+        titulo: 'Antología de Cuentos y Poemas',
+        campos: ['Lenguajes'],
+        fecha: '2026-09-28',
+        desc: 'Redacción de textos creativos y análisis de figuras literarias.',
+        calificaciones: {
+          'alu-9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d': 10,
+          'alu-1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d': 9
+        }
+      },
+      {
+        id: 102,
+        titulo: 'Resolución de Problemas con Fracciones',
+        campos: ['Saberes y Pensamiento Científico'],
+        fecha: '2026-09-30',
+        desc: 'Páginas 45 a 48 del libro de matemáticas aplicadas.',
+        calificaciones: {
+          'alu-9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d': 9,
+          'alu-1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d': 8
+        }
+      }
+    ];
+
+    // Mensajería Asíncrona (Hilos y Mensajes)
+    let mensajesState = JSON.parse(localStorage.getItem('lumni_mensajes')) || [
+      {
+        id: 1,
+        alumnoUuid: 'alu-9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d',
+        asunto: 'Justificante de Inasistencia',
+        leidoPorMaestro: false,
+        mensajes: [
+          {
+            remitente: 'padre',
+            autor: 'Carmen Ruiz García (Tutor)',
+            texto: 'Estimado profesor Carlos, le informo que Sofía tuvo consulta médica por un cuadro gripal el día de ayer. Ya se encuentra recuperada para reintegrarse a clases.',
+            fecha: '2026-08-24 08:30 AM'
+          },
+          {
+            remitente: 'maestro',
+            autor: 'Prof. Carlos Mendoza',
+            texto: 'Hola Sra. Carmen, enterado. Ya justifiqué la falta en el sistema. Que tenga excelente día.',
+            fecha: '2026-08-24 09:15 AM'
+          }
+        ]
+      },
+      {
+        id: 2,
+        alumnoUuid: 'alu-1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d',
+        asunto: 'Duda sobre Tarea o Proyecto',
+        leidoPorMaestro: true,
+        mensajes: [
+          {
+            remitente: 'padre',
+            autor: 'Roberto Hernández (Tutor)',
+            texto: 'Profesor, ¿los materiales para la maqueta de ciencias son libres o se requiere algún formato en especial?',
+            fecha: '2026-08-23 04:20 PM'
+          },
+          {
+            remitente: 'maestro',
+            autor: 'Prof. Carlos Mendoza',
+            texto: 'Buenas tardes Sr. Roberto. Son libres, de preferencia material reciclado como cartón y plastilina.',
+            fecha: '2026-08-23 05:00 PM'
+          }
+        ]
+      }
+    ];
+
+    // Reportes Individuales
+    let reportesState = JSON.parse(localStorage.getItem('lumni_reportes')) || [
+      {
+        id: 201,
+        alumnoUuid: 'alu-9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d',
+        tipo: 'Felicitación',
+        titulo: 'Excelente Liderazgo en Feria de Ciencias',
+        desc: 'Sofía demostró una sobresaliente capacidad de organización y apoyo con sus compañeros.',
+        fecha: '2026-08-20'
+      }
+    ];
+
+    function saveState() {
+      localStorage.setItem('lumni_maestro', JSON.stringify(maestroState));
+      localStorage.setItem('lumni_materias', JSON.stringify(materiasState));
+      localStorage.setItem('lumni_alumnos', JSON.stringify(alumnosState));
+      localStorage.setItem('lumni_proyectos', JSON.stringify(proyectosState));
+      localStorage.setItem('lumni_tareas', JSON.stringify(tareasState));
+      localStorage.setItem('lumni_mensajes', JSON.stringify(mensajesState));
+      localStorage.setItem('lumni_reportes', JSON.stringify(reportesState));
+    }
+
+    // ==========================================================
+    // 2. ENRUTADOR Y CONTROL DE VISTAS (SPA)
+    // ==========================================================
+    const MAIN_VIEWS = [
+      'view-landing',
+      'view-auth-maestro',
+      'view-auth-padre',
+      'view-portal-maestro',
+      'view-portal-padres'
+    ];
+
+    function showView(targetViewId) {
+      MAIN_VIEWS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
+
+      const targetEl = document.getElementById(targetViewId);
+      if (targetEl) targetEl.classList.remove('hidden');
+
+      const globalFooter = document.getElementById('global-footer');
+      if (globalFooter) {
+        if (targetViewId === 'view-portal-maestro') {
+          globalFooter.classList.add('hidden');
+        } else {
+          globalFooter.classList.remove('hidden');
+        }
+      }
+
+      if (isCameraActive) stopQrCamera();
+      if (isParentCameraActive) stopParentQrCamera();
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function logout() {
+      showView('view-landing');
+      showToast("Sesión cerrada", "info");
+    }
+
+    // Sidebar Móvil
+    function toggleTeacherSidebar() {
+      const sidebar = document.getElementById('teacher-sidebar');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      
+      const isOpen = !sidebar.classList.contains('-translate-x-full');
+      if (isOpen) {
+        sidebar.classList.add('-translate-x-full');
+        backdrop.classList.add('hidden');
+      } else {
+        sidebar.classList.remove('-translate-x-full');
+        backdrop.classList.remove('hidden');
+      }
+    }
+
+    function closeMobileSidebarIfOpen() {
+      if (window.innerWidth < 1024) {
+        const sidebar = document.getElementById('teacher-sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
+        sidebar.classList.add('-translate-x-full');
+        backdrop.classList.add('hidden');
+      }
+    }
+
+    // ==========================================================
+    // 3. FLUJO MAESTRO: LOGIN/REGISTRO & DASHBOARD
+    // ==========================================================
+    function toggleTeacherAuthMode(mode) {
+      const formLogin = document.getElementById('form-teacher-login');
+      const formRegister = document.getElementById('form-teacher-register');
+      const btnLogin = document.getElementById('tab-btn-login');
+      const btnRegister = document.getElementById('tab-btn-register');
+
+      if (mode === 'login') {
+        formLogin.classList.remove('hidden');
+        formRegister.classList.add('hidden');
+        btnLogin.className = "flex-1 py-2 rounded-xl text-xs font-bold bg-white text-slate-900 shadow-xs transition-all cursor-pointer";
+        btnRegister.className = "flex-1 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-900 transition-all cursor-pointer";
+      } else {
+        formLogin.classList.add('hidden');
+        formRegister.classList.remove('hidden');
+        btnRegister.className = "flex-1 py-2 rounded-xl text-xs font-bold bg-white text-slate-900 shadow-xs transition-all cursor-pointer";
+        btnLogin.className = "flex-1 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-900 transition-all cursor-pointer";
+      }
+      lucide.createIcons();
+    }
+
+    function handleTeacherLoginSubmit(e) {
+      e.preventDefault();
+      openTeacherDashboard();
+      showToast(`¡Bienvenido de nuevo, ${maestroState.nombre}!`, "success");
+    }
+
+    function handleTeacherRegisterSubmit(e) {
+      e.preventDefault();
+      maestroState.nombre = document.getElementById('reg_nombre').value.trim();
+      maestroState.correo = document.getElementById('reg_correo').value.trim();
+      maestroState.grupo = document.getElementById('reg_grupo').value.trim();
+      saveState();
+
+      openTeacherDashboard();
+      showToast(`¡Registro completado! Bienvenido(a), ${maestroState.nombre}`, "success");
+    }
+
+    function openTeacherDashboard() {
+      showView('view-portal-maestro');
+      switchTeacherTab('dashboard');
+      updateTeacherViews();
+    }
+
+    const TEACHER_TABS = [
+      { id: 'dashboard', title: 'Panel Principal', subtitle: 'Visión general del ciclo escolar' },
+      { id: 'alumnos', title: 'Alumnos & QR', subtitle: 'Gestión y credenciales digitales de acceso' },
+      { id: 'asistencias', title: 'Control de Asistencias', subtitle: 'Pase de lista con cámara trasera forzada' },
+      { id: 'calificaciones', title: 'Reporte de Evaluación', subtitle: 'Plantilla de materias y promedios oficiales' },
+      { id: 'proyectos', title: 'Proyectos Escolares', subtitle: 'Actividades articuladas con Campos Formativos' },
+      { id: 'tareas', title: 'Tareas y Asignaciones', subtitle: 'Ejercicios para casa con Campos Formativos' },
+      { id: 'mensajes', title: 'Bandeja de Mensajes', subtitle: 'Comunicación asíncrona directa con familias' },
+      { id: 'reportes', title: 'Módulo de Reportes', subtitle: 'Seguimiento, méritos y citatorios individuales' }
+    ];
+
+    function switchTeacherTab(tabName) {
+      TEACHER_TABS.forEach(t => {
+        const viewEl = document.getElementById(`m-view-${t.id}`);
+        const btnEl = document.getElementById(`sidebar-tab-${t.id}`);
+        
+        if (viewEl) {
+          if (t.id === tabName) {
+            viewEl.classList.remove('hidden');
+            if (btnEl) {
+              btnEl.className = "w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-bold bg-brand-50 text-brand-700 group";
+              const icon = btnEl.querySelector('i');
+              if (icon) icon.className = "w-5 h-5 shrink-0 text-brand-600";
+              const span = btnEl.querySelector('span:not(#sidebar-unread-badge)');
+              if (span) span.className = "whitespace-nowrap font-medium text-sm text-left flex-1";
+            }
+
+            document.getElementById('topbar-page-title').textContent = t.title;
+            document.getElementById('topbar-page-subtitle').textContent = t.subtitle;
+          } else {
+            viewEl.classList.add('hidden');
+            if (btnEl) {
+              btnEl.className = "w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 hover:text-brand-700 hover:bg-brand-50 group";
+              const icon = btnEl.querySelector('i');
+              if (icon) icon.className = "w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600";
+              const span = btnEl.querySelector('span:not(#sidebar-unread-badge)');
+              if (span) span.className = "whitespace-nowrap font-medium text-sm text-left flex-1";
+            }
+          }
+        }
+      });
+
+      if (tabName === 'mensajes') {
+        renderTeacherMessagesThreads();
+      }
+
+      if (tabName !== 'asistencias' && isCameraActive) stopQrCamera();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      lucide.createIcons();
+    }
+
+    // ==========================================================
+    // 4. FLUJO PADRE: ACCESO QR & VISTA INDEPENDIENTE
+    // ==========================================================
+    function handleParentSearchSubmit() {
+      const input = document.getElementById('padre_search_input');
+      const val = input.value.trim();
+      if (!val) {
+        showToast("Por favor ingresa el Código ID del alumno.", "error");
+        return;
+      }
+      openParentPortalByUuid(val);
+    }
+
+    function openParentPortalByUuid(uuidQuery) {
+      const q = uuidQuery.toLowerCase().trim();
+      const alumno = alumnosState.find(a => a.uuid.toLowerCase() === q || a.uuid.toLowerCase().includes(q));
+
+      if (!alumno) {
+        showToast("Código ID no válido. Verifica la credencial del alumno.", "error");
+        return;
+      }
+
+      if (isParentCameraActive) stopParentQrCamera();
+
+      currentParentStudent = alumno;
+      renderParentPortal(alumno);
+      showView('view-portal-padres');
+      showToast(`Reporte de Evaluación de ${alumno.nombre} cargado`, "success");
+    }
+
+    function renderParentPortal(alumno) {
+      // 1. Datos del Alumno
+      document.getElementById('p-avatar').textContent = alumno.nombre.charAt(0).toUpperCase();
+      document.getElementById('p-nombre').textContent = alumno.nombre;
+      document.getElementById('p-grupo-tutor').textContent = `${maestroState.grupo} • Tutor: ${alumno.tutor}`;
+      document.getElementById('p-profesor').textContent = `Docente Titular: ${maestroState.nombre}`;
+      document.getElementById('p_msg_tutor_name').value = alumno.tutor;
+
+      // 2. Asistencias
+      const att = alumno.asistenciasTotales || { presentes: 22, retardos: 1, faltas: 0 };
+      const total = (att.presentes + att.retardos + att.faltas) || 1;
+      const rate = Math.round(((att.presentes + (att.retardos * 0.5)) / total) * 100);
+
+      document.getElementById('p-asist-presentes').textContent = att.presentes;
+      document.getElementById('p-asist-retardos').textContent = att.retardos;
+      document.getElementById('p-asist-faltas').textContent = att.faltas;
+      document.getElementById('p-asist-rate-badge').textContent = `${rate}%`;
+      document.getElementById('p-asist-hoy-badge').textContent = alumno.asistenciaHoy === 'presente' ? `Presente (${alumno.horaAsistencia})` : (alumno.asistenciaHoy === 'retardo' ? 'Retardo' : 'Pendiente / Falta');
+
+      // 3. Reporte de Evaluación (Redondeado Sin Decimales con Math.round)
+      const matContainer = document.getElementById('p-materias-list');
+      let sum = 0, count = 0;
+
+      matContainer.innerHTML = materiasState.map(m => {
+        const cal = (alumno.calificaciones && alumno.calificaciones[m] !== undefined) ? alumno.calificaciones[m] : 9.0;
+        sum += parseFloat(cal);
+        count++;
+        return `
+          <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+            <span class="font-bold text-slate-800">${m}</span>
+            <span class="px-2.5 py-1 bg-white rounded-lg border border-slate-200 font-extrabold text-brand-700 text-xs shadow-2xs">
+              ${cal}
+            </span>
+          </div>
+        `;
+      }).join('');
+
+      const avgRounded = count > 0 ? Math.round(sum / count) : 10;
+      document.getElementById('p-promedio-general').textContent = `Promedio General: ${avgRounded}`;
+
+      // 4. Proyectos Escolares
+      const projContainer = document.getElementById('p-proyectos-list');
+      if (proyectosState.length === 0) {
+        projContainer.innerHTML = '<p class="text-slate-400 text-center py-4">No hay proyectos activos asignados.</p>';
+      } else {
+        projContainer.innerHTML = proyectosState.map(p => {
+          const note = (p.calificaciones && p.calificaciones[alumno.uuid]) ? p.calificaciones[alumno.uuid] : 10;
+          const camposBadges = (p.campos || []).map(c => `
+            <span class="text-[9px] font-bold uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">${c}</span>
+          `).join(' ');
+
+          return `
+            <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-1.5">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex flex-wrap gap-1">${camposBadges}</div>
+                <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md shrink-0">Nota: ${note}</span>
+              </div>
+              <h4 class="font-bold text-slate-800 text-xs">${p.titulo}</h4>
+              <p class="text-[11px] text-slate-500">${p.desc}</p>
+              <div class="text-[10px] text-slate-400 flex items-center justify-between pt-1">
+                <span>Entrega: ${p.fecha}</span>
+                <span class="text-indigo-600 font-semibold">Proyecto Integrador</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // 5. Tareas Escolares
+      const tareasContainer = document.getElementById('p-tareas-list');
+      if (tareasState.length === 0) {
+        tareasContainer.innerHTML = '<p class="text-slate-400 text-center py-4">No hay tareas asignadas para casa.</p>';
+      } else {
+        tareasContainer.innerHTML = tareasState.map(t => {
+          const note = (t.calificaciones && t.calificaciones[alumno.uuid]) ? t.calificaciones[alumno.uuid] : 9;
+          const camposBadges = (t.campos || []).map(c => `
+            <span class="text-[9px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">${c}</span>
+          `).join(' ');
+
+          return `
+            <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-1.5">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex flex-wrap gap-1">${camposBadges}</div>
+                <span class="text-[11px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md shrink-0">Nota: ${note}</span>
+              </div>
+              <h4 class="font-bold text-slate-800 text-xs">${t.titulo}</h4>
+              <p class="text-[11px] text-slate-500">${t.desc}</p>
+              <div class="text-[10px] text-slate-400 flex items-center justify-between pt-1">
+                <span>Entrega: ${t.fecha}</span>
+                <span class="text-emerald-600 font-semibold">Tarea en Casa</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // 6. Mensajes y Tickets de este Alumno
+      renderParentChatHistory(alumno.uuid);
+
+      // 7. Reportes y Avisos
+      const repContainer = document.getElementById('p-reportes-list');
+      const studentReports = reportesState.filter(r => r.alumnoUuid === alumno.uuid);
+      document.getElementById('p-reportes-count').textContent = `${studentReports.length} Registros`;
+
+      if (studentReports.length === 0) {
+        repContainer.innerHTML = '<p class="text-slate-400 text-center py-4">Excelente: Sin reportes de conducta registrados.</p>';
+      } else {
+        repContainer.innerHTML = studentReports.map(r => `
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">${r.tipo}</span>
+              <span class="text-[10px] text-slate-400">${r.fecha}</span>
+            </div>
+            <h4 class="font-bold text-slate-800 text-xs">${r.titulo}</h4>
+            <p class="text-[11px] text-slate-600">${r.desc}</p>
+          </div>
+        `).join('');
+      }
+
+      lucide.createIcons();
+    }
+
+    // Modal Escáner QR de Padres
+    function toggleParentScannerModal() {
+      const modal = document.getElementById('modal-parent-scanner');
+      if (modal.classList.contains('hidden')) {
+        modal.classList.remove('hidden');
+        startParentQrCamera();
+      } else {
+        modal.classList.add('hidden');
+        stopParentQrCamera();
+      }
+      lucide.createIcons();
+    }
+
+    async function startParentQrCamera() {
+      isParentCameraActive = true;
+      const placeholder = document.getElementById('parent-scanner-placeholder');
+      placeholder.classList.add('hidden');
+
+      try {
+        parentHtml5QrScannerInstance = new Html5Qrcode("parent-qr-reader");
+        const scanConfig = { fps: 12, qrbox: { width: 200, height: 200 } };
+        const onScanSuccess = (decodedText) => {
+          toggleParentScannerModal();
+          openParentPortalByUuid(decodedText);
+        };
+
+        await startScannerForcingBackCamera(parentHtml5QrScannerInstance, scanConfig, onScanSuccess);
+      } catch (e) {
+        placeholder.classList.remove('hidden');
+        showToast("No se pudo iniciar la cámara trasera.", "error");
+        isParentCameraActive = false;
+      }
+    }
+
+    function stopParentQrCamera() {
+      if (parentHtml5QrScannerInstance) {
+        parentHtml5QrScannerInstance.stop().then(() => parentHtml5QrScannerInstance.clear()).catch(() => {});
+      }
+      isParentCameraActive = false;
+    }
+
+    function renderParentDemoChips() {
+      const container = document.getElementById('parent-auth-demo-chips');
+      if (!container) return;
+      container.innerHTML = alumnosState.slice(0, 3).map(a => `
+        <button onclick="openParentPortalByUuid('${a.uuid}')" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg font-bold text-[11px] transition-all cursor-pointer">
+          ${a.nombre.split(' ')[0]} (${a.uuid.substring(0, 8)}...)
+        </button>
+      `).join('');
+    }
+
+    // ==========================================================
+    // 5. MOTOR DE INICIO DE CÁMARA (FORZANDO CÁMARA TRASERA)
+    // ==========================================================
+    async function startScannerForcingBackCamera(scannerInstance, config, successCallback) {
+      try {
+        const devices = await Html5Qrcode.getCameras();
+        if (devices && devices.length > 0) {
+          const backCamera = devices.find(device => {
+            const label = (device.label || '').toLowerCase();
+            return label.includes('back') || 
+                   label.includes('rear') || 
+                   label.includes('trasera') || 
+                   label.includes('posterior') || 
+                   label.includes('ambiente') || 
+                   label.includes('0, facing back');
+          });
+
+          const targetDeviceId = backCamera 
+            ? backCamera.id 
+            : (devices.length > 1 ? devices[devices.length - 1].id : devices[0].id);
+
+          return await scannerInstance.start(
+            targetDeviceId,
+            config,
+            successCallback,
+            () => {}
+          );
+        }
+      } catch (err) {
+        console.warn("Enumeración de cámaras no disponible, aplicando constraints WebRTC:", err);
+      }
+
+      try {
+        return await scannerInstance.start(
+          { facingMode: { exact: "environment" } },
+          config,
+          successCallback,
+          () => {}
+        );
+      } catch (exactErr) {
+        return await scannerInstance.start(
+          { facingMode: "environment" },
+          config,
+          successCallback,
+          () => {}
+        );
+      }
+    }
+
+    // ==========================================================
+    // 6. ASISTENCIAS & ESCÁNER DOCENTE (CÁMARA TRASERA FORZADA)
+    // ==========================================================
+    function toggleQrCamera() {
+      if (isCameraActive) stopQrCamera();
+      else startQrCamera();
+    }
+
+    async function startQrCamera() {
+      const placeholder = document.getElementById('scanner-placeholder');
+      const btnText = document.getElementById('btn-camera-text');
+      placeholder.classList.add('hidden');
+      isCameraActive = true;
+      btnText.textContent = "Detener Cámara Trasera";
+
+      try {
+        html5QrScannerInstance = new Html5Qrcode("qr-reader");
+        const scanConfig = { fps: 12, qrbox: { width: 190, height: 190 } };
+        const onScanSuccess = (decodedText) => handleAttendanceScan(decodedText);
+
+        await startScannerForcingBackCamera(html5QrScannerInstance, scanConfig, onScanSuccess);
+      } catch (e) {
+        showToast("No se pudo iniciar la cámara trasera.", "error");
+        stopQrCamera();
+      }
+    }
+
+    function stopQrCamera() {
+      if (html5QrScannerInstance) {
+        html5QrScannerInstance.stop().then(() => html5QrScannerInstance.clear()).catch(() => {});
+      }
+      document.getElementById('scanner-placeholder').classList.remove('hidden');
+      document.getElementById('btn-camera-text').textContent = "Activar Cámara Trasera";
+      isCameraActive = false;
+    }
+
+    function handleManualScan() {
+      const input = document.getElementById('manual-scan-input');
+      const val = input.value.trim();
+      if (!val) return;
+      handleAttendanceScan(val);
+      input.value = '';
+    }
+
+    function handleAttendanceScan(scannedUuid) {
+      const a = alumnosState.find(x => x.uuid.toLowerCase() === scannedUuid.toLowerCase() || x.uuid.includes(scannedUuid));
+      if (!a) {
+        showToast("Código QR no reconocido en el grupo.", "error");
+        return;
+      }
+
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      a.asistenciaHoy = 'presente';
+      a.horaAsistencia = timeStr;
+      if (!a.asistenciasTotales) a.asistenciasTotales = { presentes: 0, retardos: 0, faltas: 0 };
+      a.asistenciasTotales.presentes += 1;
+
+      document.getElementById('last-scan-name').textContent = a.nombre;
+      document.getElementById('last-scan-meta').textContent = `Hora: ${timeStr} • A tiempo`;
+      document.getElementById('last-scan-feedback').classList.remove('hidden');
+
+      showToast(`Asistencia confirmada: ${a.nombre}`, "success");
+      updateTeacherViews();
+    }
+
+    function markAllAttendance(status) {
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      alumnosState.forEach(a => {
+        a.asistenciaHoy = status;
+        a.horaAsistencia = status === 'presente' ? timeStr : '--:--';
+      });
+      updateTeacherViews();
+      showToast("Todos marcados como presentes", "success");
+    }
+
+    function setAlumnoAttendance(uuid, status) {
+      const a = alumnosState.find(x => x.uuid === uuid);
+      if (!a) return;
+      a.asistenciaHoy = status;
+      a.horaAsistencia = status === 'presente' ? new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--';
+      updateTeacherViews();
+    }
+
+    function renderAttendanceTable() {
+      const tbody = document.getElementById('attendance-table-body');
+      if (alumnosState.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8 text-center text-slate-400">Sin alumnos.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = alumnosState.map(a => {
+        let badgeColor = 'bg-slate-100 text-slate-700';
+        if (a.asistenciaHoy === 'presente') badgeColor = 'bg-emerald-100 text-emerald-800 border border-emerald-200';
+        if (a.asistenciaHoy === 'falta') badgeColor = 'bg-rose-100 text-rose-800 border border-rose-200';
+        if (a.asistenciaHoy === 'retardo') badgeColor = 'bg-amber-100 text-amber-800 border border-amber-200';
+
+        return `
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="px-4 py-3 font-semibold text-slate-900">${a.nombre}</td>
+            <td class="px-4 py-3">
+              <span class="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${badgeColor}">
+                ${a.asistenciaHoy}
+              </span>
+            </td>
+            <td class="px-4 py-3 font-mono text-xs text-slate-500">${a.horaAsistencia}</td>
+            <td class="px-4 py-3 text-right space-x-1">
+              <button onclick="setAlumnoAttendance('${a.uuid}', 'presente')" title="Presente" class="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-xs font-bold">P</button>
+              <button onclick="setAlumnoAttendance('${a.uuid}', 'retardo')" title="Retardo" class="px-2 py-1 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg text-xs font-bold">R</button>
+              <button onclick="setAlumnoAttendance('${a.uuid}', 'falta')" title="Falta" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg text-xs font-bold">F</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // ==========================================================
+    // 7. SISTEMA DE MENSAJERÍA ASÍNCRONA (DOCENTE & FAMILIAS)
+    // ==========================================================
+    function renderTeacherMessagesThreads(filterQuery = '') {
+      const container = document.getElementById('teacher-threads-list');
+      const q = filterQuery.toLowerCase().trim();
+
+      const threads = mensajesState.filter(th => {
+        const a = alumnosState.find(x => x.uuid === th.alumnoUuid) || { nombre: 'Alumno', tutor: 'Tutor' };
+        return !q || a.nombre.toLowerCase().includes(q) || a.tutor.toLowerCase().includes(q) || th.asunto.toLowerCase().includes(q);
+      });
+
+      document.getElementById('teacher-inbox-stats').textContent = `${threads.length} Conversaciones`;
+
+      if (threads.length === 0) {
+        container.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">No hay mensajes que coincidan.</div>`;
+        return;
+      }
+
+      container.innerHTML = threads.map(th => {
+        const a = alumnosState.find(x => x.uuid === th.alumnoUuid) || { nombre: 'Alumno', tutor: 'Tutor' };
+        const lastMsg = th.mensajes[th.mensajes.length - 1] || { texto: '', fecha: '' };
+        const isSelected = th.id === selectedThreadId;
+        const isUnread = !th.leidoPorMaestro;
+
+        return `
+          <div 
+            onclick="selectTeacherThread(${th.id})" 
+            class="p-4 cursor-pointer transition-all ${isSelected ? 'bg-brand-50/80 border-l-4 border-brand-600' : 'hover:bg-slate-50'} ${isUnread ? 'bg-indigo-50/30 font-semibold' : ''}"
+          >
+            <div class="flex items-center justify-between mb-1">
+              <h4 class="text-xs font-bold text-slate-900 truncate">${a.nombre}</h4>
+              <span class="text-[10px] text-slate-400 shrink-0">${lastMsg.fecha.split(' ')[1] || ''}</span>
+            </div>
+            <div class="flex items-center justify-between gap-1 mb-1">
+              <span class="text-[11px] text-brand-700 font-semibold truncate">${th.asunto}</span>
+              ${isUnread ? '<span class="px-1.5 py-0.5 text-[9px] font-bold bg-brand-600 text-white rounded-md shrink-0">Nuevo</span>' : '<span class="text-[10px] text-slate-400 shrink-0">Leído</span>'}
+            </div>
+            <p class="text-[11px] text-slate-500 line-clamp-1">${lastMsg.texto}</p>
+          </div>
+        `;
+      }).join('');
+
+      renderTeacherSelectedThread();
+      updateUnreadBadges();
+      lucide.createIcons();
+    }
+
+    function selectTeacherThread(threadId) {
+      selectedThreadId = threadId;
+      const th = mensajesState.find(x => x.id === threadId);
+      if (th) {
+        th.leidoPorMaestro = true;
+        saveState();
+      }
+      renderTeacherMessagesThreads();
+    }
+
+    function renderTeacherSelectedThread() {
+      const th = mensajesState.find(x => x.id === selectedThreadId) || mensajesState[0];
+      if (!th) return;
+
+      const a = alumnosState.find(x => x.uuid === th.alumnoUuid) || { nombre: 'Alumno', tutor: 'Tutor' };
+      
+      document.getElementById('thread-student-avatar').textContent = a.nombre.charAt(0).toUpperCase();
+      document.getElementById('thread-student-name').textContent = a.nombre;
+      document.getElementById('thread-tutor-info').textContent = `Tutor: ${a.tutor} • ${th.asunto}`;
+      
+      const lastMsg = th.mensajes[th.mensajes.length - 1];
+      document.getElementById('thread-last-date').textContent = lastMsg ? lastMsg.fecha : 'Hoy';
+
+      const body = document.getElementById('thread-messages-body');
+      body.innerHTML = th.mensajes.map(m => {
+        const isMe = m.remitente === 'maestro';
+        return `
+          <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+            <div class="max-w-md ${isMe ? 'bg-brand-600 text-white rounded-2xl rounded-tr-xs' : 'bg-white text-slate-800 border border-slate-200/80 rounded-2xl rounded-tl-xs shadow-2xs'} p-3.5 space-y-1">
+              <div class="flex items-center justify-between gap-3 text-[10px] ${isMe ? 'text-brand-200' : 'text-slate-400'} font-bold">
+                <span>${m.autor}</span>
+                <span>${m.fecha}</span>
+              </div>
+              <p class="text-xs leading-relaxed whitespace-pre-wrap">${m.texto}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      body.scrollTop = body.scrollHeight;
+    }
+
+    function handleTeacherSendReply(e) {
+      e.preventDefault();
+      const input = document.getElementById('teacher-reply-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const th = mensajesState.find(x => x.id === selectedThreadId);
+      if (!th) return;
+
+      const now = new Date();
+      const fechaStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+
+      th.mensajes.push({
+        remitente: 'maestro',
+        autor: maestroState.nombre,
+        texto: text,
+        fecha: fechaStr
+      });
+
+      th.leidoPorMaestro = true;
+      saveState();
+      input.value = '';
+
+      renderTeacherSelectedThread();
+      renderTeacherMessagesThreads();
+      showToast("Respuesta enviada al padre de familia", "success");
+    }
+
+    function filterTeacherMessages() {
+      const q = document.getElementById('search-messages-input').value;
+      renderTeacherMessagesThreads(q);
+    }
+
+    function updateUnreadBadges() {
+      const unreadCount = mensajesState.filter(m => !m.leidoPorMaestro).length;
+      const badge = document.getElementById('sidebar-unread-badge');
+      const dashCount = document.getElementById('dash-unread-count');
+
+      if (dashCount) dashCount.textContent = unreadCount;
+
+      if (badge) {
+        if (unreadCount > 0) {
+          badge.textContent = unreadCount;
+          badge.classList.remove('hidden');
+        } else {
+          badge.classList.add('hidden');
+        }
+      }
+    }
+
+    // Portal de Padres: Envío y Chat de Mensajes
+    function handleParentSendMessage(e) {
+      e.preventDefault();
+      if (!currentParentStudent) return;
+
+      const asunto = document.getElementById('p_msg_asunto').value;
+      const input = document.getElementById('p_msg_texto');
+      const texto = input.value.trim();
+      if (!texto) return;
+
+      const now = new Date();
+      const fechaStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+
+      // Buscar si ya existe un hilo de este alumno con ese asunto, o crear uno nuevo
+      let thread = mensajesState.find(m => m.alumnoUuid === currentParentStudent.uuid && m.asunto === asunto);
+
+      if (thread) {
+        thread.leidoPorMaestro = false;
+        thread.mensajes.push({
+          remitente: 'padre',
+          autor: `${currentParentStudent.tutor} (Tutor)`,
+          texto: texto,
+          fecha: fechaStr
+        });
+      } else {
+        thread = {
+          id: Date.now(),
+          alumnoUuid: currentParentStudent.uuid,
+          asunto: asunto,
+          leidoPorMaestro: false,
+          mensajes: [
+            {
+              remitente: 'padre',
+              autor: `${currentParentStudent.tutor} (Tutor)`,
+              texto: texto,
+              fecha: fechaStr
+            }
+          ]
+        };
+        mensajesState.unshift(thread);
+      }
+
+      saveState();
+      input.value = '';
+      renderParentChatHistory(currentParentStudent.uuid);
+      updateUnreadBadges();
+      showToast("Mensaje enviado al maestro con éxito", "success");
+    }
+
+    function renderParentChatHistory(studentUuid) {
+      const container = document.getElementById('parent-chat-history');
+      const studentThreads = mensajesState.filter(m => m.alumnoUuid === studentUuid);
+
+      if (studentThreads.length === 0) {
+        container.innerHTML = `<div class="p-6 text-center text-xs text-slate-400 bg-slate-50 rounded-2xl border border-slate-100">Sin mensajes registrados. Usa el formulario superior para escribir al docente.</div>`;
+        return;
+      }
+
+      container.innerHTML = studentThreads.map(th => `
+        <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-200/70 space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-200/60 pb-2">
+            <span class="text-xs font-bold text-brand-700 flex items-center gap-1.5">
+              <i data-lucide="tag" class="w-3.5 h-3.5"></i>
+              <span>${th.asunto}</span>
+            </span>
+            <span class="text-[10px] text-slate-400">${th.mensajes.length} interacción(es)</span>
+          </div>
+
+          <div class="space-y-2.5">
+            ${th.mensajes.map(m => {
+              const isParent = m.remitente === 'padre';
+              return `
+                <div class="flex flex-col ${isParent ? 'items-end' : 'items-start'}">
+                  <div class="max-w-md ${isParent ? 'bg-indigo-600 text-white rounded-2xl rounded-tr-xs' : 'bg-white text-slate-800 border border-slate-200 rounded-2xl rounded-tl-xs shadow-2xs'} p-3 text-xs space-y-1">
+                    <div class="flex items-center justify-between gap-3 text-[10px] ${isParent ? 'text-indigo-200' : 'text-brand-600 font-bold'}">
+                      <span>${m.autor}</span>
+                      <span>${m.fecha}</span>
+                    </div>
+                    <p class="leading-relaxed whitespace-pre-wrap">${m.texto}</p>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    // ==========================================================
+    // 8. REPORTE DE EVALUACIÓN & PROMEDIOS REDONDEADOS
+    // ==========================================================
+    function updateTeacherViews() {
+      document.getElementById('banner-teacher-name').textContent = maestroState.nombre;
+      document.getElementById('banner-group-badge').textContent = maestroState.grupo;
+      document.getElementById('sidebar-teacher-name').textContent = maestroState.nombre.split(' ')[0] + ' ' + (maestroState.nombre.split(' ')[1] || '');
+      document.getElementById('sidebar-group-badge').textContent = maestroState.grupo;
+      document.getElementById('sidebar-avatar').textContent = maestroState.nombre.charAt(0).toUpperCase();
+
+      const count = alumnosState.length;
+      const percent = Math.min(Math.round((count / MAX_ALUMNOS) * 100), 100);
+      const disponibles = Math.max(MAX_ALUMNOS - count, 0);
+
+      document.getElementById('dash-count-current').textContent = count;
+      document.getElementById('dash-limit-percent').textContent = `${percent}%`;
+      document.getElementById('dash-disponibles-txt').textContent = disponibles;
+      document.getElementById('cupo-disponible-tab').textContent = disponibles;
+      document.getElementById('tabla-total-badge').textContent = `${count} Alumnos`;
+      document.getElementById('sidebar-capacidad-txt').textContent = `${count} / ${MAX_ALUMNOS}`;
+
+      const progressBar = document.getElementById('dash-progress-bar');
+      progressBar.style.width = `${percent}%`;
+      if (percent >= 90) progressBar.className = "h-full rounded-full bg-gradient-to-r from-rose-500 to-red-600 transition-all duration-500";
+      else if (percent >= 70) progressBar.className = "h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500";
+      else progressBar.className = "h-full rounded-full bg-gradient-to-r from-brand-500 to-indigo-600 transition-all duration-500";
+
+      const sidebarBar = document.getElementById('sidebar-progress-bar');
+      if (sidebarBar) sidebarBar.style.width = `${percent}%`;
+
+      const presentes = alumnosState.filter(a => a.asistenciaHoy === 'presente').length;
+      const rate = count > 0 ? Math.round((presentes / count) * 100) : 0;
+      document.getElementById('dash-asistencia-rate').textContent = `${rate}%`;
+      document.getElementById('dash-asistencia-count').textContent = `${presentes} de ${count}`;
+
+      document.getElementById('dash-actividades-count').textContent = proyectosState.length + tareasState.length;
+      document.getElementById('reportes-count-badge').textContent = `${reportesState.length} Reportes`;
+
+      renderAlumnosTable();
+      renderAttendanceTable();
+      renderDynamicGradesTable();
+      renderMateriasBadges();
+      renderProjectsGrid();
+      renderTareasGrid();
+      renderTeacherMessagesThreads();
+      renderReportesList();
+      populateReportesSelect();
+      renderDashboardActivity();
+      updateUnreadBadges();
+
+      saveState();
+      lucide.createIcons();
+    }
+
+    function renderDynamicGradesTable() {
+      const thead = document.getElementById('dynamic-grades-thead');
+      const tbody = document.getElementById('dynamic-grades-tbody');
+
+      let headersHtml = `<tr><th class="px-4 py-3">Alumno</th>`;
+      materiasState.forEach(m => {
+        headersHtml += `<th class="px-3 py-3 text-center">${m}</th>`;
+      });
+      headersHtml += `<th class="px-4 py-3 text-center">Promedio (Entero)</th></tr>`;
+      thead.innerHTML = headersHtml;
+
+      if (alumnosState.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="${materiasState.length + 2}" class="px-4 py-8 text-center text-slate-400">Sin alumnos.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = alumnosState.map((alumno, aIdx) => {
+        if (!alumno.calificaciones) alumno.calificaciones = {};
+        let rowHtml = `<tr class="hover:bg-slate-50 transition-colors">
+          <td class="px-4 py-3 font-semibold text-slate-900">${alumno.nombre}</td>`;
+        
+        let sum = 0, count = 0;
+        materiasState.forEach(m => {
+          const val = alumno.calificaciones[m] !== undefined ? alumno.calificaciones[m] : 9.0;
+          sum += parseFloat(val) || 0;
+          count++;
+
+          rowHtml += `
+            <td class="px-3 py-2 text-center">
+              <input 
+                type="number" 
+                step="0.1" 
+                min="5" 
+                max="10" 
+                value="${val}" 
+                onchange="updateDynamicGrade(${aIdx}, '${m}', this.value)" 
+                class="w-16 text-center py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600"
+              />
+            </td>
+          `;
+        });
+
+        const promRounded = count > 0 ? Math.round(sum / count) : 10;
+        rowHtml += `
+          <td class="px-4 py-3 text-center font-extrabold text-brand-600 text-sm" id="prom-alumno-${aIdx}">
+            ${promRounded}
+          </td>
+        </tr>`;
+
+        return rowHtml;
+      }).join('');
+    }
+
+    function updateDynamicGrade(alumnoIdx, materia, value) {
+      const alumno = alumnosState[alumnoIdx];
+      if (!alumno.calificaciones) alumno.calificaciones = {};
+      alumno.calificaciones[materia] = parseFloat(value) || 0;
+
+      let sum = 0, count = 0;
+      materiasState.forEach(m => {
+        sum += parseFloat(alumno.calificaciones[m]) || 0;
+        count++;
+      });
+      const promRounded = count > 0 ? Math.round(sum / count) : 10;
+      const el = document.getElementById(`prom-alumno-${alumnoIdx}`);
+      if (el) el.textContent = promRounded;
+
+      saveState();
+    }
+
+    function saveAllGrades() {
+      saveState();
+      showToast("¡Reporte de Evaluación guardado exitosamente!", "success");
+    }
+
+    function openMateriasModal() {
+      renderMateriasModalList();
+      document.getElementById('modal-materias').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeMateriasModal() {
+      document.getElementById('modal-materias').classList.add('hidden');
+    }
+
+    function renderMateriasModalList() {
+      const container = document.getElementById('materias-modal-list');
+      if (materiasState.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 p-4 text-center">No hay materias configuradas.</p>`;
+        return;
+      }
+      container.innerHTML = materiasState.map((mat, idx) => `
+        <div class="p-3 flex items-center justify-between hover:bg-slate-50 transition-colors">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center font-bold text-xs">${idx + 1}</span>
+            <span class="font-bold text-xs text-slate-800">${mat}</span>
+          </div>
+          <button onclick="deleteMateria(${idx})" class="p-1 text-slate-400 hover:text-rose-600 rounded-lg cursor-pointer" title="Eliminar">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function handleAddMateria(e) {
+      e.preventDefault();
+      const input = document.getElementById('new-materia-name');
+      const val = input.value.trim();
+      if (!val) return;
+
+      if (materiasState.includes(val)) {
+        showToast("Esa materia ya existe.", "error");
+        return;
+      }
+
+      materiasState.push(val);
+      alumnosState.forEach(a => {
+        if (!a.calificaciones) a.calificaciones = {};
+        if (!a.calificaciones[val]) a.calificaciones[val] = 9.0;
+      });
+
+      input.value = '';
+      renderMateriasModalList();
+      updateTeacherViews();
+      showToast(`Materia "${val}" agregada`, "success");
+    }
+
+    function deleteMateria(index) {
+      const mat = materiasState[index];
+      if (materiasState.length <= 1) {
+        showToast("Debe haber al menos 1 materia.", "error");
+        return;
+      }
+
+      materiasState.splice(index, 1);
+      alumnosState.forEach(a => {
+        if (a.calificaciones && a.calificaciones[mat]) delete a.calificaciones[mat];
+      });
+
+      renderMateriasModalList();
+      updateTeacherViews();
+      showToast(`Materia "${mat}" eliminada`, "info");
+    }
+
+    function renderMateriasBadges() {
+      const container = document.getElementById('active-materias-badges');
+      container.innerHTML = materiasState.map(m => `
+        <span class="px-2.5 py-1 bg-brand-50 text-brand-700 rounded-lg font-bold text-xs border border-brand-100 flex items-center gap-1">
+          <i data-lucide="book" class="w-3 h-3"></i>
+          <span>${m}</span>
+        </span>
+      `).join('');
+    }
+
+    // ==========================================================
+    // 9. PROYECTOS & TAREAS
+    // ==========================================================
+    function openNewProjectModal() {
+      document.getElementById('modal-new-project').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeNewProjectModal() {
+      document.getElementById('modal-new-project').classList.add('hidden');
+    }
+
+    function handleCreateProject(e) {
+      e.preventDefault();
+      const checkboxes = document.querySelectorAll('input[name="proj_campo"]:checked');
+      const selectedCampos = Array.from(checkboxes).map(cb => cb.value);
+
+      if (selectedCampos.length === 0) {
+        showToast("Selecciona al menos un Campo Formativo.", "error");
+        return;
+      }
+
+      const nuevo = {
+        id: Date.now(),
+        titulo: document.getElementById('proj-title').value.trim(),
+        campos: selectedCampos,
+        fecha: document.getElementById('proj-date').value,
+        desc: document.getElementById('proj-desc').value.trim(),
+        calificaciones: {}
+      };
+
+      proyectosState.push(nuevo);
+      updateTeacherViews();
+      closeNewProjectModal();
+      document.getElementById('form-new-project').reset();
+      showToast("Proyecto publicado con éxito", "success");
+    }
+
+    function renderProjectsGrid() {
+      const container = document.getElementById('projects-grid');
+      if (proyectosState.length === 0) {
+        container.innerHTML = `<div class="col-span-3 text-center py-10 text-slate-400">Sin proyectos creados.</div>`;
+        return;
+      }
+
+      container.innerHTML = proyectosState.map((proj, idx) => {
+        const camposBadges = (proj.campos || []).map(c => `
+          <span class="text-[9px] font-bold uppercase tracking-wider text-brand-700 bg-brand-50 px-2 py-0.5 rounded-md border border-brand-100">${c}</span>
+        `).join(' ');
+
+        return `
+          <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex flex-col justify-between space-y-4">
+            <div>
+              <div class="flex flex-wrap gap-1 mb-2">${camposBadges}</div>
+              <h3 class="font-bold text-slate-900 text-sm mt-1">${proj.titulo}</h3>
+              <p class="text-xs text-slate-500 mt-1 line-clamp-2">${proj.desc}</p>
+            </div>
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+              <span>Entrega: ${proj.fecha}</span>
+              <button onclick="deleteProject(${idx})" class="text-slate-400 hover:text-rose-600 p-1 cursor-pointer">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function deleteProject(index) {
+      proyectosState.splice(index, 1);
+      updateTeacherViews();
+      showToast("Proyecto eliminado", "info");
+    }
+
+    function openNewTareaModal() {
+      document.getElementById('modal-new-tarea').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeNewTareaModal() {
+      document.getElementById('modal-new-tarea').classList.add('hidden');
+    }
+
+    function handleCreateTarea(e) {
+      e.preventDefault();
+      const checkboxes = document.querySelectorAll('input[name="tarea_campo"]:checked');
+      const selectedCampos = Array.from(checkboxes).map(cb => cb.value);
+
+      if (selectedCampos.length === 0) {
+        showToast("Selecciona al menos un Campo Formativo.", "error");
+        return;
+      }
+
+      const nueva = {
+        id: Date.now(),
+        titulo: document.getElementById('tarea-title').value.trim(),
+        campos: selectedCampos,
+        fecha: document.getElementById('tarea-date').value,
+        desc: document.getElementById('tarea-desc').value.trim(),
+        calificaciones: {}
+      };
+
+      tareasState.push(nueva);
+      updateTeacherViews();
+      closeNewTareaModal();
+      document.getElementById('form-new-tarea').reset();
+      showToast("Tarea asignada para casa", "success");
+    }
+
+    function renderTareasGrid() {
+      const container = document.getElementById('tareas-grid');
+      if (tareasState.length === 0) {
+        container.innerHTML = `<div class="col-span-3 text-center py-10 text-slate-400">Sin tareas escolares asignadas.</div>`;
+        return;
+      }
+
+      container.innerHTML = tareasState.map((tarea, idx) => {
+        const camposBadges = (tarea.campos || []).map(c => `
+          <span class="text-[9px] font-bold uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">${c}</span>
+        `).join(' ');
+
+        return `
+          <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex flex-col justify-between space-y-4">
+            <div>
+              <div class="flex flex-wrap gap-1 mb-2">${camposBadges}</div>
+              <h3 class="font-bold text-slate-900 text-sm mt-1">${tarea.titulo}</h3>
+              <p class="text-xs text-slate-500 mt-1 line-clamp-2">${tarea.desc}</p>
+            </div>
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+              <span>Entrega: ${tarea.fecha}</span>
+              <button onclick="deleteTarea(${idx})" class="text-slate-400 hover:text-rose-600 p-1 cursor-pointer">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function deleteTarea(index) {
+      tareasState.splice(index, 1);
+      updateTeacherViews();
+      showToast("Tarea eliminada", "info");
+    }
+
+    // ==========================================================
+    // 10. ALUMNOS & REPORTES
+    // ==========================================================
+    function handleAlumnoSubmit(e) {
+      e.preventDefault();
+      if (alumnosState.length >= MAX_ALUMNOS) {
+        showToast("Límite de 50 alumnos alcanzado.", "error");
+        return;
+      }
+
+      const form = e.target;
+      const nuevoAlumno = {
+        uuid: 'alu-' + crypto.randomUUID(),
+        nombre: document.getElementById('alumno_nombre').value.trim(),
+        tutor: document.getElementById('alumno_tutor').value.trim(),
+        telefono: document.getElementById('alumno_telefono').value.trim(),
+        asistenciaHoy: 'pendiente',
+        horaAsistencia: '--:--',
+        asistenciasTotales: { presentes: 1, retardos: 0, faltas: 0 },
+        calificaciones: {}
+      };
+
+      materiasState.forEach(m => nuevoAlumno.calificaciones[m] = 9.0);
+
+      alumnosState.unshift(nuevoAlumno);
+      updateTeacherViews();
+      renderParentDemoChips();
+      form.reset();
+      showToast("Alumno registrado y credencial generada", "success");
+      openQrModal(nuevoAlumno.uuid);
+    }
+
+    function renderAlumnosTable(filtered = null) {
+      const tbody = document.getElementById('alumnos-table-body');
+      const data = filtered || alumnosState;
+
+      if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8 text-center text-slate-400">No hay alumnos.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = data.map(a => `
+        <tr class="hover:bg-slate-50 transition-colors">
+          <td class="px-4 py-3">
+            <div class="font-bold text-slate-900">${a.nombre}</div>
+            <div class="text-[10px] text-slate-400 font-mono">${a.uuid.substring(0, 13)}...</div>
+          </td>
+          <td class="px-4 py-3">
+            <div class="font-medium text-slate-800">${a.tutor}</div>
+            <div class="text-[11px] text-slate-400">${a.telefono}</div>
+          </td>
+          <td class="px-4 py-3">
+            <button onclick="openQrModal('${a.uuid}')" class="px-2.5 py-1 bg-brand-50 hover:bg-brand-100 text-brand-700 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1 cursor-pointer">
+              <i data-lucide="qr-code" class="w-3.5 h-3.5"></i>
+              <span>Credencial</span>
+            </button>
+          </td>
+          <td class="px-4 py-3 text-right space-x-1">
+            <button onclick="openEditModal('${a.uuid}')" title="Editar" class="p-1.5 text-slate-500 hover:text-brand-600 rounded-lg cursor-pointer">
+              <i data-lucide="edit-2" class="w-4 h-4"></i>
+            </button>
+            <button onclick="deleteAlumno('${a.uuid}')" title="Eliminar" class="p-1.5 text-slate-500 hover:text-rose-600 rounded-lg cursor-pointer">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function filterAlumnosTable() {
+      const q = document.getElementById('search-alumnos-input').value.toLowerCase().trim();
+      if (!q) { renderAlumnosTable(); return; }
+      const res = alumnosState.filter(a => a.nombre.toLowerCase().includes(q) || a.uuid.toLowerCase().includes(q));
+      renderAlumnosTable(res);
+      lucide.createIcons();
+    }
+
+    function deleteAlumno(uuid) {
+      const a = alumnosState.find(x => x.uuid === uuid);
+      if (!a) return;
+      if (!confirm(`¿Eliminar a ${a.nombre}? Se liberará 1 cupo de los 50 disponibles.`)) return;
+
+      alumnosState = alumnosState.filter(x => x.uuid !== uuid);
+      reportesState = reportesState.filter(r => r.alumnoUuid !== uuid);
+      mensajesState = mensajesState.filter(m => m.alumnoUuid !== uuid);
+      updateTeacherViews();
+      renderParentDemoChips();
+      showToast(`Alumno eliminado`, "info");
+    }
+
+    function openEditModal(uuid) {
+      const a = alumnosState.find(x => x.uuid === uuid);
+      if (!a) return;
+      document.getElementById('edit-alumno-uuid').value = a.uuid;
+      document.getElementById('edit-alumno-nombre').value = a.nombre;
+      document.getElementById('edit-alumno-tutor').value = a.tutor;
+      document.getElementById('edit-alumno-tel').value = a.telefono;
+      document.getElementById('modal-edit-alumno').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeEditModal() {
+      document.getElementById('modal-edit-alumno').classList.add('hidden');
+    }
+
+    function handleSaveEditAlumno(e) {
+      e.preventDefault();
+      const uuid = document.getElementById('edit-alumno-uuid').value;
+      const a = alumnosState.find(x => x.uuid === uuid);
+      if (!a) return;
+
+      a.nombre = document.getElementById('edit-alumno-nombre').value.trim();
+      a.tutor = document.getElementById('edit-alumno-tutor').value.trim();
+      a.telefono = document.getElementById('edit-alumno-tel').value.trim();
+
+      closeEditModal();
+      updateTeacherViews();
+      showToast("Datos actualizados", "success");
+    }
+
+    function openQrModal(uuid) {
+      const a = alumnosState.find(x => x.uuid === uuid);
+      if (!a) return;
+
+      currentActiveModalUuid = a.uuid;
+      document.getElementById('qr-modal-student-name').textContent = a.nombre;
+      document.getElementById('qr-modal-student-group').textContent = maestroState.grupo;
+      document.getElementById('qr-modal-student-tutor').textContent = `Tutor: ${a.tutor}`;
+      document.getElementById('qr-modal-uuid-txt').textContent = a.uuid;
+      document.getElementById('qr-modal-school-name').textContent = `Lumni • ${maestroState.grupo}`;
+
+      const container = document.getElementById('modal-qrcode-target');
+      container.innerHTML = '';
+
+      new QRCode(container, {
+        text: a.uuid,
+        width: 140,
+        height: 140,
+        colorDark: "#1e1b4b",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      document.getElementById('modal-qr-credential').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeQrModal() {
+      document.getElementById('modal-qr-credential').classList.add('hidden');
+    }
+
+    function copyModalUuid() {
+      if (!currentActiveModalUuid) return;
+      navigator.clipboard.writeText(currentActiveModalUuid).then(() => showToast("Código ID copiado", "success"));
+    }
+
+    function populateReportesSelect() {
+      const select = document.getElementById('reporte_alumno_uuid');
+      if (alumnosState.length === 0) {
+        select.innerHTML = '<option value="">Sin alumnos</option>';
+        return;
+      }
+      select.innerHTML = alumnosState.map(a => `<option value="${a.uuid}">${a.nombre}</option>`).join('');
+    }
+
+    function handleCreateReporte(e) {
+      e.preventDefault();
+      const alumnoUuid = document.getElementById('reporte_alumno_uuid').value;
+      const tipo = document.getElementById('reporte_tipo').value;
+      const titulo = document.getElementById('reporte_titulo').value.trim();
+      const desc = document.getElementById('reporte_desc').value.trim();
+
+      const nuevoReporte = {
+        id: Date.now(),
+        alumnoUuid,
+        tipo,
+        titulo,
+        desc,
+        fecha: new Date().toISOString().split('T')[0]
+      };
+
+      reportesState.unshift(nuevoReporte);
+      updateTeacherViews();
+      document.getElementById('form-reporte').reset();
+      showToast("Reporte emitido al expediente", "success");
+    }
+
+    function renderReportesList() {
+      const container = document.getElementById('reportes-list-container');
+      if (reportesState.length === 0) {
+        container.innerHTML = `<div class="bg-white rounded-2xl border border-slate-200/80 p-6 text-center text-xs text-slate-400">No hay reportes emitidos.</div>`;
+        return;
+      }
+
+      const badgeStyles = {
+        'Felicitación': 'bg-emerald-50 text-emerald-800 border-emerald-200',
+        'Conducta': 'bg-rose-50 text-rose-800 border-rose-200',
+        'Citatorio': 'bg-indigo-50 text-indigo-800 border-indigo-200',
+        'Aviso': 'bg-amber-50 text-amber-800 border-amber-200'
+      };
+
+      container.innerHTML = reportesState.map((rep, idx) => {
+        const a = alumnosState.find(x => x.uuid === rep.alumnoUuid) || { nombre: 'Alumno' };
+        return `
+          <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badgeStyles[rep.tipo] || 'bg-slate-50 text-slate-700'}">
+                  ${rep.tipo}
+                </span>
+                <span class="font-bold text-xs text-slate-900">${a.nombre}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] text-slate-400">${rep.fecha}</span>
+                <button onclick="deleteReporte(${idx})" class="p-1 text-slate-400 hover:text-rose-600 cursor-pointer" title="Eliminar">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>
+            <h4 class="text-xs font-bold text-slate-800">${rep.titulo}</h4>
+            <p class="text-xs text-slate-600">${rep.desc}</p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function deleteReporte(index) {
+      reportesState.splice(index, 1);
+      updateTeacherViews();
+      showToast("Reporte eliminado", "info");
+    }
+
+    function renderDashboardActivity() {
+      const container = document.getElementById('dash-activity-list');
+      const presentAlumnos = alumnosState.filter(a => a.asistenciaHoy === 'presente');
+
+      if (presentAlumnos.length === 0) {
+        container.innerHTML = `<p class="text-slate-400 py-6 text-center text-xs">No hay asistencias registradas hoy.</p>`;
+        return;
+      }
+
+      container.innerHTML = presentAlumnos.slice(0, 5).map(a => `
+        <div class="py-2.5 flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <div>
+              <p class="font-bold text-slate-800">${a.nombre}</p>
+              <p class="text-[11px] text-slate-400">Entrada registrada • ${a.horaAsistencia}</p>
+            </div>
+          </div>
+          <button onclick="openQrModal('${a.uuid}')" class="text-[11px] font-bold text-brand-600 hover:text-brand-700">
+            Credencial
+          </button>
+        </div>
+      `).join('');
+    }
+
+    // ==========================================================
+    // 11. NOTIFICACIONES TOAST
+    // ==========================================================
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      
+      const styles = {
+        success: 'bg-emerald-600 text-white border-emerald-500',
+        error: 'bg-rose-600 text-white border-rose-500',
+        info: 'bg-slate-900 text-white border-slate-700'
+      };
+      const icons = { success: 'check-circle-2', error: 'alert-circle', info: 'info' };
+
+      toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-xl border text-xs font-semibold transition-all transform duration-300 translate-y-2 opacity-0 ${styles[type] || styles.info}`;
+      toast.innerHTML = `<i data-lucide="${icons[type] || 'info'}" class="w-4 h-4 shrink-0"></i><span>${message}</span>`;
+
+      container.appendChild(toast);
+      lucide.createIcons();
+
+      setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 20);
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // ==========================================================
+    // INICIALIZACIÓN
+    // ==========================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('current-date-badge').textContent = `📅 ${new Date().toLocaleDateString('es-ES', options)}`;
+
+      document.getElementById('login_correo').value = maestroState.correo;
+      document.getElementById('reg_nombre').value = maestroState.nombre;
+      document.getElementById('reg_correo').value = maestroState.correo;
+      document.getElementById('reg_grupo').value = maestroState.grupo;
+
+      renderParentDemoChips();
+
+      // INICIA EN LA LANDING
+      showView('view-landing');
+    });
+  </script>
+</body>
+</html>
