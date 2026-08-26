@@ -54,6 +54,23 @@
   <!-- Contenedor de Notificaciones Toast -->
   <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
 
+  <!-- Banner Instalación PWA -->
+  <div id="pwa-install-banner" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-white dark:bg-slate-900 border border-brand-200 dark:border-brand-700/50 shadow-2xl rounded-2xl p-4 flex flex-col sm:flex-row items-center gap-4 max-w-md w-[calc(100%-2rem)] hidden transition-all duration-300">
+    <div class="flex items-center gap-3 w-full sm:w-auto">
+      <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center shrink-0">
+        <i data-lucide="smartphone" class="w-5 h-5"></i>
+      </div>
+      <div>
+        <p class="text-sm font-bold text-slate-800 dark:text-slate-100">Instalar Lumni App</p>
+        <p class="text-[11px] text-slate-500 dark:text-slate-400">Acceso rápido sin navegador.</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+      <button onclick="dismissPWAInstall()" class="flex-1 px-3 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-xl">Ahora no</button>
+      <button onclick="installPWA()" class="flex-1 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-500/20 whitespace-nowrap">Instalar App</button>
+    </div>
+  </div>
+
   <!-- ============================================================ -->
   <!-- 1. VISTA: PANTALLA DE INICIO (LANDING DE ACCESOS MINIMALISTA) -->
   <!-- ============================================================ -->
@@ -423,6 +440,16 @@
             <span class="whitespace-nowrap font-medium text-sm text-left">Reportes</span>
           </button>
 
+          <button onclick="switchTeacherTab('calendario'); closeMobileSidebarIfOpen();" id="sidebar-tab-calendario" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:text-brand-300 hover:bg-brand-50 dark:bg-brand-900/40 group">
+            <i data-lucide="calendar" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600 dark:text-brand-400"></i>
+            <span class="whitespace-nowrap font-medium text-sm text-left">Calendario</span>
+          </button>
+
+          <button onclick="switchTeacherTab('configuracion'); closeMobileSidebarIfOpen();" id="sidebar-tab-configuracion" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:text-brand-300 hover:bg-brand-50 dark:bg-brand-900/40 group">
+            <i data-lucide="settings" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600 dark:text-brand-400"></i>
+            <span class="whitespace-nowrap font-medium text-sm text-left">Configuración</span>
+          </button>
+
         </nav>
       </div>
 
@@ -649,9 +676,15 @@
               <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Gestión de Alumnos & Credenciales QR</h2>
               <p class="text-xs text-slate-500 dark:text-slate-400">Inscribe, edita y da de baja alumnos. Emite credenciales digitales de acceso.</p>
             </div>
-            <span class="text-xs font-semibold px-3 py-1.5 bg-brand-50 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 rounded-xl border border-brand-200 self-start sm:self-auto">
-              Cupo disponible: <strong id="cupo-disponible-tab" class="text-brand-800">50</strong> / 50
-            </span>
+            <div class="flex items-center gap-2 self-start sm:self-auto">
+              <button onclick="exportAlumnosCSV()" class="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/40 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-400 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                <span>Exportar CSV</span>
+              </button>
+              <span class="text-xs font-semibold px-3 py-1.5 bg-brand-50 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 rounded-xl border border-brand-200">
+                Cupo disponible: <strong id="cupo-disponible-tab" class="text-brand-800">50</strong> / 50
+              </span>
+            </div>
           </div>
 
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -702,8 +735,12 @@
                   <table class="w-full text-left text-xs min-w-[500px]">
                     <thead class="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 uppercase font-bold border-b border-slate-200 dark:border-slate-700/60">
                       <tr>
-                        <th class="px-4 py-3">Alumno</th>
-                        <th class="px-4 py-3">Tutor / Teléfono</th>
+                        <th class="px-4 py-3 cursor-pointer select-none" onclick="sortAlumnos('nombre')">
+                          <div class="flex items-center gap-1">Alumno <span id="sort-icon-nombre"><i data-lucide="chevrons-up-down" class="w-3 h-3 text-slate-400"></i></span></div>
+                        </th>
+                        <th class="px-4 py-3 cursor-pointer select-none" onclick="sortAlumnos('tutor')">
+                          <div class="flex items-center gap-1">Tutor / Teléfono <span id="sort-icon-tutor"><i data-lucide="chevrons-up-down" class="w-3 h-3 text-slate-400"></i></span></div>
+                        </th>
                         <th class="px-4 py-3">Código QR</th>
                         <th class="px-4 py-3 text-right">Acciones</th>
                       </tr>
@@ -723,7 +760,13 @@
               <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Control de Asistencia & Escáner QR</h2>
               <p class="text-xs text-slate-500 dark:text-slate-400">Pase de lista con cámara trasera del dispositivo o lector de código ID.</p>
             </div>
-            <span id="current-date-badge" class="text-xs font-bold px-3.5 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl border border-slate-200 dark:border-slate-700 self-start sm:self-auto">📅 Hoy</span>
+            <div class="flex items-center gap-2 self-start sm:self-auto">
+              <button onclick="exportAsistenciasCSV()" class="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/40 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-400 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                <span>Exportar CSV</span>
+              </button>
+              <span id="current-date-badge" class="text-xs font-bold px-3.5 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl border border-slate-200 dark:border-slate-700">📅 Hoy</span>
+            </div>
           </div>
 
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -811,7 +854,11 @@
               <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Reporte de Evaluación</h2>
               <p class="text-xs text-slate-500 dark:text-slate-400">Configura la plantilla de materias y asienta las calificaciones oficiales (promedio entero sin decimales).</p>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <button onclick="exportCalificacionesCSV()" class="px-3 py-2 bg-emerald-50 dark:bg-emerald-900/40 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-400 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                <span>Exportar CSV</span>
+              </button>
               <button onclick="openMateriasModal()" class="px-3.5 py-2 bg-indigo-50 dark:bg-indigo-900/40 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 border border-indigo-200 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer">
                 <i data-lucide="settings" class="w-4 h-4 text-indigo-600 dark:text-indigo-400"></i>
                 <span>⚙️ Configurar Materias</span>
@@ -952,6 +999,66 @@
 
             </div>
 
+          </div>
+        </div>
+
+        <!-- SUB-VISTA: CALENDARIO -->
+        <div id="m-view-calendario" class="space-y-6 hidden animate-in fade-in duration-150">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200 dark:border-slate-700/80 pb-4">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <i data-lucide="calendar" class="w-5 h-5 text-brand-600 dark:text-brand-400"></i>
+                <span id="teacher-calendar-grid-title">Mes Actual</span>
+              </h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Consulta las fechas de entrega de proyectos, tareas y eventos.</p>
+            </div>
+          </div>
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 shadow-xs overflow-x-auto">
+            <div id="teacher-calendar-grid" class="min-w-[600px]">
+              <!-- Calendario se renderiza aquí -->
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB-VISTA: CONFIGURACIÓN -->
+        <div id="m-view-configuracion" class="space-y-6 hidden animate-in fade-in duration-150">
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 sm:p-6 shadow-xs max-w-2xl">
+            <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 mb-4 flex items-center gap-2">
+              <i data-lucide="settings" class="w-4 h-4 text-brand-600 dark:text-brand-400"></i>
+              <span>Configuración del Perfil y Escuela</span>
+            </h3>
+
+            <form onsubmit="handleSaveConfiguracion(event)" class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label for="config_nombre" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Nombre del Docente *</label>
+                  <input type="text" id="config_nombre" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                </div>
+                <div>
+                  <label for="config_correo" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Correo Electrónico *</label>
+                  <input type="email" id="config_correo" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                </div>
+                <div>
+                  <label for="config_grupo" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Grado y Grupo *</label>
+                  <input type="text" id="config_grupo" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                </div>
+                <div>
+                  <label for="config_colegio" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Nombre de la Escuela</label>
+                  <input type="text" id="config_colegio" placeholder="Ej. Instituto Lumni" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                </div>
+                <div>
+                  <label for="config_ciclo" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Ciclo Escolar</label>
+                  <input type="text" id="config_ciclo" placeholder="Ej. 2026-2027" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                </div>
+              </div>
+
+              <div class="pt-2 flex justify-end">
+                <button type="submit" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md shadow-brand-500/20 transition-all cursor-pointer">
+                  <i data-lucide="save" class="w-4 h-4"></i>
+                  <span>Guardar Configuración</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
 
@@ -1206,7 +1313,22 @@
         </div>
       </div>
 
-      <!-- 6. REPORTES Y AVISOS INDIVIDUALES -->
+      <!-- 6. CALENDARIO PADRES -->
+      <div class="md:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 shadow-xs space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+          <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <i data-lucide="calendar" class="w-4 h-4 text-brand-600 dark:text-brand-400"></i>
+            <span id="parent-calendar-grid-title">Mes Actual</span>
+          </h3>
+        </div>
+        <div class="overflow-x-auto">
+          <div id="parent-calendar-grid" class="min-w-[600px]">
+            <!-- Calendario renderizado dinámicamente -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. REPORTES Y AVISOS INDIVIDUALES -->
       <div class="md:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 shadow-xs space-y-4">
         <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
           <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">

@@ -10,11 +10,19 @@
     let selectedThreadId = 1;
     let currentParentStudent = null;
 
+    // Estado global de ordenamiento
+    let alumnosSortCol = '';
+    let alumnosSortDir = 'asc';
+    let gradesSortCol = '';
+    let gradesSortDir = 'asc';
+
     // Datos del Maestro
     let maestroState = JSON.parse(localStorage.getItem('lumni_maestro')) || {
       nombre: 'Prof. Carlos Mendoza Morales',
       correo: 'carlos.mendoza@colegio.edu.mx',
-      grupo: '3er Grado Grupo B'
+      grupo: '3er Grado Grupo B',
+      colegio: 'Lumni',
+      ciclo: '2026-2027'
     };
 
     // Plantilla de Materias Dinámicas
@@ -308,7 +316,9 @@
       { id: 'proyectos', title: 'Proyectos Escolares', subtitle: 'Actividades articuladas con Campos Formativos' },
       { id: 'tareas', title: 'Tareas y Asignaciones', subtitle: 'Ejercicios para casa con Campos Formativos' },
       { id: 'mensajes', title: 'Bandeja de Mensajes', subtitle: 'Comunicación asíncrona directa con familias' },
-      { id: 'reportes', title: 'Módulo de Reportes', subtitle: 'Seguimiento, méritos y citatorios individuales' }
+      { id: 'reportes', title: 'Módulo de Reportes', subtitle: 'Seguimiento, méritos y citatorios individuales' },
+      { id: 'calendario', title: 'Calendario Escolar', subtitle: 'Eventos, entregas y proyectos' },
+      { id: 'configuracion', title: 'Configuración', subtitle: 'Preferencias y datos del ciclo escolar' }
     ];
 
     function switchTeacherTab(tabName) {
@@ -344,6 +354,10 @@
 
       if (tabName === 'mensajes') {
         renderTeacherMessagesThreads();
+      }
+
+      if (tabName === 'calendario') {
+        renderCalendario('teacher-calendar-grid');
       }
 
       if (tabName !== 'asistencias' && isCameraActive) stopQrCamera();
@@ -482,6 +496,9 @@
 
       // 6.5 Renderizar Anuncios Generales
       renderAnunciosPadres();
+
+      // 6.6 Renderizar Calendario Padres
+      renderCalendario('parent-calendar-grid');
 
       // 7. Reportes y Avisos
       const repContainer = document.getElementById('p-reportes-list');
@@ -692,7 +709,7 @@
     function renderAttendanceTable() {
       const tbody = document.getElementById('attendance-table-body');
       if (alumnosState.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8 text-center text-slate-400">Sin alumnos.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8"><div class="flex flex-col items-center justify-center gap-2 text-slate-400"><i data-lucide="scan-line" class="w-8 h-8 text-slate-300"></i><p class="text-sm font-semibold text-slate-500">Sin alumnos para asistencia</p></div></td></tr>`;
         return;
       }
 
@@ -736,7 +753,7 @@
       document.getElementById('teacher-inbox-stats').textContent = `${threads.length} Conversaciones`;
 
       if (threads.length === 0) {
-        container.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">No hay mensajes que coincidan.</div>`;
+        container.innerHTML = `<div class="p-8 flex flex-col items-center justify-center gap-3 text-center"><i data-lucide="inbox" class="w-10 h-10 text-slate-300"></i><div><p class="text-sm font-bold text-slate-700 dark:text-slate-300">Bandeja vacía</p><p class="text-[11px] text-slate-400">No hay mensajes que coincidan con la búsqueda o el grupo no tiene mensajes aún.</p></div></div>`;
         return;
       }
 
@@ -954,12 +971,35 @@
     // ==========================================================
     // 8. REPORTE DE EVALUACIÓN & PROMEDIOS REDONDEADOS
     // ==========================================================
+    function handleSaveConfiguracion(e) {
+      e.preventDefault();
+      maestroState.nombre = document.getElementById('config_nombre').value.trim();
+      maestroState.correo = document.getElementById('config_correo').value.trim();
+      maestroState.grupo = document.getElementById('config_grupo').value.trim();
+      maestroState.colegio = document.getElementById('config_colegio').value.trim();
+      maestroState.ciclo = document.getElementById('config_ciclo').value.trim();
+
+      updateTeacherViews();
+      showToast("Configuración guardada correctamente", "success");
+    }
+
     function updateTeacherViews() {
       document.getElementById('banner-teacher-name').textContent = maestroState.nombre;
       document.getElementById('banner-group-badge').textContent = maestroState.grupo;
       document.getElementById('sidebar-teacher-name').textContent = maestroState.nombre.split(' ')[0] + ' ' + (maestroState.nombre.split(' ')[1] || '');
       document.getElementById('sidebar-group-badge').textContent = maestroState.grupo;
       document.getElementById('sidebar-avatar').textContent = maestroState.nombre.charAt(0).toUpperCase();
+
+      const configNombre = document.getElementById('config_nombre');
+      if(configNombre) configNombre.value = maestroState.nombre;
+      const configCorreo = document.getElementById('config_correo');
+      if(configCorreo) configCorreo.value = maestroState.correo;
+      const configGrupo = document.getElementById('config_grupo');
+      if(configGrupo) configGrupo.value = maestroState.grupo;
+      const configColegio = document.getElementById('config_colegio');
+      if(configColegio) configColegio.value = maestroState.colegio || 'Lumni';
+      const configCiclo = document.getElementById('config_ciclo');
+      if(configCiclo) configCiclo.value = maestroState.ciclo || '2026-2027';
 
       const count = alumnosState.length;
       const percent = Math.min(Math.round((count / MAX_ALUMNOS) * 100), 100);
@@ -1005,23 +1045,64 @@
       lucide.createIcons();
     }
 
+    function sortGrades(col) {
+      if (gradesSortCol === col) {
+        gradesSortDir = gradesSortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        gradesSortCol = col;
+        gradesSortDir = 'asc';
+      }
+      renderDynamicGradesTable();
+    }
+
     function renderDynamicGradesTable() {
       const thead = document.getElementById('dynamic-grades-thead');
       const tbody = document.getElementById('dynamic-grades-tbody');
 
-      let headersHtml = `<tr><th class="px-4 py-3">Alumno</th>`;
+      const getSortIcon = (col) => {
+        if (gradesSortCol !== col) return '<i data-lucide="chevrons-up-down" class="w-3 h-3 inline-block ml-1 text-slate-400"></i>';
+        return gradesSortDir === 'asc'
+          ? '<i data-lucide="chevron-up" class="w-3 h-3 inline-block ml-1 text-brand-600"></i>'
+          : '<i data-lucide="chevron-down" class="w-3 h-3 inline-block ml-1 text-brand-600"></i>';
+      };
+
+      let headersHtml = `<tr><th class="px-4 py-3 cursor-pointer select-none" onclick="sortGrades('nombre')">Alumno ${getSortIcon('nombre')}</th>`;
       materiasState.forEach(m => {
-        headersHtml += `<th class="px-3 py-3 text-center">${m}</th>`;
+        headersHtml += `<th class="px-3 py-3 text-center cursor-pointer select-none" onclick="sortGrades('${m}')">${m} ${getSortIcon(m)}</th>`;
       });
-      headersHtml += `<th class="px-4 py-3 text-center">Promedio (Entero)</th></tr>`;
+      headersHtml += `<th class="px-4 py-3 text-center cursor-pointer select-none" onclick="sortGrades('promedio')">Promedio (Entero) ${getSortIcon('promedio')}</th></tr>`;
       thead.innerHTML = headersHtml;
 
       if (alumnosState.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="${materiasState.length + 2}" class="px-4 py-8 text-center text-slate-400">Sin alumnos.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="${materiasState.length + 2}" class="px-4 py-8"><div class="flex flex-col items-center justify-center gap-2 text-slate-400"><i data-lucide="award" class="w-8 h-8 text-slate-300"></i><p class="text-sm font-semibold text-slate-500">Sin alumnos para evaluar</p></div></td></tr>`;
         return;
       }
 
-      tbody.innerHTML = alumnosState.map((alumno, aIdx) => {
+      let data = [...alumnosState];
+      if (gradesSortCol) {
+        data.sort((a, b) => {
+          let valA, valB;
+          if (gradesSortCol === 'nombre') {
+            valA = a.nombre.toLowerCase();
+            valB = b.nombre.toLowerCase();
+          } else if (gradesSortCol === 'promedio') {
+            const promA = materiasState.reduce((acc, m) => acc + (parseFloat(a.calificaciones?.[m]) || 9.0), 0) / (materiasState.length || 1);
+            const promB = materiasState.reduce((acc, m) => acc + (parseFloat(b.calificaciones?.[m]) || 9.0), 0) / (materiasState.length || 1);
+            valA = Math.round(promA);
+            valB = Math.round(promB);
+          } else {
+            valA = parseFloat(a.calificaciones?.[gradesSortCol]) || 9.0;
+            valB = parseFloat(b.calificaciones?.[gradesSortCol]) || 9.0;
+          }
+
+          if (valA < valB) return gradesSortDir === 'asc' ? -1 : 1;
+          if (valA > valB) return gradesSortDir === 'asc' ? 1 : -1;
+          return 0;
+        });
+      }
+
+      tbody.innerHTML = data.map((alumno) => {
+        const aIdx = alumnosState.findIndex(x => x.uuid === alumno.uuid);
         if (!alumno.calificaciones) alumno.calificaciones = {};
         let rowHtml = `<tr class="hover:bg-slate-50 dark:bg-slate-800 transition-colors">
           <td class="px-4 py-3 font-semibold text-slate-900 dark:text-slate-100">${alumno.nombre}</td>`;
@@ -1201,7 +1282,7 @@
     function renderProjectsGrid() {
       const container = document.getElementById('projects-grid');
       if (proyectosState.length === 0) {
-        container.innerHTML = `<div class="col-span-3 text-center py-10 text-slate-400">Sin proyectos creados.</div>`;
+        container.innerHTML = `<div class="col-span-1 md:col-span-2 lg:col-span-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-8 flex flex-col items-center justify-center gap-3"><i data-lucide="folder-kanban" class="w-10 h-10 text-slate-300"></i><div class="text-center"><p class="text-sm font-bold text-slate-700 dark:text-slate-300">No hay proyectos activos</p><p class="text-[11px] text-slate-400">Planifica el primer proyecto integrador.</p></div></div>`;
         return;
       }
 
@@ -1281,7 +1362,7 @@
     function renderTareasGrid() {
       const container = document.getElementById('tareas-grid');
       if (tareasState.length === 0) {
-        container.innerHTML = `<div class="col-span-3 text-center py-10 text-slate-400">Sin tareas escolares asignadas.</div>`;
+        container.innerHTML = `<div class="col-span-1 md:col-span-2 lg:col-span-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-8 flex flex-col items-center justify-center gap-3"><i data-lucide="check-square" class="w-10 h-10 text-slate-300"></i><div class="text-center"><p class="text-sm font-bold text-slate-700 dark:text-slate-300">No hay tareas asignadas</p><p class="text-[11px] text-slate-400">Crea la primera tarea escolar.</p></div></div>`;
         return;
       }
 
@@ -1323,7 +1404,84 @@
     }
 
     // ==========================================================
-    // 9.5 ANUNCIOS GENERALES
+    // 9.5 CALENDARIO ESCOLAR
+    // ==========================================================
+    function renderCalendario(containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      const today = new Date();
+      const currentMonth = today.getMonth();
+      const currentYear = today.getFullYear();
+
+      const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+      const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+      // Actualizar el título del mes en la UI si existe
+      const titleEl = document.getElementById(`${containerId}-title`);
+      if(titleEl) titleEl.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+
+      let html = '';
+      const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+      // Cabeceras de los días
+      html += `<div class="grid grid-cols-7 gap-1 text-center font-bold text-xs text-slate-500 dark:text-slate-400 mb-2">`;
+      dayNames.forEach(d => html += `<div>${d}</div>`);
+      html += `</div>`;
+
+      html += `<div class="grid grid-cols-7 gap-1">`;
+
+      // Celdas vacías
+      for (let i = 0; i < firstDay; i++) {
+        html += `<div class="p-2 border border-transparent"></div>`;
+      }
+
+      // Días del mes
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+        let eventsHtml = '';
+
+        // Buscar eventos para este día
+        const dayProjects = proyectosState.filter(p => p.fecha === dateStr);
+        dayProjects.forEach(p => {
+          eventsHtml += `<div class="text-[9px] bg-brand-100 text-brand-800 p-0.5 rounded mb-0.5 truncate border border-brand-200" title="Proyecto: ${p.titulo}">P: ${p.titulo}</div>`;
+        });
+
+        const dayTareas = tareasState.filter(t => t.fecha === dateStr);
+        dayTareas.forEach(t => {
+          eventsHtml += `<div class="text-[9px] bg-indigo-100 text-indigo-800 p-0.5 rounded mb-0.5 truncate border border-indigo-200" title="Tarea: ${t.titulo}">T: ${t.titulo}</div>`;
+        });
+
+        const dayAnuncios = anunciosState.filter(a => a.fecha === dateStr);
+        dayAnuncios.forEach(a => {
+          eventsHtml += `<div class="text-[9px] bg-amber-100 text-amber-800 p-0.5 rounded mb-0.5 truncate border border-amber-200" title="Aviso: ${a.titulo}">A: ${a.titulo}</div>`;
+        });
+
+        const isToday = day === today.getDate();
+        const classes = isToday
+          ? 'bg-blue-50 dark:bg-slate-800 border-blue-200 dark:border-blue-700 font-bold'
+          : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 hover:bg-slate-50';
+
+        html += `
+          <div class="p-1 min-h-[60px] border rounded-lg ${classes} flex flex-col">
+            <span class="text-[10px] text-right mb-1 text-slate-700 dark:text-slate-300 ${isToday ? 'text-blue-600 dark:text-blue-400' : ''}">${day}</span>
+            <div class="flex-1 overflow-y-auto max-h-[50px] custom-scrollbar">
+              ${eventsHtml}
+            </div>
+          </div>
+        `;
+      }
+
+      html += `</div>`;
+      container.innerHTML = html;
+      lucide.createIcons();
+    }
+
+    // ==========================================================
+    // 9.6 ANUNCIOS GENERALES
     // ==========================================================
     let anunciosState = JSON.parse(localStorage.getItem('lumni_anuncios')) || [
       {
@@ -1392,12 +1550,49 @@
       openQrModal(nuevoAlumno.uuid);
     }
 
+    function sortAlumnos(col) {
+      if (alumnosSortCol === col) {
+        alumnosSortDir = alumnosSortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        alumnosSortCol = col;
+        alumnosSortDir = 'asc';
+      }
+      renderAlumnosTable();
+      updateSortIconsAlumnos();
+    }
+
+    function updateSortIconsAlumnos() {
+      ['sort-icon-nombre', 'sort-icon-tutor'].forEach(id => {
+        const el = document.getElementById(id);
+        if(!el) return;
+        const col = id.replace('sort-icon-', '');
+        if (alumnosSortCol !== col) {
+          el.innerHTML = '<i data-lucide="chevrons-up-down" class="w-3 h-3 text-slate-400"></i>';
+        } else {
+          el.innerHTML = alumnosSortDir === 'asc'
+            ? '<i data-lucide="chevron-up" class="w-3 h-3 text-brand-600"></i>'
+            : '<i data-lucide="chevron-down" class="w-3 h-3 text-brand-600"></i>';
+        }
+      });
+      lucide.createIcons();
+    }
+
     function renderAlumnosTable(filtered = null) {
       const tbody = document.getElementById('alumnos-table-body');
-      const data = filtered || alumnosState;
+      let data = filtered || [...alumnosState];
+
+      if (alumnosSortCol) {
+        data.sort((a, b) => {
+          let valA = a[alumnosSortCol]?.toLowerCase() || '';
+          let valB = b[alumnosSortCol]?.toLowerCase() || '';
+          if (valA < valB) return alumnosSortDir === 'asc' ? -1 : 1;
+          if (valA > valB) return alumnosSortDir === 'asc' ? 1 : -1;
+          return 0;
+        });
+      }
 
       if (data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8 text-center text-slate-400">No hay alumnos.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8"><div class="flex flex-col items-center justify-center gap-2 text-slate-400"><i data-lucide="users" class="w-8 h-8 text-slate-300"></i><p class="text-sm font-semibold text-slate-500">No hay alumnos registrados</p><p class="text-[11px]">Inscribe a tu primer alumno usando el formulario.</p></div></td></tr>`;
         return;
       }
 
@@ -1550,7 +1745,7 @@
     function renderReportesList() {
       const container = document.getElementById('reportes-list-container');
       if (reportesState.length === 0) {
-        container.innerHTML = `<div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-6 text-center text-xs text-slate-400">No hay reportes emitidos.</div>`;
+        container.innerHTML = `<div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-8 flex flex-col items-center justify-center gap-3"><i data-lucide="clipboard-list" class="w-8 h-8 text-slate-300"></i><div class="text-center"><p class="text-sm font-bold text-slate-700 dark:text-slate-300">Sin reportes registrados</p><p class="text-[11px] text-slate-400">El historial de incidencias y méritos aparecerá aquí.</p></div></div>`;
         return;
       }
 
@@ -1618,7 +1813,73 @@
     }
 
     // ==========================================================
-    // 11. NOTIFICACIONES TOAST
+    // 11. EXPORTACIÓN A CSV
+    // ==========================================================
+    function downloadCSV(csvContent, filename) {
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function exportAlumnosCSV() {
+      if (alumnosState.length === 0) {
+        showToast("No hay alumnos para exportar", "error");
+        return;
+      }
+      let csv = "UUID,Nombre,Tutor,Telefono\n";
+      alumnosState.forEach(a => {
+        csv += `"${a.uuid}","${a.nombre}","${a.tutor}","${a.telefono}"\n`;
+      });
+      downloadCSV(csv, "alumnos_lumni.csv");
+      showToast("Reporte de alumnos exportado", "success");
+    }
+
+    function exportAsistenciasCSV() {
+      if (alumnosState.length === 0) {
+        showToast("No hay asistencias para exportar", "error");
+        return;
+      }
+      let csv = "Nombre,Estado Hoy,Hora,Presentes,Retardos,Faltas\n";
+      alumnosState.forEach(a => {
+        const p = a.asistenciasTotales?.presentes || 0;
+        const r = a.asistenciasTotales?.retardos || 0;
+        const f = a.asistenciasTotales?.faltas || 0;
+        csv += `"${a.nombre}","${a.asistenciaHoy}","${a.horaAsistencia}",${p},${r},${f}\n`;
+      });
+      downloadCSV(csv, "asistencias_lumni.csv");
+      showToast("Reporte de asistencias exportado", "success");
+    }
+
+    function exportCalificacionesCSV() {
+      if (alumnosState.length === 0) {
+        showToast("No hay calificaciones para exportar", "error");
+        return;
+      }
+      let csv = "Nombre," + materiasState.map(m => `"${m}"`).join(",") + ",Promedio\n";
+      alumnosState.forEach(a => {
+        let sum = 0;
+        let row = `"${a.nombre}",`;
+        materiasState.forEach(m => {
+          const val = a.calificaciones?.[m] ?? 9.0;
+          sum += parseFloat(val);
+          row += `${val},`;
+        });
+        const prom = materiasState.length > 0 ? Math.round(sum / materiasState.length) : 10;
+        row += `${prom}\n`;
+        csv += row;
+      });
+      downloadCSV(csv, "calificaciones_lumni.csv");
+      showToast("Reporte de calificaciones exportado", "success");
+    }
+
+    // ==========================================================
+    // 12. NOTIFICACIONES TOAST
     // ==========================================================
     function showToast(message, type = 'info') {
       const container = document.getElementById('toast-container');
@@ -1642,6 +1903,37 @@
         toast.classList.add('opacity-0', 'translate-y-2');
         setTimeout(() => toast.remove(), 300);
       }, 3500);
+    }
+
+    // ==========================================================
+    // 13. INSTALACIÓN PWA
+    // ==========================================================
+    let deferredPrompt;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const banner = document.getElementById('pwa-install-banner');
+      if (banner && !localStorage.getItem('lumni_pwa_dismissed')) {
+        banner.classList.remove('hidden');
+      }
+    });
+
+    function dismissPWAInstall() {
+      const banner = document.getElementById('pwa-install-banner');
+      if (banner) banner.classList.add('hidden');
+      localStorage.setItem('lumni_pwa_dismissed', 'true');
+    }
+
+    async function installPWA() {
+      const banner = document.getElementById('pwa-install-banner');
+      if (banner) banner.classList.add('hidden');
+      if (!deferredPrompt) return;
+
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`User response to the install prompt: ${outcome}`);
+      deferredPrompt = null;
     }
 
     // ==========================================================
