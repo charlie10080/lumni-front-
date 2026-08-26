@@ -59,26 +59,47 @@
   <!-- ============================================================ -->
   <main id="view-landing" class="flex-1 flex flex-col justify-center items-center px-4 py-12 sm:py-20 relative overflow-hidden">
 
-    <!-- Animación de Fondo (Globo y Cohete) -->
-    <div class="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-center opacity-30 dark:opacity-10 z-0">
+    <!-- Animación de Fondo (Globo, Nubes y Estrellas) -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-center opacity-40 dark:opacity-20 z-0">
+
+      <!-- Estrellas (solo en dark mode) -->
+      <div class="absolute inset-0 hidden dark:block animate-stars">
+        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="10%" cy="20%" r="2" fill="#fff" />
+          <circle cx="85%" cy="15%" r="1.5" fill="#fff" />
+          <circle cx="20%" cy="80%" r="2" fill="#fff" />
+          <circle cx="80%" cy="75%" r="1" fill="#fff" />
+          <circle cx="50%" cy="10%" r="1.5" fill="#fff" />
+          <circle cx="70%" cy="90%" r="2" fill="#fff" />
+        </svg>
+      </div>
+
       <div class="relative w-[500px] h-[500px] sm:w-[800px] sm:h-[800px]">
-        <!-- Globo Terráqueo -->
-        <svg class="absolute inset-0 w-full h-full text-brand-300 animate-spin-slow" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="100" cy="100" r="90" stroke="currentColor" stroke-width="4" stroke-dasharray="10 10"/>
-          <path d="M100 10C140 10 160 50 160 100C160 150 140 190 100 190C60 190 40 150 40 100C40 50 60 10 100 10Z" stroke="currentColor" stroke-width="2"/>
-          <path d="M10 100H190" stroke="currentColor" stroke-width="2"/>
-          <path d="M30 50H170" stroke="currentColor" stroke-width="2"/>
-          <path d="M30 150H170" stroke="currentColor" stroke-width="2"/>
+        <!-- Globo Terráqueo Bonito -->
+        <svg class="absolute inset-0 w-full h-full text-brand-300 dark:text-brand-500 animate-spin-earth" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="100" cy="100" r="90" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="4"/>
+          <!-- Meridianos y Paralelos curvados -->
+          <ellipse cx="100" cy="100" rx="45" ry="90" stroke="currentColor" stroke-width="2"/>
+          <path d="M10 100 C 10 100, 100 120, 190 100" stroke="currentColor" stroke-width="2"/>
+          <path d="M30 50 C 30 50, 100 70, 170 50" stroke="currentColor" stroke-width="2"/>
+          <path d="M30 150 C 30 150, 100 170, 170 150" stroke="currentColor" stroke-width="2"/>
+          <!-- Continentes simplificados -->
+          <path d="M 60 40 Q 80 30, 90 50 T 70 80 Q 50 70, 60 40 Z" fill="currentColor" fill-opacity="0.2"/>
+          <path d="M 120 70 Q 150 60, 160 90 T 130 130 Q 110 110, 120 70 Z" fill="currentColor" fill-opacity="0.2"/>
+          <path d="M 80 130 Q 100 120, 110 150 T 80 170 Q 60 150, 80 130 Z" fill="currentColor" fill-opacity="0.2"/>
         </svg>
 
-        <!-- Cohete -->
-        <div class="absolute top-[10%] right-[20%] text-rose-500 animate-rocket">
-          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path>
-            <path d="m12 15-3-3a22 22 0 0 1 3.82-13 1.5 1.5 0 0 1 2.18 2.18A22 22 0 0 1 12 15Z"></path>
-            <path d="M9 15v-1c0-.55-.45-1-1-1H7"></path>
-            <path d="M15 9h1c.55 0 1 .45 1 1v1"></path>
-            <path d="M22 2 11.5 12.5"></path>
+        <!-- Nube 1 -->
+        <div class="absolute top-[20%] left-[10%] text-brand-200 dark:text-slate-600 dark:text-slate-400 animate-cloud-1">
+          <svg width="100" height="60" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.1384 20.1856 10.2017 17.8887 10.0163C17.3789 6.62145 14.4447 4 11 4C7.13401 4 4 7.13401 4 11C4 11.2335 4.01148 11.4645 4.03387 11.6917C1.78206 12.1979 0 14.1504 0 16.5C0 19.5376 2.46243 22 5.5 22H17.5C20.5376 22 23 19.5376 23 16.5C23 14.4578 21.8845 12.6738 20.138 11.724" fill-opacity="0.5"/>
+          </svg>
+        </div>
+
+        <!-- Nube 2 -->
+        <div class="absolute bottom-[25%] right-[15%] text-indigo-200 dark:text-indigo-800 animate-cloud-2">
+          <svg width="120" height="70" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.1384 20.1856 10.2017 17.8887 10.0163C17.3789 6.62145 14.4447 4 11 4C7.13401 4 4 7.13401 4 11C4 11.2335 4.01148 11.4645 4.03387 11.6917C1.78206 12.1979 0 14.1504 0 16.5C0 19.5376 2.46243 22 5.5 22H17.5C20.5376 22 23 19.5376 23 16.5C23 14.4578 21.8845 12.6738 20.138 11.724" fill-opacity="0.5"/>
           </svg>
         </div>
       </div>
@@ -109,11 +130,11 @@
           onclick="showView('view-auth-maestro')" 
           class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border-2 border-slate-200 dark:border-slate-700/80 hover:border-brand-500 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-center text-center space-y-4 group"
         >
-          <div class="w-14 h-14 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <div class="w-14 h-14 rounded-2xl bg-brand-50 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 flex items-center justify-center group-hover:scale-110 transition-transform">
             <i data-lucide="graduation-cap" class="w-7 h-7"></i>
           </div>
           <div class="space-y-1">
-            <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100 group-hover:text-brand-600 transition-colors">Soy Maestro</h2>
+            <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100 group-hover:text-brand-600 dark:text-brand-400 transition-colors">Soy Maestro</h2>
             <p class="text-xs text-slate-500 dark:text-slate-400">Pase de lista con QR, Reporte de Evaluación, Proyectos, Tareas y Bandeja de Mensajes.</p>
           </div>
           <div class="w-full pt-1">
@@ -129,11 +150,11 @@
           onclick="showView('view-auth-padre')" 
           class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border-2 border-slate-200 dark:border-slate-700/80 hover:border-indigo-500 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-center text-center space-y-4 group"
         >
-          <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <div class="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center group-hover:scale-110 transition-transform">
             <i data-lucide="shield-check" class="w-7 h-7"></i>
           </div>
           <div class="space-y-1">
-            <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 transition-colors">Soy Padre de Familia</h2>
+            <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:text-indigo-400 transition-colors">Soy Padre de Familia</h2>
             <p class="text-xs text-slate-500 dark:text-slate-400">Sin registros. Consulta asistencias, boletas y envía mensajes directos al maestro con tu código.</p>
           </div>
           <div class="w-full pt-1">
@@ -160,7 +181,7 @@
           <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
           <span>Volver al inicio</span>
         </button>
-        <div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center mx-auto">
+        <div class="w-12 h-12 rounded-2xl bg-brand-50 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 flex items-center justify-center mx-auto">
           <i data-lucide="user-check" class="w-6 h-6"></i>
         </div>
         <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Portal del Docente</h2>
@@ -263,7 +284,7 @@
           <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
           <span>Volver al inicio</span>
         </button>
-        <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto">
+        <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto">
           <i data-lucide="shield-check" class="w-6 h-6"></i>
         </div>
         <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Portal de Familias</h2>
@@ -340,7 +361,7 @@
               <span class="text-xl font-extrabold bg-gradient-to-r from-brand-700 via-indigo-600 to-brand-500 bg-clip-text text-transparent">
                 Lumni
               </span>
-              <span class="px-1.5 py-0.5 text-[9px] font-bold bg-brand-50 text-brand-700 rounded-md border border-brand-200">
+              <span class="px-1.5 py-0.5 text-[9px] font-bold bg-brand-50 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 rounded-md border border-brand-200">
                 SaaS
               </span>
             </div>
@@ -353,52 +374,52 @@
 
         <!-- Grupo Escolar Activo -->
         <div class="px-5 py-3 bg-slate-50 dark:bg-slate-800/70 border-b border-slate-100 dark:border-slate-700/80 flex items-center gap-2 text-xs">
-          <i data-lucide="school" class="w-3.5 h-3.5 text-brand-600 shrink-0"></i>
+          <i data-lucide="school" class="w-3.5 h-3.5 text-brand-600 dark:text-brand-400 shrink-0"></i>
           <span id="sidebar-group-badge" class="font-bold text-slate-700 dark:text-slate-300 truncate">3er Grado Grupo B</span>
         </div>
 
         <!-- Lista Vertical de Navegación -->
         <nav class="p-3 space-y-1 flex-1 overflow-y-auto">
 
-          <button onclick="switchTeacherTab('dashboard'); closeMobileSidebarIfOpen();" id="sidebar-tab-dashboard" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-bold bg-brand-50 text-brand-700 group">
-            <i data-lucide="layout-dashboard" class="w-5 h-5 shrink-0 text-brand-600"></i>
+          <button onclick="switchTeacherTab('dashboard'); closeMobileSidebarIfOpen();" id="sidebar-tab-dashboard" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-bold bg-brand-50 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 group">
+            <i data-lucide="layout-dashboard" class="w-5 h-5 shrink-0 text-brand-600 dark:text-brand-400"></i>
             <span class="whitespace-nowrap font-medium text-sm text-left">Dashboard</span>
           </button>
 
-          <button onclick="switchTeacherTab('alumnos'); closeMobileSidebarIfOpen();" id="sidebar-tab-alumnos" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 hover:bg-brand-50 group">
-            <i data-lucide="users" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600"></i>
+          <button onclick="switchTeacherTab('alumnos'); closeMobileSidebarIfOpen();" id="sidebar-tab-alumnos" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:text-brand-300 hover:bg-brand-50 dark:bg-brand-900/40 group">
+            <i data-lucide="users" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600 dark:text-brand-400"></i>
             <span class="whitespace-nowrap font-medium text-sm text-left">Alumnos &amp; QR</span>
           </button>
 
-          <button onclick="switchTeacherTab('asistencias'); closeMobileSidebarIfOpen();" id="sidebar-tab-asistencias" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 hover:bg-brand-50 group">
-            <i data-lucide="scan-line" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600"></i>
+          <button onclick="switchTeacherTab('asistencias'); closeMobileSidebarIfOpen();" id="sidebar-tab-asistencias" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:text-brand-300 hover:bg-brand-50 dark:bg-brand-900/40 group">
+            <i data-lucide="scan-line" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600 dark:text-brand-400"></i>
             <span class="whitespace-nowrap font-medium text-sm text-left">Asistencias</span>
           </button>
 
-          <button onclick="switchTeacherTab('calificaciones'); closeMobileSidebarIfOpen();" id="sidebar-tab-calificaciones" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 hover:bg-brand-50 group">
-            <i data-lucide="award" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600"></i>
+          <button onclick="switchTeacherTab('calificaciones'); closeMobileSidebarIfOpen();" id="sidebar-tab-calificaciones" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:text-brand-300 hover:bg-brand-50 dark:bg-brand-900/40 group">
+            <i data-lucide="award" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600 dark:text-brand-400"></i>
             <span class="whitespace-nowrap font-medium text-sm text-left">Reporte de Evaluación</span>
           </button>
 
-          <button onclick="switchTeacherTab('proyectos'); closeMobileSidebarIfOpen();" id="sidebar-tab-proyectos" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 hover:bg-brand-50 group">
-            <i data-lucide="folder-kanban" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600"></i>
+          <button onclick="switchTeacherTab('proyectos'); closeMobileSidebarIfOpen();" id="sidebar-tab-proyectos" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:text-brand-300 hover:bg-brand-50 dark:bg-brand-900/40 group">
+            <i data-lucide="folder-kanban" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600 dark:text-brand-400"></i>
             <span class="whitespace-nowrap font-medium text-sm text-left">Proyectos</span>
           </button>
 
-          <button onclick="switchTeacherTab('tareas'); closeMobileSidebarIfOpen();" id="sidebar-tab-tareas" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 hover:bg-brand-50 group">
-            <i data-lucide="check-square" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600"></i>
+          <button onclick="switchTeacherTab('tareas'); closeMobileSidebarIfOpen();" id="sidebar-tab-tareas" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:text-brand-300 hover:bg-brand-50 dark:bg-brand-900/40 group">
+            <i data-lucide="check-square" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600 dark:text-brand-400"></i>
             <span class="whitespace-nowrap font-medium text-sm text-left">Tareas</span>
           </button>
 
           <!-- MENSAJES con badge de no leídos -->
-          <button onclick="switchTeacherTab('mensajes'); closeMobileSidebarIfOpen();" id="sidebar-tab-mensajes" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 hover:bg-brand-50 group">
-            <i data-lucide="inbox" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600"></i>
+          <button onclick="switchTeacherTab('mensajes'); closeMobileSidebarIfOpen();" id="sidebar-tab-mensajes" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:text-brand-300 hover:bg-brand-50 dark:bg-brand-900/40 group">
+            <i data-lucide="inbox" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600 dark:text-brand-400"></i>
             <span class="whitespace-nowrap font-medium text-sm text-left flex-1">Mensajes</span>
             <span id="sidebar-unread-badge" class="bg-brand-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 hidden">0</span>
           </button>
 
-          <button onclick="switchTeacherTab('reportes'); closeMobileSidebarIfOpen();" id="sidebar-tab-reportes" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 hover:bg-brand-50 group">
-            <i data-lucide="clipboard-list" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600"></i>
+          <button onclick="switchTeacherTab('reportes'); closeMobileSidebarIfOpen();" id="sidebar-tab-reportes" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:text-brand-300 hover:bg-brand-50 dark:bg-brand-900/40 group">
+            <i data-lucide="clipboard-list" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600 dark:text-brand-400"></i>
             <span class="whitespace-nowrap font-medium text-sm text-left">Reportes</span>
           </button>
 
@@ -410,7 +431,7 @@
         <div class="bg-white dark:bg-slate-900 p-3 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-2xs space-y-1.5">
           <div class="flex items-center justify-between text-[11px] font-bold">
             <span class="text-slate-500 dark:text-slate-400">Capacidad</span>
-            <span id="sidebar-capacidad-txt" class="text-brand-700">3 / 50</span>
+            <span id="sidebar-capacidad-txt" class="text-brand-700 dark:text-brand-300">3 / 50</span>
           </div>
           <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
             <div id="sidebar-progress-bar" class="h-full bg-brand-500 rounded-full transition-all duration-300" style="width: 6%;"></div>
@@ -427,7 +448,7 @@
               <p class="text-[10px] text-slate-400 truncate">Docente Titular</p>
             </div>
           </div>
-          <button onclick="logout()" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer" title="Cerrar Sesión">
+          <button onclick="logout()" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:bg-rose-900/40 rounded-lg transition-colors cursor-pointer" title="Cerrar Sesión">
             <i data-lucide="log-out" class="w-4 h-4"></i>
           </button>
         </div>
@@ -460,7 +481,7 @@
             <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
           </button>
 
-          <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/70 text-[11px] font-semibold">
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200/70 text-[11px] font-semibold">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
             <span>Sistema en Línea</span>
           </div>
@@ -469,7 +490,7 @@
 
           <button 
             onclick="logout()" 
-            class="px-2.5 py-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-rose-700 hover:bg-rose-50 border border-transparent hover:border-rose-200 rounded-xl transition-all flex items-center gap-1 cursor-pointer"
+            class="px-2.5 py-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-rose-700 dark:text-rose-400 hover:bg-rose-50 dark:bg-rose-900/40 border border-transparent hover:border-rose-200 rounded-xl transition-all flex items-center gap-1 cursor-pointer"
             title="Cerrar sesión"
           >
             <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
@@ -502,7 +523,7 @@
               </div>
               
               <div class="flex flex-wrap items-center gap-2.5 shrink-0">
-                <button onclick="switchTeacherTab('mensajes')" class="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 text-brand-700 font-bold text-xs sm:text-sm shadow-md hover:bg-brand-50 transition-all cursor-pointer">
+                <button onclick="switchTeacherTab('mensajes')" class="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 text-brand-700 dark:text-brand-300 font-bold text-xs sm:text-sm shadow-md hover:bg-brand-50 dark:bg-brand-900/40 transition-all cursor-pointer">
                   <i data-lucide="inbox" class="w-4 h-4"></i>
                   <span>Bandeja de Mensajes</span>
                 </button>
@@ -521,7 +542,7 @@
             <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-700/80 shadow-xs">
               <div class="flex items-center justify-between mb-3">
                 <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Capacidad Alumnos</span>
-                <div class="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center"><i data-lucide="users" class="w-4 h-4"></i></div>
+                <div class="w-8 h-8 rounded-xl bg-brand-50 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 flex items-center justify-center"><i data-lucide="users" class="w-4 h-4"></i></div>
               </div>
               <div class="space-y-2">
                 <div class="flex items-baseline justify-between">
@@ -530,14 +551,14 @@
                     <span class="text-slate-400 text-sm font-medium">/</span>
                     <span id="dash-count-max" class="text-sm font-semibold text-slate-500 dark:text-slate-400">50</span>
                   </div>
-                  <span id="dash-limit-percent" class="text-xs font-bold text-brand-700 bg-brand-50 px-2 py-0.5 rounded-md border border-brand-100">0%</span>
+                  <span id="dash-limit-percent" class="text-xs font-bold text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-900/40 px-2 py-0.5 rounded-md border border-brand-100">0%</span>
                 </div>
                 <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
                   <div id="dash-progress-bar" class="h-full rounded-full bg-gradient-to-r from-brand-500 to-indigo-600 transition-all duration-500" style="width: 0%;"></div>
                 </div>
                 <p class="text-[11px] text-slate-400 flex items-center justify-between pt-0.5">
                   <span>Disponibles: <strong id="dash-disponibles-txt" class="text-slate-700 dark:text-slate-300">50</strong></span>
-                  <span class="text-brand-600 font-semibold">Límite 50</span>
+                  <span class="text-brand-600 dark:text-brand-400 font-semibold">Límite 50</span>
                 </p>
               </div>
             </div>
@@ -546,17 +567,17 @@
             <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-700/80 shadow-xs">
               <div class="flex items-center justify-between mb-3">
                 <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Asistencia Hoy</span>
-                <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center"><i data-lucide="check-check" class="w-4 h-4"></i></div>
+                <div class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 flex items-center justify-center"><i data-lucide="check-check" class="w-4 h-4"></i></div>
               </div>
               <div class="space-y-1">
                 <div class="flex items-baseline gap-2">
                   <h3 id="dash-asistencia-rate" class="text-2xl font-extrabold text-slate-900 dark:text-slate-100">0%</h3>
-                  <span id="dash-asistencia-count" class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">0 de 0</span>
+                  <span id="dash-asistencia-count" class="text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/40 px-2 py-0.5 rounded-full border border-emerald-100">0 de 0</span>
                 </div>
                 <p class="text-[11px] text-slate-400">Pase de lista con QR y manual</p>
               </div>
               <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between text-xs">
-                <button onclick="switchTeacherTab('asistencias')" class="text-brand-600 font-semibold hover:underline flex items-center gap-1">
+                <button onclick="switchTeacherTab('asistencias')" class="text-brand-600 dark:text-brand-400 font-semibold hover:underline flex items-center gap-1">
                   <span>Abrir escáner QR</span>
                   <i data-lucide="arrow-right" class="w-3 h-3"></i>
                 </button>
@@ -567,17 +588,17 @@
             <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-700/80 shadow-xs">
               <div class="flex items-center justify-between mb-3">
                 <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Buzón de Mensajes</span>
-                <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center"><i data-lucide="inbox" class="w-4 h-4"></i></div>
+                <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center"><i data-lucide="inbox" class="w-4 h-4"></i></div>
               </div>
               <div class="space-y-1">
                 <div class="flex items-baseline gap-2">
                   <h3 id="dash-unread-count" class="text-2xl font-extrabold text-slate-900 dark:text-slate-100">0</h3>
-                  <span class="text-xs font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">Sin leer</span>
+                  <span class="text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/40 px-2 py-0.5 rounded-full border border-indigo-100">Sin leer</span>
                 </div>
                 <p class="text-[11px] text-slate-400">Comunicación con padres</p>
               </div>
               <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between text-xs">
-                <button onclick="switchTeacherTab('mensajes')" class="text-brand-600 font-semibold hover:underline flex items-center gap-1">
+                <button onclick="switchTeacherTab('mensajes')" class="text-brand-600 dark:text-brand-400 font-semibold hover:underline flex items-center gap-1">
                   <span>Abrir bandeja</span>
                   <i data-lucide="arrow-right" class="w-3 h-3"></i>
                 </button>
@@ -588,17 +609,17 @@
             <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-700/80 shadow-xs">
               <div class="flex items-center justify-between mb-3">
                 <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actividades</span>
-                <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center"><i data-lucide="layers" class="w-4 h-4"></i></div>
+                <div class="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-900/40 text-amber-600 flex items-center justify-center"><i data-lucide="layers" class="w-4 h-4"></i></div>
               </div>
               <div class="space-y-1">
                 <div class="flex items-baseline gap-2">
                   <h3 id="dash-actividades-count" class="text-2xl font-extrabold text-slate-900 dark:text-slate-100">4</h3>
-                  <span class="text-xs font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-100">Proyectos y Tareas</span>
+                  <span class="text-xs font-semibold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/40 px-2 py-0.5 rounded-full border border-amber-100">Proyectos y Tareas</span>
                 </div>
                 <p class="text-[11px] text-slate-400">Con Campos Formativos</p>
               </div>
               <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between text-xs">
-                <button onclick="switchTeacherTab('proyectos')" class="text-brand-600 font-semibold hover:underline flex items-center gap-1">
+                <button onclick="switchTeacherTab('proyectos')" class="text-brand-600 dark:text-brand-400 font-semibold hover:underline flex items-center gap-1">
                   <span>Ver proyectos</span>
                   <i data-lucide="arrow-right" class="w-3 h-3"></i>
                 </button>
@@ -611,10 +632,10 @@
           <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 sm:p-6 shadow-xs">
             <div class="flex items-center justify-between mb-4">
               <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <i data-lucide="activity" class="w-4 h-4 text-brand-600"></i>
+                <i data-lucide="activity" class="w-4 h-4 text-brand-600 dark:text-brand-400"></i>
                 <span>Asistencias Registradas Hoy</span>
               </h3>
-              <button onclick="switchTeacherTab('asistencias')" class="text-xs font-semibold text-brand-600 hover:text-brand-700">Pase de lista</button>
+              <button onclick="switchTeacherTab('asistencias')" class="text-xs font-semibold text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:text-brand-300">Pase de lista</button>
             </div>
             <div id="dash-activity-list" class="divide-y divide-slate-100 dark:divide-slate-700 text-xs"></div>
           </div>
@@ -628,7 +649,7 @@
               <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Gestión de Alumnos & Credenciales QR</h2>
               <p class="text-xs text-slate-500 dark:text-slate-400">Inscribe, edita y da de baja alumnos. Emite credenciales digitales de acceso.</p>
             </div>
-            <span class="text-xs font-semibold px-3 py-1.5 bg-brand-50 text-brand-700 rounded-xl border border-brand-200 self-start sm:self-auto">
+            <span class="text-xs font-semibold px-3 py-1.5 bg-brand-50 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 rounded-xl border border-brand-200 self-start sm:self-auto">
               Cupo disponible: <strong id="cupo-disponible-tab" class="text-brand-800">50</strong> / 50
             </span>
           </div>
@@ -638,7 +659,7 @@
             <div class="lg:col-span-5">
               <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 shadow-xs space-y-4">
                 <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <i data-lucide="user-plus" class="w-4 h-4 text-brand-600"></i>
+                  <i data-lucide="user-plus" class="w-4 h-4 text-brand-600 dark:text-brand-400"></i>
                   <span>Inscribir Alumno</span>
                 </h3>
 
@@ -711,10 +732,10 @@
               <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 shadow-xs">
                 <div class="flex items-center justify-between mb-1">
                   <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <i data-lucide="camera" class="w-4 h-4 text-brand-600"></i>
+                    <i data-lucide="camera" class="w-4 h-4 text-brand-600 dark:text-brand-400"></i>
                     <span>Escáner QR</span>
                   </h3>
-                  <span class="text-[10px] font-bold bg-brand-50 text-brand-700 px-2 py-0.5 rounded-full border border-brand-200">
+                  <span class="text-[10px] font-bold bg-brand-50 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 px-2 py-0.5 rounded-full border border-brand-200">
                     📷 Cámara Trasera
                   </span>
                 </div>
@@ -744,13 +765,13 @@
                 </div>
               </div>
 
-              <div id="last-scan-feedback" class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-emerald-900 hidden">
+              <div id="last-scan-feedback" class="bg-emerald-50 dark:bg-emerald-900/40 border border-emerald-200 rounded-2xl p-4 text-emerald-900 hidden">
                 <div class="flex items-center gap-3">
                   <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold"><i data-lucide="check" class="w-4 h-4"></i></div>
                   <div>
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">¡Asistencia Confirmada!</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">¡Asistencia Confirmada!</span>
                     <h4 id="last-scan-name" class="font-bold text-xs sm:text-sm text-emerald-950">Sofía Martínez</h4>
-                    <p id="last-scan-meta" class="text-xs text-emerald-700">Hora: 08:05 AM</p>
+                    <p id="last-scan-meta" class="text-xs text-emerald-700 dark:text-emerald-400">Hora: 08:05 AM</p>
                   </div>
                 </div>
               </div>
@@ -761,7 +782,7 @@
               <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-xs overflow-hidden">
                 <div class="p-4 border-b border-slate-100 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2">
                   <h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm">Pase de Lista del Grupo</h3>
-                  <button onclick="markAllAttendance('presente')" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-bold transition-all">
+                  <button onclick="markAllAttendance('presente')" class="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/40 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-400 rounded-xl text-xs font-bold transition-all">
                     Marcar Todos Presentes
                   </button>
                 </div>
@@ -791,8 +812,8 @@
               <p class="text-xs text-slate-500 dark:text-slate-400">Configura la plantilla de materias y asienta las calificaciones oficiales (promedio entero sin decimales).</p>
             </div>
             <div class="flex items-center gap-2">
-              <button onclick="openMateriasModal()" class="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer">
-                <i data-lucide="settings" class="w-4 h-4 text-indigo-600"></i>
+              <button onclick="openMateriasModal()" class="px-3.5 py-2 bg-indigo-50 dark:bg-indigo-900/40 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 border border-indigo-200 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer">
+                <i data-lucide="settings" class="w-4 h-4 text-indigo-600 dark:text-indigo-400"></i>
                 <span>⚙️ Configurar Materias</span>
               </button>
               <button onclick="saveAllGrades()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer">
@@ -807,7 +828,7 @@
               <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider shrink-0">Materias Evaluadas:</span>
               <div id="active-materias-badges" class="flex flex-wrap gap-1.5"></div>
             </div>
-            <span class="text-[11px] font-semibold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-lg border border-brand-100">Escala de 5 a 10 (Promedio Entero)</span>
+            <span class="text-[11px] font-semibold text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-900/40 px-2.5 py-1 rounded-lg border border-brand-100">Escala de 5 a 10 (Promedio Entero)</span>
           </div>
 
           <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-xs overflow-hidden">
@@ -857,7 +878,7 @@
               <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Bandeja de Mensajes Asíncronos</h2>
               <p class="text-xs text-slate-500 dark:text-slate-400">Comunicación directa con padres de familia, justificación de faltas y dudas académicas.</p>
             </div>
-            <span id="teacher-inbox-stats" class="text-xs font-semibold px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-xl border border-indigo-200 self-start sm:self-auto">
+            <span id="teacher-inbox-stats" class="text-xs font-semibold px-3 py-1.5 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 rounded-xl border border-indigo-200 self-start sm:self-auto">
               2 Conversaciones
             </span>
           </div>
@@ -886,7 +907,7 @@
               <!-- Cabecera del Hilo Seleccionado -->
               <div id="thread-header" class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between gap-3 bg-white dark:bg-slate-900 shrink-0">
                 <div class="flex items-center gap-3 min-w-0">
-                  <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-700 flex items-center justify-center font-bold text-sm shrink-0" id="thread-student-avatar">
+                  <div class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold text-sm shrink-0" id="thread-student-avatar">
                     S
                   </div>
                   <div class="min-w-0">
@@ -895,7 +916,7 @@
                   </div>
                 </div>
                 <div class="text-right shrink-0">
-                  <span id="thread-status-badge" class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <span id="thread-status-badge" class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200">
                     Al día
                   </span>
                   <p id="thread-last-date" class="text-[10px] text-slate-400 mt-0.5">24 Ago</p>
@@ -948,7 +969,7 @@
             <div class="lg:col-span-5">
               <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 shadow-xs space-y-4">
                 <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <i data-lucide="file-plus" class="w-4 h-4 text-brand-600"></i>
+                  <i data-lucide="file-plus" class="w-4 h-4 text-brand-600 dark:text-brand-400"></i>
                   <span>Redactar Reporte</span>
                 </h3>
 
@@ -990,7 +1011,7 @@
             <div class="lg:col-span-7 space-y-4">
               <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-4 shadow-xs flex items-center justify-between">
                 <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <i data-lucide="clipboard-list" class="w-4 h-4 text-brand-600"></i>
+                  <i data-lucide="clipboard-list" class="w-4 h-4 text-brand-600 dark:text-brand-400"></i>
                   <span>Historial de Reportes Emitidos</span>
                 </h3>
                 <span id="reportes-count-badge" class="text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-3 py-1 rounded-xl">0 Reportes</span>
@@ -1023,7 +1044,7 @@
             <span class="px-2 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-800 rounded-full">Activo</span>
           </div>
           <p id="p-grupo-tutor" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">3er Grado Grupo B • Tutor: Carmen Ruiz García</p>
-          <p id="p-profesor" class="text-[11px] text-brand-600 font-semibold mt-0.5">Docente Titular: Prof. Carlos Mendoza</p>
+          <p id="p-profesor" class="text-[11px] text-brand-600 dark:text-brand-400 font-semibold mt-0.5">Docente Titular: Prof. Carlos Mendoza</p>
         </div>
       </div>
 
@@ -1036,7 +1057,7 @@
           <i data-lucide="printer" class="w-4 h-4"></i>
           <span>Imprimir Reporte</span>
         </button>
-        <button onclick="showView('view-landing')" class="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer">
+        <button onclick="showView('view-landing')" class="px-3.5 py-2 bg-rose-50 dark:bg-rose-900/40 hover:bg-rose-100 text-rose-700 dark:text-rose-400 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer">
           <i data-lucide="log-out" class="w-4 h-4"></i>
           <span>Salir</span>
         </button>
@@ -1046,6 +1067,17 @@
     <!-- Módulos del Portal de Padres -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="print-parent-report">
       
+      <!-- 0. ANUNCIOS GENERALES -->
+      <div class="md:col-span-2 bg-gradient-to-r from-brand-600 to-indigo-600 rounded-2xl p-5 shadow-xs space-y-3 text-white">
+        <div class="flex items-center gap-2">
+          <i data-lucide="megaphone" class="w-5 h-5 text-amber-300"></i>
+          <h3 class="text-sm font-bold">Avisos y Tablero de Anuncios</h3>
+        </div>
+        <div id="p-anuncios-list" class="space-y-2">
+          <!-- Renderizado dinámicamente en app.js -->
+        </div>
+      </div>
+
       <!-- 1. ASISTENCIAS -->
       <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 shadow-xs space-y-4">
         <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
@@ -1053,27 +1085,27 @@
             <i data-lucide="calendar-check-2" class="w-4 h-4 text-emerald-600"></i>
             <span>Registro de Asistencias</span>
           </h3>
-          <span id="p-asist-rate-badge" class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100">100%</span>
+          <span id="p-asist-rate-badge" class="text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/40 px-2.5 py-0.5 rounded-full border border-emerald-100">100%</span>
         </div>
 
         <div class="grid grid-cols-3 gap-2.5 text-center">
-          <div class="bg-emerald-50/70 p-3 rounded-xl border border-emerald-100">
-            <span class="text-[10px] text-emerald-700 font-bold block">Presentes</span>
+          <div class="bg-emerald-50 dark:bg-emerald-900/40/70 p-3 rounded-xl border border-emerald-100">
+            <span class="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold block">Presentes</span>
             <strong id="p-asist-presentes" class="text-lg font-extrabold text-emerald-900">22</strong>
           </div>
-          <div class="bg-amber-50/70 p-3 rounded-xl border border-amber-100">
-            <span class="text-[10px] text-amber-700 font-bold block">Retardos</span>
+          <div class="bg-amber-50 dark:bg-amber-900/40/70 p-3 rounded-xl border border-amber-100">
+            <span class="text-[10px] text-amber-700 dark:text-amber-400 font-bold block">Retardos</span>
             <strong id="p-asist-retardos" class="text-lg font-extrabold text-amber-900">1</strong>
           </div>
-          <div class="bg-rose-50/70 p-3 rounded-xl border border-rose-100">
-            <span class="text-[10px] text-rose-700 font-bold block">Faltas</span>
+          <div class="bg-rose-50 dark:bg-rose-900/40/70 p-3 rounded-xl border border-rose-100">
+            <span class="text-[10px] text-rose-700 dark:text-rose-400 font-bold block">Faltas</span>
             <strong id="p-asist-faltas" class="text-lg font-extrabold text-rose-900">0</strong>
           </div>
         </div>
 
         <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl text-xs text-slate-600 dark:text-slate-400 flex items-center justify-between">
           <span>Estado de hoy:</span>
-          <strong id="p-asist-hoy-badge" class="text-emerald-700 font-bold">Presente</strong>
+          <strong id="p-asist-hoy-badge" class="text-emerald-700 dark:text-emerald-400 font-bold">Presente</strong>
         </div>
       </div>
 
@@ -1081,10 +1113,10 @@
       <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 shadow-xs space-y-4">
         <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
           <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <i data-lucide="award" class="w-4 h-4 text-brand-600"></i>
+            <i data-lucide="award" class="w-4 h-4 text-brand-600 dark:text-brand-400"></i>
             <span>Reporte de Evaluación</span>
           </h3>
-          <span id="p-promedio-general" class="text-xs font-bold text-brand-700 bg-brand-50 px-2.5 py-0.5 rounded-full border border-brand-100">Promedio: 9</span>
+          <span id="p-promedio-general" class="text-xs font-bold text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-900/40 px-2.5 py-0.5 rounded-full border border-brand-100">Promedio: 9</span>
         </div>
 
         <div id="p-materias-list" class="space-y-2 text-xs"></div>
@@ -1094,7 +1126,7 @@
       <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 shadow-xs space-y-4">
         <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
           <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <i data-lucide="folder-kanban" class="w-4 h-4 text-indigo-600"></i>
+            <i data-lucide="folder-kanban" class="w-4 h-4 text-indigo-600 dark:text-indigo-400"></i>
             <span>Proyectos</span>
           </h3>
           <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Campos Formativos</span>
@@ -1120,7 +1152,7 @@
       <div class="md:col-span-2 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-700/80 p-5 sm:p-6 shadow-xs space-y-5">
         <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
           <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+            <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
               <i data-lucide="message-square" class="w-4 h-4"></i>
             </div>
             <div>
@@ -1128,7 +1160,7 @@
               <p class="text-[11px] text-slate-400">Canal directo para avisos, justificantes y consultas académicas.</p>
             </div>
           </div>
-          <span class="px-2.5 py-0.5 text-[10px] font-bold bg-indigo-50 text-indigo-700 rounded-full border border-indigo-200">
+          <span class="px-2.5 py-0.5 text-[10px] font-bold bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 rounded-full border border-indigo-200">
             Asíncrono
           </span>
         </div>
@@ -1210,7 +1242,7 @@
       <div class="p-5 text-center space-y-4">
         <div class="flex items-center justify-between">
           <p class="text-xs text-slate-500 dark:text-slate-400 text-left">Apunta al código QR de la credencial escolar.</p>
-          <span class="text-[10px] font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200 shrink-0">
+          <span class="text-[10px] font-bold bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-full border border-indigo-200 shrink-0">
             📷 Cámara Trasera
           </span>
         </div>
@@ -1285,7 +1317,7 @@
       </div>
 
       <div id="print-modal-area" class="p-6 text-center space-y-4">
-        <div class="inline-flex items-center gap-2 px-3 py-1 bg-brand-50 text-brand-800 rounded-full text-[11px] font-bold border border-brand-200">
+        <div class="inline-flex items-center gap-2 px-3 py-1 bg-brand-50 dark:bg-brand-900/40 text-brand-800 rounded-full text-[11px] font-bold border border-brand-200">
           <i data-lucide="graduation-cap" class="w-3.5 h-3.5"></i>
           <span id="qr-modal-school-name">Lumni • Escuela</span>
         </div>
@@ -1297,13 +1329,13 @@
 
         <div>
           <h3 id="qr-modal-student-name" class="text-lg font-bold text-slate-900 dark:text-slate-100 leading-tight">Sofía Martínez Ruiz</h3>
-          <p id="qr-modal-student-group" class="text-xs text-brand-600 font-semibold mt-0.5">3er Grado Grupo B</p>
+          <p id="qr-modal-student-group" class="text-xs text-brand-600 dark:text-brand-400 font-semibold mt-0.5">3er Grado Grupo B</p>
           <p id="qr-modal-student-tutor" class="text-xs text-slate-500 dark:text-slate-400 mt-1">Tutor: Carmen Ruiz García</p>
         </div>
 
         <div class="bg-slate-100 dark:bg-slate-800 py-1.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700 font-mono text-[11px] text-slate-700 dark:text-slate-300 flex items-center justify-between">
           <span>Código ID:</span>
-          <span id="qr-modal-uuid-txt" class="font-bold text-brand-700">alu-12345...</span>
+          <span id="qr-modal-uuid-txt" class="font-bold text-brand-700 dark:text-brand-300">alu-12345...</span>
         </div>
       </div>
 
@@ -1391,27 +1423,33 @@
           <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Campos Formativos Articulados *</label>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs">
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" name="proj_campo" value="Lenguajes" class="rounded text-brand-600 focus:ring-brand-500" checked />
+              <input type="checkbox" name="proj_campo" value="Lenguajes" class="rounded text-brand-600 dark:text-brand-400 focus:ring-brand-500" checked />
               <span class="font-semibold text-slate-800 dark:text-slate-200">🗣️ Lenguajes</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" name="proj_campo" value="Saberes y Pensamiento Científico" class="rounded text-brand-600 focus:ring-brand-500" checked />
+              <input type="checkbox" name="proj_campo" value="Saberes y Pensamiento Científico" class="rounded text-brand-600 dark:text-brand-400 focus:ring-brand-500" checked />
               <span class="font-semibold text-slate-800 dark:text-slate-200">🔬 Saberes y Pensamiento</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" name="proj_campo" value="Ética, Naturaleza y Sociedades" class="rounded text-brand-600 focus:ring-brand-500" />
+              <input type="checkbox" name="proj_campo" value="Ética, Naturaleza y Sociedades" class="rounded text-brand-600 dark:text-brand-400 focus:ring-brand-500" />
               <span class="font-semibold text-slate-800 dark:text-slate-200">🌍 Ética y Sociedades</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" name="proj_campo" value="De lo Humano y lo Comunitario" class="rounded text-brand-600 focus:ring-brand-500" />
+              <input type="checkbox" name="proj_campo" value="De lo Humano y lo Comunitario" class="rounded text-brand-600 dark:text-brand-400 focus:ring-brand-500" />
               <span class="font-semibold text-slate-800 dark:text-slate-200">🤝 De lo Humano y Comunitario</span>
             </label>
           </div>
         </div>
 
-        <div>
-          <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Fecha de Entrega *</label>
-          <input type="date" id="proj-date" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Publicar el *</label>
+            <input type="date" id="proj-pub-date" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Fecha de Entrega *</label>
+            <input type="date" id="proj-date" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+          </div>
         </div>
 
         <div>
@@ -1457,27 +1495,33 @@
           <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Campos Formativos Articulados *</label>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs">
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" name="tarea_campo" value="Lenguajes" class="rounded text-indigo-600 focus:ring-indigo-500" checked />
+              <input type="checkbox" name="tarea_campo" value="Lenguajes" class="rounded text-indigo-600 dark:text-indigo-400 focus:ring-indigo-500" checked />
               <span class="font-semibold text-slate-800 dark:text-slate-200">🗣️ Lenguajes</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" name="tarea_campo" value="Saberes y Pensamiento Científico" class="rounded text-indigo-600 focus:ring-indigo-500" checked />
+              <input type="checkbox" name="tarea_campo" value="Saberes y Pensamiento Científico" class="rounded text-indigo-600 dark:text-indigo-400 focus:ring-indigo-500" checked />
               <span class="font-semibold text-slate-800 dark:text-slate-200">🔬 Saberes y Pensamiento</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" name="tarea_campo" value="Ética, Naturaleza y Sociedades" class="rounded text-indigo-600 focus:ring-indigo-500" />
+              <input type="checkbox" name="tarea_campo" value="Ética, Naturaleza y Sociedades" class="rounded text-indigo-600 dark:text-indigo-400 focus:ring-indigo-500" />
               <span class="font-semibold text-slate-800 dark:text-slate-200">🌍 Ética y Sociedades</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" name="tarea_campo" value="De lo Humano y lo Comunitario" class="rounded text-indigo-600 focus:ring-indigo-500" />
+              <input type="checkbox" name="tarea_campo" value="De lo Humano y lo Comunitario" class="rounded text-indigo-600 dark:text-indigo-400 focus:ring-indigo-500" />
               <span class="font-semibold text-slate-800 dark:text-slate-200">🤝 De lo Humano y Comunitario</span>
             </label>
           </div>
         </div>
 
-        <div>
-          <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Fecha de Entrega *</label>
-          <input type="date" id="tarea-date" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600" />
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Publicar el *</label>
+            <input type="date" id="tarea-pub-date" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Fecha de Entrega *</label>
+            <input type="date" id="tarea-date" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600" />
+          </div>
         </div>
 
         <div>
@@ -1507,7 +1551,7 @@
         <span>• Plataforma Escolar Inteligente</span>
       </div>
       <div class="flex items-center gap-4">
-        <span>Capacidad Máxima: <strong class="text-brand-600">50 Alumnos</strong></span>
+        <span>Capacidad Máxima: <strong class="text-brand-600 dark:text-brand-400">50 Alumnos</strong></span>
       </div>
     </div>
   </footer>

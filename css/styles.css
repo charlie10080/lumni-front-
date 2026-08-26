@@ -55,3 +55,43 @@
 .animate-rocket {
   animation: rocket-fly 4s ease-in-out infinite;
 }
+
+/* Nuevas animaciones de fondo */
+@keyframes spin-earth {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes cloud-drift-1 {
+  0% { transform: translateX(-50px) translateY(10px) scale(0.8); opacity: 0.8; }
+  50% { transform: translateX(20px) translateY(-5px) scale(0.9); opacity: 1; }
+  100% { transform: translateX(-50px) translateY(10px) scale(0.8); opacity: 0.8; }
+}
+
+@keyframes cloud-drift-2 {
+  0% { transform: translateX(30px) translateY(-20px) scale(1.1); opacity: 0.7; }
+  50% { transform: translateX(-20px) translateY(5px) scale(1); opacity: 0.9; }
+  100% { transform: translateX(30px) translateY(-20px) scale(1.1); opacity: 0.7; }
+}
+
+@keyframes stars-pulse {
+  0% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.3; }
+}
+
+.animate-spin-earth {
+  animation: spin-earth 30s linear infinite;
+}
+
+.animate-cloud-1 {
+  animation: cloud-drift-1 12s ease-in-out infinite;
+}
+
+.animate-cloud-2 {
+  animation: cloud-drift-2 15s ease-in-out infinite;
+}
+
+.animate-stars {
+  animation: stars-pulse 4s ease-in-out infinite;
+}

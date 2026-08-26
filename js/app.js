@@ -320,9 +320,9 @@
           if (t.id === tabName) {
             viewEl.classList.remove('hidden');
             if (btnEl) {
-              btnEl.className = "w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-bold bg-brand-50 text-brand-700 group";
+              btnEl.className = "w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-bold bg-brand-50 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 group";
               const icon = btnEl.querySelector('i');
-              if (icon) icon.className = "w-5 h-5 shrink-0 text-brand-600";
+              if (icon) icon.className = "w-5 h-5 shrink-0 text-brand-600 dark:text-brand-400";
               const span = btnEl.querySelector('span:not(#sidebar-unread-badge)');
               if (span) span.className = "whitespace-nowrap font-medium text-sm text-left flex-1";
             }
@@ -332,9 +332,9 @@
           } else {
             viewEl.classList.add('hidden');
             if (btnEl) {
-              btnEl.className = "w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 hover:bg-brand-50 group";
+              btnEl.className = "w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:text-brand-300 hover:bg-brand-50 dark:bg-brand-900/40 group";
               const icon = btnEl.querySelector('i');
-              if (icon) icon.className = "w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600";
+              if (icon) icon.className = "w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600 dark:text-brand-400";
               const span = btnEl.querySelector('span:not(#sidebar-unread-badge)');
               if (span) span.className = "whitespace-nowrap font-medium text-sm text-left flex-1";
             }
@@ -411,7 +411,7 @@
         return `
           <div class="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
             <span class="font-bold text-slate-800 dark:text-slate-200">${m}</span>
-            <span class="px-2.5 py-1 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 font-extrabold text-brand-700 text-xs shadow-2xs">
+            <span class="px-2.5 py-1 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 font-extrabold text-brand-700 dark:text-brand-300 text-xs shadow-2xs">
               ${cal}
             </span>
           </div>
@@ -429,20 +429,20 @@
         projContainer.innerHTML = proyectosState.map(p => {
           const note = (p.calificaciones && p.calificaciones[alumno.uuid]) ? p.calificaciones[alumno.uuid] : 10;
           const camposBadges = (p.campos || []).map(c => `
-            <span class="text-[9px] font-bold uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">${c}</span>
+            <span class="text-[9px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/40 px-2 py-0.5 rounded-md border border-indigo-100">${c}</span>
           `).join(' ');
 
           return `
             <div class="p-3.5 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-1.5">
               <div class="flex items-center justify-between gap-2">
                 <div class="flex flex-wrap gap-1">${camposBadges}</div>
-                <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md shrink-0">Nota: ${note}</span>
+                <span class="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/40 px-2 py-0.5 rounded-md shrink-0">Nota: ${note}</span>
               </div>
               <h4 class="font-bold text-slate-800 dark:text-slate-200 text-xs">${p.titulo}</h4>
               <p class="text-[11px] text-slate-500 dark:text-slate-400">${p.desc}</p>
               <div class="text-[10px] text-slate-400 flex items-center justify-between pt-1">
                 <span>Entrega: ${p.fecha}</span>
-                <span class="text-indigo-600 font-semibold">Proyecto Integrador</span>
+                <span class="text-indigo-600 dark:text-indigo-400 font-semibold">Proyecto Integrador</span>
               </div>
             </div>
           `;
@@ -457,14 +457,14 @@
         tareasContainer.innerHTML = tareasState.map(t => {
           const note = (t.calificaciones && t.calificaciones[alumno.uuid]) ? t.calificaciones[alumno.uuid] : 9;
           const camposBadges = (t.campos || []).map(c => `
-            <span class="text-[9px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">${c}</span>
+            <span class="text-[9px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/40 px-2 py-0.5 rounded-md border border-emerald-100">${c}</span>
           `).join(' ');
 
           return `
             <div class="p-3.5 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-1.5">
               <div class="flex items-center justify-between gap-2">
                 <div class="flex flex-wrap gap-1">${camposBadges}</div>
-                <span class="text-[11px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md shrink-0">Nota: ${note}</span>
+                <span class="text-[11px] font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/40 px-2 py-0.5 rounded-md shrink-0">Nota: ${note}</span>
               </div>
               <h4 class="font-bold text-slate-800 dark:text-slate-200 text-xs">${t.titulo}</h4>
               <p class="text-[11px] text-slate-500 dark:text-slate-400">${t.desc}</p>
@@ -480,6 +480,9 @@
       // 6. Mensajes y Tickets de este Alumno
       renderParentChatHistory(alumno.uuid);
 
+      // 6.5 Renderizar Anuncios Generales
+      renderAnunciosPadres();
+
       // 7. Reportes y Avisos
       const repContainer = document.getElementById('p-reportes-list');
       const studentReports = reportesState.filter(r => r.alumnoUuid === alumno.uuid);
@@ -491,7 +494,7 @@
         repContainer.innerHTML = studentReports.map(r => `
           <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 space-y-1">
             <div class="flex items-center justify-between">
-              <span class="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">${r.tipo}</span>
+              <span class="text-[10px] font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/40 px-2 py-0.5 rounded-md">${r.tipo}</span>
               <span class="text-[10px] text-slate-400">${r.fecha}</span>
             </div>
             <h4 class="font-bold text-slate-800 dark:text-slate-200 text-xs">${r.titulo}</h4>
@@ -548,7 +551,7 @@
       const container = document.getElementById('parent-auth-demo-chips');
       if (!container) return;
       container.innerHTML = alumnosState.slice(0, 3).map(a => `
-        <button onclick="openParentPortalByUuid('${a.uuid}')" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg font-bold text-[11px] transition-all cursor-pointer">
+        <button onclick="openParentPortalByUuid('${a.uuid}')" class="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/40 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 rounded-lg font-bold text-[11px] transition-all cursor-pointer">
           ${a.nombre.split(' ')[0]} (${a.uuid.substring(0, 8)}...)
         </button>
       `).join('');
@@ -709,9 +712,9 @@
             </td>
             <td class="px-4 py-3 font-mono text-xs text-slate-500 dark:text-slate-400">${a.horaAsistencia}</td>
             <td class="px-4 py-3 text-right space-x-1">
-              <button onclick="setAlumnoAttendance('${a.uuid}', 'presente')" title="Presente" class="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-xs font-bold">P</button>
-              <button onclick="setAlumnoAttendance('${a.uuid}', 'retardo')" title="Retardo" class="px-2 py-1 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg text-xs font-bold">R</button>
-              <button onclick="setAlumnoAttendance('${a.uuid}', 'falta')" title="Falta" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg text-xs font-bold">F</button>
+              <button onclick="setAlumnoAttendance('${a.uuid}', 'presente')" title="Presente" class="px-2 py-1 bg-emerald-50 dark:bg-emerald-900/40 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-400 rounded-lg text-xs font-bold">P</button>
+              <button onclick="setAlumnoAttendance('${a.uuid}', 'retardo')" title="Retardo" class="px-2 py-1 bg-amber-50 dark:bg-amber-900/40 hover:bg-amber-100 text-amber-700 dark:text-amber-400 rounded-lg text-xs font-bold">R</button>
+              <button onclick="setAlumnoAttendance('${a.uuid}', 'falta')" title="Falta" class="px-2 py-1 bg-rose-50 dark:bg-rose-900/40 hover:bg-rose-100 text-rose-700 dark:text-rose-400 rounded-lg text-xs font-bold">F</button>
             </td>
           </tr>
         `;
@@ -746,14 +749,14 @@
         return `
           <div
             onclick="selectTeacherThread(${th.id})"
-            class="p-4 cursor-pointer transition-all ${isSelected ? 'bg-brand-50/80 border-l-4 border-brand-600' : 'hover:bg-slate-50 dark:bg-slate-800'} ${isUnread ? 'bg-indigo-50/30 font-semibold' : ''}"
+            class="p-4 cursor-pointer transition-all ${isSelected ? 'bg-brand-50 dark:bg-brand-900/40/80 border-l-4 border-brand-600' : 'hover:bg-slate-50 dark:bg-slate-800'} ${isUnread ? 'bg-indigo-50 dark:bg-indigo-900/40/30 font-semibold' : ''}"
           >
             <div class="flex items-center justify-between mb-1">
               <h4 class="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">${a.nombre}</h4>
               <span class="text-[10px] text-slate-400 shrink-0">${lastMsg.fecha.split(' ')[1] || ''}</span>
             </div>
             <div class="flex items-center justify-between gap-1 mb-1">
-              <span class="text-[11px] text-brand-700 font-semibold truncate">${th.asunto}</span>
+              <span class="text-[11px] text-brand-700 dark:text-brand-300 font-semibold truncate">${th.asunto}</span>
               ${isUnread ? '<span class="px-1.5 py-0.5 text-[9px] font-bold bg-brand-600 text-white rounded-md shrink-0">Nuevo</span>' : '<span class="text-[10px] text-slate-400 shrink-0">Leído</span>'}
             </div>
             <p class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">${lastMsg.texto}</p>
@@ -919,7 +922,7 @@
       container.innerHTML = studentThreads.map(th => `
         <div class="bg-slate-50 dark:bg-slate-800/70 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/70 space-y-3">
           <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700/60 pb-2">
-            <span class="text-xs font-bold text-brand-700 flex items-center gap-1.5">
+            <span class="text-xs font-bold text-brand-700 dark:text-brand-300 flex items-center gap-1.5">
               <i data-lucide="tag" class="w-3.5 h-3.5"></i>
               <span>${th.asunto}</span>
             </span>
@@ -932,7 +935,7 @@
               return `
                 <div class="flex flex-col ${isParent ? 'items-end' : 'items-start'}">
                   <div class="max-w-md ${isParent ? 'bg-indigo-600 text-white rounded-2xl rounded-tr-xs' : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-xs shadow-2xs'} p-3 text-xs space-y-1">
-                    <div class="flex items-center justify-between gap-3 text-[10px] ${isParent ? 'text-indigo-200' : 'text-brand-600 font-bold'}">
+                    <div class="flex items-center justify-between gap-3 text-[10px] ${isParent ? 'text-indigo-200' : 'text-brand-600 dark:text-brand-400 font-bold'}">
                       <span>${m.autor}</span>
                       <span>${m.fecha}</span>
                     </div>
@@ -1046,7 +1049,7 @@
 
         const promRounded = count > 0 ? Math.round(sum / count) : 10;
         rowHtml += `
-          <td class="px-4 py-3 text-center font-extrabold text-brand-600 text-sm" id="prom-alumno-${aIdx}">
+          <td class="px-4 py-3 text-center font-extrabold text-brand-600 dark:text-brand-400 text-sm" id="prom-alumno-${aIdx}">
             ${promRounded}
           </td>
         </tr>`;
@@ -1096,7 +1099,7 @@
       container.innerHTML = materiasState.map((mat, idx) => `
         <div class="p-3 flex items-center justify-between hover:bg-slate-50 dark:bg-slate-800 transition-colors">
           <div class="flex items-center gap-2">
-            <span class="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center font-bold text-xs">${idx + 1}</span>
+            <span class="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold text-xs">${idx + 1}</span>
             <span class="font-bold text-xs text-slate-800 dark:text-slate-200">${mat}</span>
           </div>
           <button onclick="deleteMateria(${idx})" class="p-1 text-slate-400 hover:text-rose-600 rounded-lg cursor-pointer" title="Eliminar">
@@ -1149,7 +1152,7 @@
     function renderMateriasBadges() {
       const container = document.getElementById('active-materias-badges');
       container.innerHTML = materiasState.map(m => `
-        <span class="px-2.5 py-1 bg-brand-50 text-brand-700 rounded-lg font-bold text-xs border border-brand-100 flex items-center gap-1">
+        <span class="px-2.5 py-1 bg-brand-50 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 rounded-lg font-bold text-xs border border-brand-100 flex items-center gap-1">
           <i data-lucide="book" class="w-3 h-3"></i>
           <span>${m}</span>
         </span>
@@ -1182,6 +1185,7 @@
         id: Date.now(),
         titulo: document.getElementById('proj-title').value.trim(),
         campos: selectedCampos,
+        fechaPub: document.getElementById('proj-pub-date').value,
         fecha: document.getElementById('proj-date').value,
         desc: document.getElementById('proj-desc').value.trim(),
         calificaciones: {}
@@ -1203,18 +1207,26 @@
 
       container.innerHTML = proyectosState.map((proj, idx) => {
         const camposBadges = (proj.campos || []).map(c => `
-          <span class="text-[9px] font-bold uppercase tracking-wider text-brand-700 bg-brand-50 px-2 py-0.5 rounded-md border border-brand-100">${c}</span>
+          <span class="text-[9px] font-bold uppercase tracking-wider text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-900/40 px-2 py-0.5 rounded-md border border-brand-100">${c}</span>
         `).join(' ');
 
+        const pubText = proj.fechaPub ? `Pub: ${proj.fechaPub}` : 'Publicado';
+        const isPendingReview = new Date(proj.fecha) < new Date();
+        const pendingBadge = isPendingReview ? `<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-400">Revisión Pendiente</span>` : '';
+
         return `
-          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 shadow-xs flex flex-col justify-between space-y-4">
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 shadow-xs flex flex-col justify-between space-y-4 relative">
             <div>
               <div class="flex flex-wrap gap-1 mb-2">${camposBadges}</div>
               <h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm mt-1">${proj.titulo}</h3>
+              <p class="text-[10px] text-slate-400 mb-1">${pubText}</p>
               <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">${proj.desc}</p>
             </div>
             <div class="pt-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-              <span>Entrega: ${proj.fecha}</span>
+              <div class="flex items-center gap-2">
+                <span>Entrega: <strong class="text-slate-700 dark:text-slate-300">${proj.fecha}</strong></span>
+                ${pendingBadge}
+              </div>
               <button onclick="deleteProject(${idx})" class="text-slate-400 hover:text-rose-600 p-1 cursor-pointer">
                 <i data-lucide="trash-2" class="w-4 h-4"></i>
               </button>
@@ -1253,6 +1265,7 @@
         id: Date.now(),
         titulo: document.getElementById('tarea-title').value.trim(),
         campos: selectedCampos,
+        fechaPub: document.getElementById('tarea-pub-date').value,
         fecha: document.getElementById('tarea-date').value,
         desc: document.getElementById('tarea-desc').value.trim(),
         calificaciones: {}
@@ -1274,18 +1287,26 @@
 
       container.innerHTML = tareasState.map((tarea, idx) => {
         const camposBadges = (tarea.campos || []).map(c => `
-          <span class="text-[9px] font-bold uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">${c}</span>
+          <span class="text-[9px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/40 px-2 py-0.5 rounded-md border border-indigo-100">${c}</span>
         `).join(' ');
 
+        const pubText = tarea.fechaPub ? `Pub: ${tarea.fechaPub}` : 'Publicado';
+        const isPendingReview = new Date(tarea.fecha) < new Date();
+        const pendingBadge = isPendingReview ? `<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-400">Revisión Pendiente</span>` : '';
+
         return `
-          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 shadow-xs flex flex-col justify-between space-y-4">
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 shadow-xs flex flex-col justify-between space-y-4 relative">
             <div>
               <div class="flex flex-wrap gap-1 mb-2">${camposBadges}</div>
               <h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm mt-1">${tarea.titulo}</h3>
+              <p class="text-[10px] text-slate-400 mb-1">${pubText}</p>
               <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">${tarea.desc}</p>
             </div>
             <div class="pt-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-              <span>Entrega: ${tarea.fecha}</span>
+              <div class="flex items-center gap-2">
+                <span>Entrega: <strong class="text-slate-700 dark:text-slate-300">${tarea.fecha}</strong></span>
+                ${pendingBadge}
+              </div>
               <button onclick="deleteTarea(${idx})" class="text-slate-400 hover:text-rose-600 p-1 cursor-pointer">
                 <i data-lucide="trash-2" class="w-4 h-4"></i>
               </button>
@@ -1299,6 +1320,44 @@
       tareasState.splice(index, 1);
       updateTeacherViews();
       showToast("Tarea eliminada", "info");
+    }
+
+    // ==========================================================
+    // 9.5 ANUNCIOS GENERALES
+    // ==========================================================
+    let anunciosState = JSON.parse(localStorage.getItem('lumni_anuncios')) || [
+      {
+        id: 1,
+        fecha: '2026-08-25',
+        titulo: 'Reunión de Padres de Familia',
+        desc: 'El próximo viernes tendremos reunión para entrega de resultados del primer bloque.'
+      },
+      {
+        id: 2,
+        fecha: '2026-08-20',
+        titulo: 'Suspensión de labores',
+        desc: 'El próximo lunes no habrá clases por día festivo oficial.'
+      }
+    ];
+
+    function renderAnunciosPadres() {
+      const container = document.getElementById('p-anuncios-list');
+      if (!container) return;
+
+      if (anunciosState.length === 0) {
+        container.innerHTML = '<p class="text-xs text-white/70">No hay avisos recientes.</p>';
+        return;
+      }
+
+      container.innerHTML = anunciosState.map(a => `
+        <div class="bg-white/10 rounded-xl p-3 border border-white/20 backdrop-blur-sm">
+          <div class="flex items-center justify-between gap-2 mb-1">
+            <h4 class="font-bold text-sm">${a.titulo}</h4>
+            <span class="text-[10px] text-white/70">${a.fecha}</span>
+          </div>
+          <p class="text-xs text-white/90 leading-relaxed">${a.desc}</p>
+        </div>
+      `).join('');
     }
 
     // ==========================================================
@@ -1353,13 +1412,13 @@
             <div class="text-[11px] text-slate-400">${a.telefono}</div>
           </td>
           <td class="px-4 py-3 block md:table-cell">
-            <button onclick="openQrModal('${a.uuid}')" class="px-2.5 py-1 bg-brand-50 hover:bg-brand-100 text-brand-700 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1 cursor-pointer">
+            <button onclick="openQrModal('${a.uuid}')" class="px-2.5 py-1 bg-brand-50 dark:bg-brand-900/40 hover:bg-brand-100 text-brand-700 dark:text-brand-300 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1 cursor-pointer">
               <i data-lucide="qr-code" class="w-3.5 h-3.5"></i>
               <span>Credencial</span>
             </button>
           </td>
           <td class="px-4 py-3 text-right space-x-1 block md:table-cell">
-            <button onclick="openEditModal('${a.uuid}')" title="Editar" class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-brand-600 rounded-lg cursor-pointer">
+            <button onclick="openEditModal('${a.uuid}')" title="Editar" class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:text-brand-400 rounded-lg cursor-pointer">
               <i data-lucide="edit-2" class="w-4 h-4"></i>
             </button>
             <button onclick="deleteAlumno('${a.uuid}')" title="Eliminar" class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-rose-600 rounded-lg cursor-pointer">
@@ -1496,10 +1555,10 @@
       }
 
       const badgeStyles = {
-        'Felicitación': 'bg-emerald-50 text-emerald-800 border-emerald-200',
-        'Conducta': 'bg-rose-50 text-rose-800 border-rose-200',
-        'Citatorio': 'bg-indigo-50 text-indigo-800 border-indigo-200',
-        'Aviso': 'bg-amber-50 text-amber-800 border-amber-200'
+        'Felicitación': 'bg-emerald-50 dark:bg-emerald-900/40 text-emerald-800 border-emerald-200',
+        'Conducta': 'bg-rose-50 dark:bg-rose-900/40 text-rose-800 border-rose-200',
+        'Citatorio': 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-800 border-indigo-200',
+        'Aviso': 'bg-amber-50 dark:bg-amber-900/40 text-amber-800 border-amber-200'
       };
 
       container.innerHTML = reportesState.map((rep, idx) => {
@@ -1551,7 +1610,7 @@
               <p class="text-[11px] text-slate-400">Entrada registrada • ${a.horaAsistencia}</p>
             </div>
           </div>
-          <button onclick="openQrModal('${a.uuid}')" class="text-[11px] font-bold text-brand-600 hover:text-brand-700">
+          <button onclick="openQrModal('${a.uuid}')" class="text-[11px] font-bold text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:text-brand-300">
             Credencial
           </button>
         </div>
