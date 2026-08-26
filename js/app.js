@@ -424,25 +424,25 @@
       // 4. Proyectos Escolares
       const projContainer = document.getElementById('p-proyectos-list');
       if (proyectosState.length === 0) {
-        projContainer.innerHTML = '<p class="text-slate-400 text-center py-4">No hay proyectos activos asignados.</p>';
+        projContainer.innerHTML = '<p class="text-slate-500 dark:text-slate-300 text-center py-4">No hay proyectos activos asignados.</p>';
       } else {
         projContainer.innerHTML = proyectosState.map(p => {
           const note = (p.calificaciones && p.calificaciones[alumno.uuid]) ? p.calificaciones[alumno.uuid] : 10;
           const camposBadges = (p.campos || []).map(c => `
-            <span class="text-[9px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/40 px-2 py-0.5 rounded-md border border-indigo-100">${c}</span>
+            <span class="text-[9px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-md border border-indigo-100 dark:border-indigo-800/60">${c}</span>
           `).join(' ');
 
           return `
-            <div class="p-3.5 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-1.5">
+            <div class="p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700/80 space-y-1.5">
               <div class="flex items-center justify-between gap-2">
                 <div class="flex flex-wrap gap-1">${camposBadges}</div>
-                <span class="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/40 px-2 py-0.5 rounded-md shrink-0">Nota: ${note}</span>
+                <span class="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md shrink-0 border border-emerald-100 dark:border-emerald-800/60">Nota: ${note}</span>
               </div>
-              <h4 class="font-bold text-slate-800 dark:text-slate-200 text-xs">${p.titulo}</h4>
-              <p class="text-[11px] text-slate-500 dark:text-slate-400">${p.desc}</p>
-              <div class="text-[10px] text-slate-400 flex items-center justify-between pt-1">
+              <h4 class="font-bold text-slate-900 dark:text-slate-100 text-xs">${p.titulo}</h4>
+              <p class="text-[11px] text-slate-600 dark:text-slate-200 leading-relaxed">${p.desc}</p>
+              <div class="text-[10px] text-slate-500 dark:text-slate-300 flex items-center justify-between pt-1">
                 <span>Entrega: ${p.fecha}</span>
-                <span class="text-indigo-600 dark:text-indigo-400 font-semibold">Proyecto Integrador</span>
+                <span class="text-indigo-600 dark:text-indigo-300 font-semibold">Proyecto Integrador</span>
               </div>
             </div>
           `;
@@ -452,25 +452,25 @@
       // 5. Tareas Escolares
       const tareasContainer = document.getElementById('p-tareas-list');
       if (tareasState.length === 0) {
-        tareasContainer.innerHTML = '<p class="text-slate-400 text-center py-4">No hay tareas asignadas para casa.</p>';
+        tareasContainer.innerHTML = '<p class="text-slate-500 dark:text-slate-300 text-center py-4">No hay tareas asignadas para casa.</p>';
       } else {
         tareasContainer.innerHTML = tareasState.map(t => {
           const note = (t.calificaciones && t.calificaciones[alumno.uuid]) ? t.calificaciones[alumno.uuid] : 9;
           const camposBadges = (t.campos || []).map(c => `
-            <span class="text-[9px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/40 px-2 py-0.5 rounded-md border border-emerald-100">${c}</span>
+            <span class="text-[9px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-100 dark:border-emerald-800/60">${c}</span>
           `).join(' ');
 
           return `
-            <div class="p-3.5 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-1.5">
+            <div class="p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700/80 space-y-1.5">
               <div class="flex items-center justify-between gap-2">
                 <div class="flex flex-wrap gap-1">${camposBadges}</div>
-                <span class="text-[11px] font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/40 px-2 py-0.5 rounded-md shrink-0">Nota: ${note}</span>
+                <span class="text-[11px] font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-md shrink-0 border border-indigo-100 dark:border-indigo-800/60">Nota: ${note}</span>
               </div>
-              <h4 class="font-bold text-slate-800 dark:text-slate-200 text-xs">${t.titulo}</h4>
-              <p class="text-[11px] text-slate-500 dark:text-slate-400">${t.desc}</p>
-              <div class="text-[10px] text-slate-400 flex items-center justify-between pt-1">
+              <h4 class="font-bold text-slate-900 dark:text-slate-100 text-xs">${t.titulo}</h4>
+              <p class="text-[11px] text-slate-600 dark:text-slate-200 leading-relaxed">${t.desc}</p>
+              <div class="text-[10px] text-slate-500 dark:text-slate-300 flex items-center justify-between pt-1">
                 <span>Entrega: ${t.fecha}</span>
-                <span class="text-emerald-600 font-semibold">Tarea en Casa</span>
+                <span class="text-emerald-600 dark:text-emerald-400 font-semibold">Tarea en Casa</span>
               </div>
             </div>
           `;
@@ -489,16 +489,16 @@
       document.getElementById('p-reportes-count').textContent = `${studentReports.length} Registros`;
 
       if (studentReports.length === 0) {
-        repContainer.innerHTML = '<p class="text-slate-400 text-center py-4">Excelente: Sin reportes de conducta registrados.</p>';
+        repContainer.innerHTML = '<p class="text-slate-500 dark:text-slate-300 text-center py-4">Excelente: Sin reportes de conducta registrados.</p>';
       } else {
         repContainer.innerHTML = studentReports.map(r => `
-          <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 space-y-1">
+          <div class="p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-100 dark:border-slate-700/80 space-y-1">
             <div class="flex items-center justify-between">
-              <span class="text-[10px] font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/40 px-2 py-0.5 rounded-md">${r.tipo}</span>
-              <span class="text-[10px] text-slate-400">${r.fecha}</span>
+              <span class="text-[10px] font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-100 dark:border-amber-800/60">${r.tipo}</span>
+              <span class="text-[10px] text-slate-500 dark:text-slate-300">${r.fecha}</span>
             </div>
-            <h4 class="font-bold text-slate-800 dark:text-slate-200 text-xs">${r.titulo}</h4>
-            <p class="text-[11px] text-slate-600 dark:text-slate-400">${r.desc}</p>
+            <h4 class="font-bold text-slate-900 dark:text-slate-100 text-xs">${r.titulo}</h4>
+            <p class="text-[11px] text-slate-600 dark:text-slate-200 leading-relaxed">${r.desc}</p>
           </div>
         `).join('');
       }
@@ -915,18 +915,18 @@
       const studentThreads = mensajesState.filter(m => m.alumnoUuid === studentUuid);
 
       if (studentThreads.length === 0) {
-        container.innerHTML = `<div class="p-6 text-center text-xs text-slate-400 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">Sin mensajes registrados. Usa el formulario superior para escribir al docente.</div>`;
+        container.innerHTML = `<div class="p-6 text-center text-xs text-slate-500 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700/80">Sin mensajes registrados. Usa el formulario superior para escribir al docente.</div>`;
         return;
       }
 
       container.innerHTML = studentThreads.map(th => `
-        <div class="bg-slate-50 dark:bg-slate-800/70 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/70 space-y-3">
+        <div class="bg-slate-50 dark:bg-slate-800/80 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/80 space-y-3">
           <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700/60 pb-2">
             <span class="text-xs font-bold text-brand-700 dark:text-brand-300 flex items-center gap-1.5">
               <i data-lucide="tag" class="w-3.5 h-3.5"></i>
               <span>${th.asunto}</span>
             </span>
-            <span class="text-[10px] text-slate-400">${th.mensajes.length} interacción(es)</span>
+            <span class="text-[10px] text-slate-500 dark:text-slate-300">${th.mensajes.length} interacción(es)</span>
           </div>
 
           <div class="space-y-2.5">

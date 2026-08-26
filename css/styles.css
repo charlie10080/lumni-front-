@@ -1,6 +1,48 @@
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
+html, body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+html {
+  background-color: #f8fafc;
+}
+html.dark {
+  background-color: #0f172a;
+  color-scheme: dark;
+}
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Mejoara Global de Legibilidad y Contraste en Modo Oscuro */
+html.dark {
+  color: #f8fafc;
+}
+
+html.dark .text-slate-400,
+html.dark .dark\:text-slate-400 {
+  color: #e2e8f0 !important; /* Slate 200: Claro y perfectamente legible */
+}
+
+html.dark .text-slate-500,
+html.dark .dark\:text-slate-500,
+html.dark .text-slate-600,
+html.dark .dark\:text-slate-600 {
+  color: #cbd5e1 !important; /* Slate 300: Contraste óptimo */
+}
+
+html.dark input, 
+html.dark select, 
+html.dark textarea {
+  color: #f8fafc !important;
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+html.dark input::placeholder, 
+html.dark textarea::placeholder {
+  color: #94a3b8 !important;
+}
     @media print {
       body * {
         visibility: hidden !important;
