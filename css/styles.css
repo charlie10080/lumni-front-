@@ -1,0 +1,21 @@
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+      #print-modal-area, #print-modal-area *,
+      #print-parent-report, #print-parent-report * {
+        visibility: visible !important;
+      }
+      #print-modal-area, #print-parent-report {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 16px;
+        background: white;
+      }
+    }
