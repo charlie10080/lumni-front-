@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-slate-50">
+<html lang="es" class="h-full bg-slate-50 dark:bg-slate-800">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -49,7 +49,7 @@
   <link rel="stylesheet" href="css/styles.css">
 </head>
 
-<body class="h-full flex flex-col text-slate-800 antialiased selection:bg-brand-500 selection:text-white bg-slate-50/60">
+<body class="h-full flex flex-col text-slate-800 dark:text-slate-200 antialiased selection:bg-brand-500 selection:text-white bg-slate-50 dark:bg-slate-800/60">
 
   <!-- Contenedor de Notificaciones Toast -->
   <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
@@ -57,8 +57,34 @@
   <!-- ============================================================ -->
   <!-- 1. VISTA: PANTALLA DE INICIO (LANDING DE ACCESOS MINIMALISTA) -->
   <!-- ============================================================ -->
-  <main id="view-landing" class="flex-1 flex flex-col justify-center items-center px-4 py-12 sm:py-20">
-    <div class="max-w-3xl w-full text-center space-y-8 animate-in fade-in zoom-in-95 duration-200">
+  <main id="view-landing" class="flex-1 flex flex-col justify-center items-center px-4 py-12 sm:py-20 relative overflow-hidden">
+
+    <!-- Animación de Fondo (Globo y Cohete) -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-center opacity-30 dark:opacity-10 z-0">
+      <div class="relative w-[500px] h-[500px] sm:w-[800px] sm:h-[800px]">
+        <!-- Globo Terráqueo -->
+        <svg class="absolute inset-0 w-full h-full text-brand-300 animate-spin-slow" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="100" cy="100" r="90" stroke="currentColor" stroke-width="4" stroke-dasharray="10 10"/>
+          <path d="M100 10C140 10 160 50 160 100C160 150 140 190 100 190C60 190 40 150 40 100C40 50 60 10 100 10Z" stroke="currentColor" stroke-width="2"/>
+          <path d="M10 100H190" stroke="currentColor" stroke-width="2"/>
+          <path d="M30 50H170" stroke="currentColor" stroke-width="2"/>
+          <path d="M30 150H170" stroke="currentColor" stroke-width="2"/>
+        </svg>
+
+        <!-- Cohete -->
+        <div class="absolute top-[10%] right-[20%] text-rose-500 animate-rocket">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path>
+            <path d="m12 15-3-3a22 22 0 0 1 3.82-13 1.5 1.5 0 0 1 2.18 2.18A22 22 0 0 1 12 15Z"></path>
+            <path d="M9 15v-1c0-.55-.45-1-1-1H7"></path>
+            <path d="M15 9h1c.55 0 1 .45 1 1v1"></path>
+            <path d="M22 2 11.5 12.5"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="max-w-3xl w-full text-center space-y-8 animate-in fade-in zoom-in-95 duration-200 relative z-10">
       
       <div class="space-y-4">
         <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-tr from-brand-600 via-indigo-600 to-indigo-500 flex items-center justify-center text-white shadow-xl shadow-brand-500/25 mx-auto">
@@ -66,10 +92,10 @@
         </div>
         
         <div class="space-y-2">
-          <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900">
+          <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
             Lumni
           </h1>
-          <p class="text-base sm:text-xl text-slate-600 font-medium max-w-lg mx-auto">
+          <p class="text-base sm:text-xl text-slate-600 dark:text-slate-400 font-medium max-w-lg mx-auto">
             Plataforma de gestión escolar integral y comunicación asíncrona con familias.
           </p>
         </div>
@@ -81,14 +107,14 @@
         <!-- Soy Maestro -->
         <div 
           onclick="showView('view-auth-maestro')" 
-          class="bg-white rounded-3xl p-6 sm:p-7 border-2 border-slate-200/80 hover:border-brand-500 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-center text-center space-y-4 group"
+          class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border-2 border-slate-200 dark:border-slate-700/80 hover:border-brand-500 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-center text-center space-y-4 group"
         >
           <div class="w-14 h-14 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center group-hover:scale-110 transition-transform">
             <i data-lucide="graduation-cap" class="w-7 h-7"></i>
           </div>
           <div class="space-y-1">
-            <h2 class="text-lg sm:text-xl font-bold text-slate-900 group-hover:text-brand-600 transition-colors">Soy Maestro</h2>
-            <p class="text-xs text-slate-500">Pase de lista con QR, Reporte de Evaluación, Proyectos, Tareas y Bandeja de Mensajes.</p>
+            <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100 group-hover:text-brand-600 transition-colors">Soy Maestro</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Pase de lista con QR, Reporte de Evaluación, Proyectos, Tareas y Bandeja de Mensajes.</p>
           </div>
           <div class="w-full pt-1">
             <span class="w-full py-2.5 px-4 bg-brand-600 group-hover:bg-brand-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-colors">
@@ -101,14 +127,14 @@
         <!-- Soy Padre de Familia -->
         <div 
           onclick="showView('view-auth-padre')" 
-          class="bg-white rounded-3xl p-6 sm:p-7 border-2 border-slate-200/80 hover:border-indigo-500 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-center text-center space-y-4 group"
+          class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border-2 border-slate-200 dark:border-slate-700/80 hover:border-indigo-500 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-center text-center space-y-4 group"
         >
           <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform">
             <i data-lucide="shield-check" class="w-7 h-7"></i>
           </div>
           <div class="space-y-1">
-            <h2 class="text-lg sm:text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">Soy Padre de Familia</h2>
-            <p class="text-xs text-slate-500">Sin registros. Consulta asistencias, boletas y envía mensajes directos al maestro con tu código.</p>
+            <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 transition-colors">Soy Padre de Familia</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Sin registros. Consulta asistencias, boletas y envía mensajes directos al maestro con tu código.</p>
           </div>
           <div class="w-full pt-1">
             <span class="w-full py-2.5 px-4 bg-indigo-600 group-hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-colors">
@@ -127,33 +153,33 @@
   <!-- 2. VISTA: ACCESO DOCENTE (LOGIN / REGISTRO)                  -->
   <!-- ============================================================ -->
   <main id="view-auth-maestro" class="flex-1 flex flex-col justify-center items-center px-4 py-8 hidden">
-    <div class="max-w-md w-full bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-xl space-y-6 animate-in fade-in zoom-in-95 duration-200">
+    <div class="max-w-md w-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-700/80 p-6 sm:p-8 shadow-xl space-y-6 animate-in fade-in zoom-in-95 duration-200">
       
       <div class="text-center space-y-2">
-        <button onclick="showView('view-landing')" class="text-xs font-semibold text-slate-400 hover:text-slate-700 flex items-center justify-center gap-1 mx-auto mb-2 cursor-pointer">
+        <button onclick="showView('view-landing')" class="text-xs font-semibold text-slate-400 hover:text-slate-700 dark:text-slate-300 flex items-center justify-center gap-1 mx-auto mb-2 cursor-pointer">
           <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
           <span>Volver al inicio</span>
         </button>
         <div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center mx-auto">
           <i data-lucide="user-check" class="w-6 h-6"></i>
         </div>
-        <h2 class="text-2xl font-bold text-slate-900">Portal del Docente</h2>
-        <p class="text-xs text-slate-500">Ingresa tus datos o regístrate para administrar tu grupo.</p>
+        <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Portal del Docente</h2>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Ingresa tus datos o regístrate para administrar tu grupo.</p>
       </div>
 
       <!-- Selector de Pestañas -->
-      <div class="flex p-1 bg-slate-100 rounded-2xl">
+      <div class="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-2xl">
         <button 
           id="tab-btn-login" 
           onclick="toggleTeacherAuthMode('login')" 
-          class="flex-1 py-2 rounded-xl text-xs font-bold bg-white text-slate-900 shadow-xs transition-all cursor-pointer"
+          class="flex-1 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-xs transition-all cursor-pointer"
         >
           Iniciar Sesión
         </button>
         <button 
           id="tab-btn-register" 
           onclick="toggleTeacherAuthMode('register')" 
-          class="flex-1 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-900 transition-all cursor-pointer"
+          class="flex-1 py-2 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-slate-100 transition-all cursor-pointer"
         >
           Registrarse
         </button>
@@ -162,18 +188,18 @@
       <!-- Formulario Login -->
       <form id="form-teacher-login" onsubmit="handleTeacherLoginSubmit(event)" class="space-y-4">
         <div>
-          <label for="login_correo" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Correo Electrónico *</label>
+          <label for="login_correo" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Correo Electrónico *</label>
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><i data-lucide="mail" class="w-4 h-4"></i></div>
-            <input type="email" id="login_correo" required placeholder="profesor@colegio.edu.mx" class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+            <input type="email" id="login_correo" required placeholder="profesor@colegio.edu.mx" class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
           </div>
         </div>
 
         <div>
-          <label for="login_password" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Contraseña *</label>
+          <label for="login_password" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Contraseña *</label>
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><i data-lucide="lock" class="w-4 h-4"></i></div>
-            <input type="password" id="login_password" required placeholder="••••••••" class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+            <input type="password" id="login_password" required placeholder="••••••••" class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
           </div>
         </div>
 
@@ -186,34 +212,34 @@
       <!-- Formulario Registro -->
       <form id="form-teacher-register" onsubmit="handleTeacherRegisterSubmit(event)" class="space-y-4 hidden">
         <div>
-          <label for="reg_nombre" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Nombre Completo *</label>
+          <label for="reg_nombre" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Nombre Completo *</label>
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><i data-lucide="user" class="w-4 h-4"></i></div>
-            <input type="text" id="reg_nombre" required placeholder="Ej. Prof. Carlos Mendoza Morales" class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+            <input type="text" id="reg_nombre" required placeholder="Ej. Prof. Carlos Mendoza Morales" class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
           </div>
         </div>
 
         <div>
-          <label for="reg_correo" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Correo Electrónico *</label>
+          <label for="reg_correo" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Correo Electrónico *</label>
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><i data-lucide="mail" class="w-4 h-4"></i></div>
-            <input type="email" id="reg_correo" required placeholder="profesor@colegio.edu.mx" class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+            <input type="email" id="reg_correo" required placeholder="profesor@colegio.edu.mx" class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
           </div>
         </div>
 
         <div>
-          <label for="reg_grupo" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Grado y Grupo Asignado *</label>
+          <label for="reg_grupo" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Grado y Grupo Asignado *</label>
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><i data-lucide="book" class="w-4 h-4"></i></div>
-            <input type="text" id="reg_grupo" required placeholder="Ej. 3er Grado Grupo B" class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+            <input type="text" id="reg_grupo" required placeholder="Ej. 3er Grado Grupo B" class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
           </div>
         </div>
 
         <div>
-          <label for="reg_password" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Crear Contraseña *</label>
+          <label for="reg_password" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Crear Contraseña *</label>
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><i data-lucide="lock" class="w-4 h-4"></i></div>
-            <input type="password" id="reg_password" required placeholder="Mínimo 6 caracteres" class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+            <input type="password" id="reg_password" required placeholder="Mínimo 6 caracteres" class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
           </div>
         </div>
 
@@ -230,18 +256,18 @@
   <!-- 3. VISTA: ACCESO PARA PADRES (CON ESCÁNER QR INTEGRADO)      -->
   <!-- ============================================================ -->
   <main id="view-auth-padre" class="flex-1 flex flex-col justify-center items-center px-4 py-8 hidden">
-    <div class="max-w-md w-full bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-xl space-y-6 animate-in fade-in zoom-in-95 duration-200">
+    <div class="max-w-md w-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-700/80 p-6 sm:p-8 shadow-xl space-y-6 animate-in fade-in zoom-in-95 duration-200">
       
       <div class="text-center space-y-2">
-        <button onclick="showView('view-landing')" class="text-xs font-semibold text-slate-400 hover:text-slate-700 flex items-center justify-center gap-1 mx-auto mb-2 cursor-pointer">
+        <button onclick="showView('view-landing')" class="text-xs font-semibold text-slate-400 hover:text-slate-700 dark:text-slate-300 flex items-center justify-center gap-1 mx-auto mb-2 cursor-pointer">
           <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
           <span>Volver al inicio</span>
         </button>
         <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto">
           <i data-lucide="shield-check" class="w-6 h-6"></i>
         </div>
-        <h2 class="text-2xl font-bold text-slate-900">Portal de Familias</h2>
-        <p class="text-xs text-slate-500">Ingresa el Código ID o escanea el código QR de la credencial con la cámara trasera.</p>
+        <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Portal de Familias</h2>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Ingresa el Código ID o escanea el código QR de la credencial con la cámara trasera.</p>
       </div>
 
       <!-- Botón Destacado para Escanear Código QR -->
@@ -255,13 +281,13 @@
         </button>
 
         <div class="flex items-center gap-2 my-2">
-          <div class="flex-1 border-t border-slate-200"></div>
+          <div class="flex-1 border-t border-slate-200 dark:border-slate-700"></div>
           <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">o ingresar por código</span>
-          <div class="flex-1 border-t border-slate-200"></div>
+          <div class="flex-1 border-t border-slate-200 dark:border-slate-700"></div>
         </div>
 
         <div>
-          <label for="padre_search_input" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Código ID / UUID del Alumno</label>
+          <label for="padre_search_input" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Código ID / UUID del Alumno</label>
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><i data-lucide="qr-code" class="w-4 h-4"></i></div>
             <input 
@@ -269,7 +295,7 @@
               id="padre_search_input" 
               placeholder="Ej. alu-9b1d... o pega el código" 
               onkeydown="if(event.key === 'Enter') handleParentSearchSubmit()"
-              class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600" 
+              class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600"
             />
           </div>
         </div>
@@ -283,7 +309,7 @@
         </button>
 
         <!-- Chips de Alumnos Demo -->
-        <div class="pt-3 border-t border-slate-100 text-center space-y-2">
+        <div class="pt-3 border-t border-slate-100 dark:border-slate-700 text-center space-y-2">
           <span class="text-[11px] text-slate-400 font-medium block">Probar rápido con un alumno demo:</span>
           <div id="parent-auth-demo-chips" class="flex flex-wrap items-center justify-center gap-1.5"></div>
         </div>
@@ -295,17 +321,17 @@
   <!-- ============================================================ -->
   <!-- 4. VISTA: PORTAL DEL MAESTRO (NUEVO LAYOUT SAAS CON SIDEBAR) -->
   <!-- ============================================================ -->
-  <div id="view-portal-maestro" class="flex-1 flex flex-col lg:flex-row min-h-screen bg-slate-50/70 hidden">
+  <div id="view-portal-maestro" class="flex-1 flex flex-col lg:flex-row min-h-screen bg-slate-50 dark:bg-slate-800/70 hidden">
     
     <!-- Telón de Fondo para Móviles (Backdrop) -->
     <div id="sidebar-backdrop" onclick="toggleTeacherSidebar()" class="fixed inset-0 z-40 bg-slate-950/40 backdrop-blur-xs lg:hidden hidden"></div>
 
     <!-- SIDEBAR LATERAL FIJO (PREMIUM & MINIMALISTA) -->
-    <aside id="teacher-sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200/80 flex flex-col justify-between transition-transform duration-300 transform -translate-x-full lg:translate-x-0 lg:static lg:z-auto shrink-0 shadow-2xl lg:shadow-none">
+    <aside id="teacher-sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700/80 flex flex-col justify-between transition-transform duration-300 transform -translate-x-full lg:translate-x-0 lg:static lg:z-auto shrink-0 shadow-2xl lg:shadow-none">
       
       <div class="flex flex-col flex-1 min-h-0">
         <!-- Encabezado Sidebar con Logo Lumni -->
-        <div class="h-16 px-5 border-b border-slate-100 flex items-center justify-between shrink-0">
+        <div class="h-16 px-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between shrink-0">
           <button onclick="switchTeacherTab('dashboard'); closeMobileSidebarIfOpen();" class="flex items-center gap-2.5 group focus:outline-none text-left">
             <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 via-indigo-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform shrink-0">
               <i data-lucide="sparkles" class="w-4 h-4 text-amber-300"></i>
@@ -320,15 +346,15 @@
             </div>
           </button>
 
-          <button onclick="toggleTeacherSidebar()" class="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 focus:outline-none" aria-label="Cerrar menú">
+          <button onclick="toggleTeacherSidebar()" class="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 focus:outline-none" aria-label="Cerrar menú">
             <i data-lucide="x" class="w-5 h-5"></i>
           </button>
         </div>
 
         <!-- Grupo Escolar Activo -->
-        <div class="px-5 py-3 bg-slate-50/70 border-b border-slate-100/80 flex items-center gap-2 text-xs">
+        <div class="px-5 py-3 bg-slate-50 dark:bg-slate-800/70 border-b border-slate-100 dark:border-slate-700/80 flex items-center gap-2 text-xs">
           <i data-lucide="school" class="w-3.5 h-3.5 text-brand-600 shrink-0"></i>
-          <span id="sidebar-group-badge" class="font-bold text-slate-700 truncate">3er Grado Grupo B</span>
+          <span id="sidebar-group-badge" class="font-bold text-slate-700 dark:text-slate-300 truncate">3er Grado Grupo B</span>
         </div>
 
         <!-- Lista Vertical de Navegación -->
@@ -339,39 +365,39 @@
             <span class="whitespace-nowrap font-medium text-sm text-left">Dashboard</span>
           </button>
 
-          <button onclick="switchTeacherTab('alumnos'); closeMobileSidebarIfOpen();" id="sidebar-tab-alumnos" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 hover:text-brand-700 hover:bg-brand-50 group">
+          <button onclick="switchTeacherTab('alumnos'); closeMobileSidebarIfOpen();" id="sidebar-tab-alumnos" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 hover:bg-brand-50 group">
             <i data-lucide="users" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600"></i>
             <span class="whitespace-nowrap font-medium text-sm text-left">Alumnos &amp; QR</span>
           </button>
 
-          <button onclick="switchTeacherTab('asistencias'); closeMobileSidebarIfOpen();" id="sidebar-tab-asistencias" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 hover:text-brand-700 hover:bg-brand-50 group">
+          <button onclick="switchTeacherTab('asistencias'); closeMobileSidebarIfOpen();" id="sidebar-tab-asistencias" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 hover:bg-brand-50 group">
             <i data-lucide="scan-line" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600"></i>
             <span class="whitespace-nowrap font-medium text-sm text-left">Asistencias</span>
           </button>
 
-          <button onclick="switchTeacherTab('calificaciones'); closeMobileSidebarIfOpen();" id="sidebar-tab-calificaciones" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 hover:text-brand-700 hover:bg-brand-50 group">
+          <button onclick="switchTeacherTab('calificaciones'); closeMobileSidebarIfOpen();" id="sidebar-tab-calificaciones" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 hover:bg-brand-50 group">
             <i data-lucide="award" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600"></i>
             <span class="whitespace-nowrap font-medium text-sm text-left">Reporte de Evaluación</span>
           </button>
 
-          <button onclick="switchTeacherTab('proyectos'); closeMobileSidebarIfOpen();" id="sidebar-tab-proyectos" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 hover:text-brand-700 hover:bg-brand-50 group">
+          <button onclick="switchTeacherTab('proyectos'); closeMobileSidebarIfOpen();" id="sidebar-tab-proyectos" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 hover:bg-brand-50 group">
             <i data-lucide="folder-kanban" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600"></i>
             <span class="whitespace-nowrap font-medium text-sm text-left">Proyectos</span>
           </button>
 
-          <button onclick="switchTeacherTab('tareas'); closeMobileSidebarIfOpen();" id="sidebar-tab-tareas" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 hover:text-brand-700 hover:bg-brand-50 group">
+          <button onclick="switchTeacherTab('tareas'); closeMobileSidebarIfOpen();" id="sidebar-tab-tareas" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 hover:bg-brand-50 group">
             <i data-lucide="check-square" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600"></i>
             <span class="whitespace-nowrap font-medium text-sm text-left">Tareas</span>
           </button>
 
           <!-- MENSAJES con badge de no leídos -->
-          <button onclick="switchTeacherTab('mensajes'); closeMobileSidebarIfOpen();" id="sidebar-tab-mensajes" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 hover:text-brand-700 hover:bg-brand-50 group">
+          <button onclick="switchTeacherTab('mensajes'); closeMobileSidebarIfOpen();" id="sidebar-tab-mensajes" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 hover:bg-brand-50 group">
             <i data-lucide="inbox" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600"></i>
             <span class="whitespace-nowrap font-medium text-sm text-left flex-1">Mensajes</span>
             <span id="sidebar-unread-badge" class="bg-brand-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 hidden">0</span>
           </button>
 
-          <button onclick="switchTeacherTab('reportes'); closeMobileSidebarIfOpen();" id="sidebar-tab-reportes" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 hover:text-brand-700 hover:bg-brand-50 group">
+          <button onclick="switchTeacherTab('reportes'); closeMobileSidebarIfOpen();" id="sidebar-tab-reportes" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 hover:bg-brand-50 group">
             <i data-lucide="clipboard-list" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600"></i>
             <span class="whitespace-nowrap font-medium text-sm text-left">Reportes</span>
           </button>
@@ -380,13 +406,13 @@
       </div>
 
       <!-- Pie del Sidebar: Capacidad y Perfil Rápido -->
-      <div class="p-4 border-t border-slate-100 bg-slate-50/50 space-y-3 shrink-0">
-        <div class="bg-white p-3 rounded-2xl border border-slate-200/80 shadow-2xs space-y-1.5">
+      <div class="p-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 space-y-3 shrink-0">
+        <div class="bg-white dark:bg-slate-900 p-3 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-2xs space-y-1.5">
           <div class="flex items-center justify-between text-[11px] font-bold">
-            <span class="text-slate-500">Capacidad</span>
+            <span class="text-slate-500 dark:text-slate-400">Capacidad</span>
             <span id="sidebar-capacidad-txt" class="text-brand-700">3 / 50</span>
           </div>
-          <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+          <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
             <div id="sidebar-progress-bar" class="h-full bg-brand-500 rounded-full transition-all duration-300" style="width: 6%;"></div>
           </div>
         </div>
@@ -397,7 +423,7 @@
               <span id="sidebar-avatar">C</span>
             </div>
             <div class="min-w-0">
-              <p id="sidebar-teacher-name" class="text-xs font-bold text-slate-800 truncate">Prof. Carlos</p>
+              <p id="sidebar-teacher-name" class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">Prof. Carlos</p>
               <p class="text-[10px] text-slate-400 truncate">Docente Titular</p>
             </div>
           </div>
@@ -413,23 +439,23 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
       
       <!-- BARRA SUPERIOR LIMPIA (TOP BAR) -->
-      <header class="h-16 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-30 shrink-0">
+      <header class="h-16 bg-white dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-700/80 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-30 shrink-0">
         
         <!-- Izquierda: Botón Hamburguesa Móvil + Título de Sección -->
         <div class="flex items-center gap-3">
-          <button onclick="toggleTeacherSidebar()" class="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 focus:outline-none" aria-label="Abrir menú">
+          <button onclick="toggleTeacherSidebar()" class="lg:hidden p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:bg-slate-800 focus:outline-none" aria-label="Abrir menú">
             <i data-lucide="menu" class="w-5 h-5"></i>
           </button>
           
           <div>
-            <h1 id="topbar-page-title" class="text-sm sm:text-base font-bold text-slate-900 leading-tight">Panel Principal</h1>
+            <h1 id="topbar-page-title" class="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100 leading-tight">Panel Principal</h1>
             <p id="topbar-page-subtitle" class="text-[11px] text-slate-400 hidden sm:block">Visión general del ciclo escolar</p>
           </div>
         </div>
 
         <!-- Derecha: Indicador Sutil "Sistema en Línea" y Salir -->
         <div class="flex items-center gap-2.5 sm:gap-3">
-          <button onclick="toggleDarkMode()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 focus:outline-none" aria-label="Cambiar modo oscuro">
+          <button onclick="toggleDarkMode()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 focus:outline-none" aria-label="Cambiar modo oscuro">
             <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
             <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
           </button>
@@ -443,7 +469,7 @@
 
           <button 
             onclick="logout()" 
-            class="px-2.5 py-1.5 text-xs font-semibold text-slate-500 hover:text-rose-700 hover:bg-rose-50 border border-transparent hover:border-rose-200 rounded-xl transition-all flex items-center gap-1 cursor-pointer"
+            class="px-2.5 py-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-rose-700 hover:bg-rose-50 border border-transparent hover:border-rose-200 rounded-xl transition-all flex items-center gap-1 cursor-pointer"
             title="Cerrar sesión"
           >
             <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
@@ -463,7 +489,7 @@
           <div class="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-brand-800 via-brand-700 to-indigo-600 p-5 sm:p-7 text-white shadow-md shadow-brand-500/10">
             <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-5">
               <div class="space-y-1.5">
-                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 text-[11px] font-semibold backdrop-blur-md border border-white/20">
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white dark:bg-slate-900/15 text-[11px] font-semibold backdrop-blur-md border border-white/20">
                   <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300"></i>
                   <span id="banner-group-badge">3er Grado Grupo B</span>
                 </div>
@@ -476,7 +502,7 @@
               </div>
               
               <div class="flex flex-wrap items-center gap-2.5 shrink-0">
-                <button onclick="switchTeacherTab('mensajes')" class="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl bg-white text-brand-700 font-bold text-xs sm:text-sm shadow-md hover:bg-brand-50 transition-all cursor-pointer">
+                <button onclick="switchTeacherTab('mensajes')" class="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 text-brand-700 font-bold text-xs sm:text-sm shadow-md hover:bg-brand-50 transition-all cursor-pointer">
                   <i data-lucide="inbox" class="w-4 h-4"></i>
                   <span>Bandeja de Mensajes</span>
                 </button>
@@ -492,44 +518,44 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
             
             <!-- Capacidad -->
-            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-700/80 shadow-xs">
               <div class="flex items-center justify-between mb-3">
-                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Capacidad Alumnos</span>
+                <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Capacidad Alumnos</span>
                 <div class="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center"><i data-lucide="users" class="w-4 h-4"></i></div>
               </div>
               <div class="space-y-2">
                 <div class="flex items-baseline justify-between">
                   <div class="flex items-baseline gap-1">
-                    <span id="dash-count-current" class="text-2xl font-extrabold text-slate-900">0</span>
+                    <span id="dash-count-current" class="text-2xl font-extrabold text-slate-900 dark:text-slate-100">0</span>
                     <span class="text-slate-400 text-sm font-medium">/</span>
-                    <span id="dash-count-max" class="text-sm font-semibold text-slate-500">50</span>
+                    <span id="dash-count-max" class="text-sm font-semibold text-slate-500 dark:text-slate-400">50</span>
                   </div>
                   <span id="dash-limit-percent" class="text-xs font-bold text-brand-700 bg-brand-50 px-2 py-0.5 rounded-md border border-brand-100">0%</span>
                 </div>
-                <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
                   <div id="dash-progress-bar" class="h-full rounded-full bg-gradient-to-r from-brand-500 to-indigo-600 transition-all duration-500" style="width: 0%;"></div>
                 </div>
                 <p class="text-[11px] text-slate-400 flex items-center justify-between pt-0.5">
-                  <span>Disponibles: <strong id="dash-disponibles-txt" class="text-slate-700">50</strong></span>
+                  <span>Disponibles: <strong id="dash-disponibles-txt" class="text-slate-700 dark:text-slate-300">50</strong></span>
                   <span class="text-brand-600 font-semibold">Límite 50</span>
                 </p>
               </div>
             </div>
 
             <!-- Asistencia Hoy -->
-            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-700/80 shadow-xs">
               <div class="flex items-center justify-between mb-3">
-                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Asistencia Hoy</span>
+                <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Asistencia Hoy</span>
                 <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center"><i data-lucide="check-check" class="w-4 h-4"></i></div>
               </div>
               <div class="space-y-1">
                 <div class="flex items-baseline gap-2">
-                  <h3 id="dash-asistencia-rate" class="text-2xl font-extrabold text-slate-900">0%</h3>
+                  <h3 id="dash-asistencia-rate" class="text-2xl font-extrabold text-slate-900 dark:text-slate-100">0%</h3>
                   <span id="dash-asistencia-count" class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">0 de 0</span>
                 </div>
                 <p class="text-[11px] text-slate-400">Pase de lista con QR y manual</p>
               </div>
-              <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+              <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between text-xs">
                 <button onclick="switchTeacherTab('asistencias')" class="text-brand-600 font-semibold hover:underline flex items-center gap-1">
                   <span>Abrir escáner QR</span>
                   <i data-lucide="arrow-right" class="w-3 h-3"></i>
@@ -538,19 +564,19 @@
             </div>
 
             <!-- Mensajes Nuevos -->
-            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-700/80 shadow-xs">
               <div class="flex items-center justify-between mb-3">
-                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Buzón de Mensajes</span>
+                <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Buzón de Mensajes</span>
                 <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center"><i data-lucide="inbox" class="w-4 h-4"></i></div>
               </div>
               <div class="space-y-1">
                 <div class="flex items-baseline gap-2">
-                  <h3 id="dash-unread-count" class="text-2xl font-extrabold text-slate-900">0</h3>
+                  <h3 id="dash-unread-count" class="text-2xl font-extrabold text-slate-900 dark:text-slate-100">0</h3>
                   <span class="text-xs font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">Sin leer</span>
                 </div>
                 <p class="text-[11px] text-slate-400">Comunicación con padres</p>
               </div>
-              <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+              <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between text-xs">
                 <button onclick="switchTeacherTab('mensajes')" class="text-brand-600 font-semibold hover:underline flex items-center gap-1">
                   <span>Abrir bandeja</span>
                   <i data-lucide="arrow-right" class="w-3 h-3"></i>
@@ -559,19 +585,19 @@
             </div>
 
             <!-- Actividades -->
-            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-700/80 shadow-xs">
               <div class="flex items-center justify-between mb-3">
-                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Actividades</span>
+                <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actividades</span>
                 <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center"><i data-lucide="layers" class="w-4 h-4"></i></div>
               </div>
               <div class="space-y-1">
                 <div class="flex items-baseline gap-2">
-                  <h3 id="dash-actividades-count" class="text-2xl font-extrabold text-slate-900">4</h3>
+                  <h3 id="dash-actividades-count" class="text-2xl font-extrabold text-slate-900 dark:text-slate-100">4</h3>
                   <span class="text-xs font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-100">Proyectos y Tareas</span>
                 </div>
                 <p class="text-[11px] text-slate-400">Con Campos Formativos</p>
               </div>
-              <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+              <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between text-xs">
                 <button onclick="switchTeacherTab('proyectos')" class="text-brand-600 font-semibold hover:underline flex items-center gap-1">
                   <span>Ver proyectos</span>
                   <i data-lucide="arrow-right" class="w-3 h-3"></i>
@@ -582,25 +608,25 @@
           </div>
 
           <!-- Actividad Reciente -->
-          <div class="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-xs">
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 sm:p-6 shadow-xs">
             <div class="flex items-center justify-between mb-4">
-              <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <i data-lucide="activity" class="w-4 h-4 text-brand-600"></i>
                 <span>Asistencias Registradas Hoy</span>
               </h3>
               <button onclick="switchTeacherTab('asistencias')" class="text-xs font-semibold text-brand-600 hover:text-brand-700">Pase de lista</button>
             </div>
-            <div id="dash-activity-list" class="divide-y divide-slate-100 text-xs"></div>
+            <div id="dash-activity-list" class="divide-y divide-slate-100 dark:divide-slate-700 text-xs"></div>
           </div>
 
         </div>
 
         <!-- SUB-VISTA: ALUMNOS & QR -->
         <div id="m-view-alumnos" class="space-y-6 hidden animate-in fade-in duration-150">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200/80 pb-4">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200 dark:border-slate-700/80 pb-4">
             <div>
-              <h2 class="text-lg font-bold text-slate-900">Gestión de Alumnos & Credenciales QR</h2>
-              <p class="text-xs text-slate-500">Inscribe, edita y da de baja alumnos. Emite credenciales digitales de acceso.</p>
+              <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Gestión de Alumnos & Credenciales QR</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Inscribe, edita y da de baja alumnos. Emite credenciales digitales de acceso.</p>
             </div>
             <span class="text-xs font-semibold px-3 py-1.5 bg-brand-50 text-brand-700 rounded-xl border border-brand-200 self-start sm:self-auto">
               Cupo disponible: <strong id="cupo-disponible-tab" class="text-brand-800">50</strong> / 50
@@ -610,26 +636,26 @@
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <!-- Formulario Inscribir -->
             <div class="lg:col-span-5">
-              <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
-                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 shadow-xs space-y-4">
+                <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                   <i data-lucide="user-plus" class="w-4 h-4 text-brand-600"></i>
                   <span>Inscribir Alumno</span>
                 </h3>
 
                 <form id="form-alumno" onsubmit="handleAlumnoSubmit(event)" class="space-y-3.5">
                   <div>
-                    <label for="alumno_nombre" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Nombre Completo *</label>
-                    <input type="text" id="alumno_nombre" required placeholder="Ej. Sofía Martínez Ruiz" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                    <label for="alumno_nombre" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Nombre Completo *</label>
+                    <input type="text" id="alumno_nombre" required placeholder="Ej. Sofía Martínez Ruiz" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
                   </div>
 
                   <div>
-                    <label for="alumno_tutor" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Nombre del Tutor *</label>
-                    <input type="text" id="alumno_tutor" required placeholder="Ej. Carmen Ruiz García" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                    <label for="alumno_tutor" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Nombre del Tutor *</label>
+                    <input type="text" id="alumno_tutor" required placeholder="Ej. Carmen Ruiz García" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
                   </div>
 
                   <div>
-                    <label for="alumno_telefono" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Teléfono WhatsApp *</label>
-                    <input type="tel" id="alumno_telefono" required placeholder="Ej. +52 55 9876 5432" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                    <label for="alumno_telefono" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Teléfono WhatsApp *</label>
+                    <input type="tel" id="alumno_telefono" required placeholder="Ej. +52 55 9876 5432" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
                   </div>
 
                   <button type="submit" class="w-full py-2.5 px-4 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer">
@@ -642,18 +668,18 @@
 
             <!-- Tabla Alumnos -->
             <div class="lg:col-span-7 space-y-4">
-              <div class="bg-white rounded-2xl border border-slate-200/80 p-3.5 shadow-xs flex items-center justify-between gap-3">
+              <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-3.5 shadow-xs flex items-center justify-between gap-3">
                 <div class="relative flex-1">
                   <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                  <input type="text" id="search-alumnos-input" oninput="filterAlumnosTable()" placeholder="Buscar alumno..." class="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                  <input type="text" id="search-alumnos-input" oninput="filterAlumnosTable()" placeholder="Buscar alumno..." class="w-full pl-9 pr-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
                 </div>
-                <span id="tabla-total-badge" class="text-xs font-bold bg-slate-100 text-slate-700 px-3 py-1.5 rounded-xl shrink-0">0 Alumnos</span>
+                <span id="tabla-total-badge" class="text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-xl shrink-0">0 Alumnos</span>
               </div>
 
-              <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+              <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-xs overflow-hidden">
                 <div class="overflow-x-auto">
                   <table class="w-full text-left text-xs min-w-[500px]">
-                    <thead class="bg-slate-50 text-slate-600 uppercase font-bold border-b border-slate-200/60">
+                    <thead class="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 uppercase font-bold border-b border-slate-200 dark:border-slate-700/60">
                       <tr>
                         <th class="px-4 py-3">Alumno</th>
                         <th class="px-4 py-3">Tutor / Teléfono</th>
@@ -661,7 +687,7 @@
                         <th class="px-4 py-3 text-right">Acciones</th>
                       </tr>
                     </thead>
-                    <tbody id="alumnos-table-body" class="divide-y divide-slate-100 text-slate-700"></tbody>
+                    <tbody id="alumnos-table-body" class="divide-y divide-slate-100 dark:divide-slate-700 text-slate-700 dark:text-slate-300"></tbody>
                   </table>
                 </div>
               </div>
@@ -671,20 +697,20 @@
 
         <!-- SUB-VISTA: ASISTENCIAS (CÁMARA TRASERA FORZADA) -->
         <div id="m-view-asistencias" class="space-y-6 hidden animate-in fade-in duration-150">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200/80 pb-4">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200 dark:border-slate-700/80 pb-4">
             <div>
-              <h2 class="text-lg font-bold text-slate-900">Control de Asistencia & Escáner QR</h2>
-              <p class="text-xs text-slate-500">Pase de lista con cámara trasera del dispositivo o lector de código ID.</p>
+              <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Control de Asistencia & Escáner QR</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Pase de lista con cámara trasera del dispositivo o lector de código ID.</p>
             </div>
-            <span id="current-date-badge" class="text-xs font-bold px-3.5 py-1.5 bg-slate-100 text-slate-700 rounded-xl border border-slate-200 self-start sm:self-auto">📅 Hoy</span>
+            <span id="current-date-badge" class="text-xs font-bold px-3.5 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl border border-slate-200 dark:border-slate-700 self-start sm:self-auto">📅 Hoy</span>
           </div>
 
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <!-- Escáner -->
             <div class="lg:col-span-5 space-y-4">
-              <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs">
+              <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 shadow-xs">
                 <div class="flex items-center justify-between mb-1">
-                  <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                     <i data-lucide="camera" class="w-4 h-4 text-brand-600"></i>
                     <span>Escáner QR</span>
                   </h3>
@@ -692,7 +718,7 @@
                     📷 Cámara Trasera
                   </span>
                 </div>
-                <p class="text-xs text-slate-500 mb-4">Apunta la cámara trasera a la credencial del alumno.</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Apunta la cámara trasera a la credencial del alumno.</p>
 
                 <div class="relative bg-slate-900 rounded-2xl overflow-hidden min-h-[200px] flex flex-col items-center justify-center p-3 text-center text-white border border-slate-800">
                   <div id="qr-reader" class="w-full max-w-xs"></div>
@@ -709,10 +735,10 @@
                   </button>
                 </div>
 
-                <div class="mt-4 pt-4 border-t border-slate-100 space-y-2">
-                  <label for="manual-scan-input" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">O registrar por Código ID:</label>
+                <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700 space-y-2">
+                  <label for="manual-scan-input" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">O registrar por Código ID:</label>
                   <div class="flex gap-2">
-                    <input type="text" id="manual-scan-input" placeholder="Pega el UUID..." onkeydown="if(event.key === 'Enter') handleManualScan()" class="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                    <input type="text" id="manual-scan-input" placeholder="Pega el UUID..." onkeydown="if(event.key === 'Enter') handleManualScan()" class="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
                     <button onclick="handleManualScan()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold transition-all cursor-pointer">Registrar</button>
                   </div>
                 </div>
@@ -732,16 +758,16 @@
 
             <!-- Tabla Asistencias -->
             <div class="lg:col-span-7 space-y-4">
-              <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-                <div class="p-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2">
-                  <h3 class="font-bold text-slate-900 text-sm">Pase de Lista del Grupo</h3>
+              <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-xs overflow-hidden">
+                <div class="p-4 border-b border-slate-100 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2">
+                  <h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm">Pase de Lista del Grupo</h3>
                   <button onclick="markAllAttendance('presente')" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-bold transition-all">
                     Marcar Todos Presentes
                   </button>
                 </div>
                 <div class="overflow-x-auto">
                   <table class="w-full text-left text-xs min-w-[480px]">
-                    <thead class="bg-slate-50 text-slate-600 uppercase font-bold border-b border-slate-200/60">
+                    <thead class="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 uppercase font-bold border-b border-slate-200 dark:border-slate-700/60">
                       <tr>
                         <th class="px-4 py-3">Alumno</th>
                         <th class="px-4 py-3">Estado</th>
@@ -749,7 +775,7 @@
                         <th class="px-4 py-3 text-right">Opciones</th>
                       </tr>
                     </thead>
-                    <tbody id="attendance-table-body" class="divide-y divide-slate-100 text-slate-700"></tbody>
+                    <tbody id="attendance-table-body" class="divide-y divide-slate-100 dark:divide-slate-700 text-slate-700 dark:text-slate-300"></tbody>
                   </table>
                 </div>
               </div>
@@ -759,10 +785,10 @@
 
         <!-- SUB-VISTA: REPORTE DE EVALUACIÓN (CALIFICACIONES SIN DECIMALES) -->
         <div id="m-view-calificaciones" class="space-y-6 hidden animate-in fade-in duration-150">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200/80 pb-4">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200 dark:border-slate-700/80 pb-4">
             <div>
-              <h2 class="text-lg font-bold text-slate-900">Reporte de Evaluación</h2>
-              <p class="text-xs text-slate-500">Configura la plantilla de materias y asienta las calificaciones oficiales (promedio entero sin decimales).</p>
+              <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Reporte de Evaluación</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Configura la plantilla de materias y asienta las calificaciones oficiales (promedio entero sin decimales).</p>
             </div>
             <div class="flex items-center gap-2">
               <button onclick="openMateriasModal()" class="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer">
@@ -776,19 +802,19 @@
             </div>
           </div>
 
-          <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs flex flex-wrap items-center justify-between gap-3">
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-4 shadow-xs flex flex-wrap items-center justify-between gap-3">
             <div class="flex items-center gap-2 overflow-x-auto py-1">
-              <span class="text-xs font-bold text-slate-700 uppercase tracking-wider shrink-0">Materias Evaluadas:</span>
+              <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider shrink-0">Materias Evaluadas:</span>
               <div id="active-materias-badges" class="flex flex-wrap gap-1.5"></div>
             </div>
             <span class="text-[11px] font-semibold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-lg border border-brand-100">Escala de 5 a 10 (Promedio Entero)</span>
           </div>
 
-          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-xs overflow-hidden">
             <div class="overflow-x-auto">
               <table class="w-full text-left text-xs min-w-[650px]">
-                <thead id="dynamic-grades-thead" class="bg-slate-50 text-slate-600 uppercase font-bold border-b border-slate-200/60"></thead>
-                <tbody id="dynamic-grades-tbody" class="divide-y divide-slate-100 text-slate-700"></tbody>
+                <thead id="dynamic-grades-thead" class="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 uppercase font-bold border-b border-slate-200 dark:border-slate-700/60"></thead>
+                <tbody id="dynamic-grades-tbody" class="divide-y divide-slate-100 dark:divide-slate-700 text-slate-700 dark:text-slate-300"></tbody>
               </table>
             </div>
           </div>
@@ -796,10 +822,10 @@
 
         <!-- SUB-VISTA: PROYECTOS -->
         <div id="m-view-proyectos" class="space-y-6 hidden animate-in fade-in duration-150">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200/80 pb-4">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200 dark:border-slate-700/80 pb-4">
             <div>
-              <h2 class="text-lg font-bold text-slate-900">Proyectos Escolares</h2>
-              <p class="text-xs text-slate-500">Planifica y evalúa proyectos integradores asignando Campos Formativos.</p>
+              <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Proyectos Escolares</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Planifica y evalúa proyectos integradores asignando Campos Formativos.</p>
             </div>
             <button onclick="openNewProjectModal()" class="px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 shadow-xs transition-all cursor-pointer self-start sm:self-auto">
               <i data-lucide="plus-circle" class="w-4 h-4"></i>
@@ -811,10 +837,10 @@
 
         <!-- SUB-VISTA: TAREAS -->
         <div id="m-view-tareas" class="space-y-6 hidden animate-in fade-in duration-150">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200/80 pb-4">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200 dark:border-slate-700/80 pb-4">
             <div>
-              <h2 class="text-lg font-bold text-slate-900">Tareas y Asignaciones</h2>
-              <p class="text-xs text-slate-500">Asigna tareas escolares para la casa vinculando Campos Formativos y fechas de entrega.</p>
+              <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Tareas y Asignaciones</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Asigna tareas escolares para la casa vinculando Campos Formativos y fechas de entrega.</p>
             </div>
             <button onclick="openNewTareaModal()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 shadow-xs transition-all cursor-pointer self-start sm:self-auto">
               <i data-lucide="plus-circle" class="w-4 h-4"></i>
@@ -826,10 +852,10 @@
 
         <!-- NUEVA SUB-VISTA: MENSAJES (BANDEJA 2 COLUMNAS ESTILO CORREO) -->
         <div id="m-view-mensajes" class="space-y-6 hidden animate-in fade-in duration-150">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200/80 pb-4">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200 dark:border-slate-700/80 pb-4">
             <div>
-              <h2 class="text-lg font-bold text-slate-900">Bandeja de Mensajes Asíncronos</h2>
-              <p class="text-xs text-slate-500">Comunicación directa con padres de familia, justificación de faltas y dudas académicas.</p>
+              <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Bandeja de Mensajes Asíncronos</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Comunicación directa con padres de familia, justificación de faltas y dudas académicas.</p>
             </div>
             <span id="teacher-inbox-stats" class="text-xs font-semibold px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-xl border border-indigo-200 self-start sm:self-auto">
               2 Conversaciones
@@ -837,35 +863,35 @@
           </div>
 
           <!-- Layout 2 Columnas de Mensajería -->
-          <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col lg:flex-row min-h-[560px]">
+          <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-700/80 shadow-xs overflow-hidden flex flex-col lg:flex-row min-h-[560px]">
             
             <!-- Columna Izquierda: Lista de Mensajes Recibidos -->
-            <div class="w-full lg:w-80 border-b lg:border-b-0 lg:border-r border-slate-200/80 flex flex-col shrink-0 bg-slate-50/40">
-              <div class="p-3.5 border-b border-slate-200/80 bg-white">
+            <div class="w-full lg:w-80 border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-700/80 flex flex-col shrink-0 bg-slate-50 dark:bg-slate-800/40">
+              <div class="p-3.5 border-b border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900">
                 <div class="relative">
                   <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                  <input type="text" id="search-messages-input" oninput="filterTeacherMessages()" placeholder="Buscar por alumno o asunto..." class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                  <input type="text" id="search-messages-input" oninput="filterTeacherMessages()" placeholder="Buscar por alumno o asunto..." class="w-full pl-8 pr-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
                 </div>
               </div>
 
               <!-- Lista de Conversaciones -->
-              <div id="teacher-threads-list" class="flex-1 overflow-y-auto divide-y divide-slate-100 max-h-[220px] lg:max-h-none">
+              <div id="teacher-threads-list" class="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 max-h-[220px] lg:max-h-none">
                 <!-- Hilos renderizados por JS -->
               </div>
             </div>
 
             <!-- Columna Derecha: Panel de Lectura y Respuesta -->
-            <div class="flex-1 flex flex-col bg-white">
+            <div class="flex-1 flex flex-col bg-white dark:bg-slate-900">
               
               <!-- Cabecera del Hilo Seleccionado -->
-              <div id="thread-header" class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between gap-3 bg-white shrink-0">
+              <div id="thread-header" class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between gap-3 bg-white dark:bg-slate-900 shrink-0">
                 <div class="flex items-center gap-3 min-w-0">
                   <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-700 flex items-center justify-center font-bold text-sm shrink-0" id="thread-student-avatar">
                     S
                   </div>
                   <div class="min-w-0">
-                    <h3 id="thread-student-name" class="text-sm font-bold text-slate-900 truncate">Sofía Martínez Ruiz</h3>
-                    <p id="thread-tutor-info" class="text-xs text-slate-500 truncate">Tutor: Carmen Ruiz García</p>
+                    <h3 id="thread-student-name" class="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">Sofía Martínez Ruiz</h3>
+                    <p id="thread-tutor-info" class="text-xs text-slate-500 dark:text-slate-400 truncate">Tutor: Carmen Ruiz García</p>
                   </div>
                 </div>
                 <div class="text-right shrink-0">
@@ -877,12 +903,12 @@
               </div>
 
               <!-- Área de Mensajes (Burbujas de Diálogo) -->
-              <div id="thread-messages-body" class="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 max-h-[340px] bg-slate-50/50">
+              <div id="thread-messages-body" class="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 max-h-[340px] bg-slate-50 dark:bg-slate-800/50">
                 <!-- Burbujas renderizadas por JS -->
               </div>
 
               <!-- Cuadro de Respuesta del Maestro -->
-              <div class="p-4 border-t border-slate-100 bg-white shrink-0">
+              <div class="p-4 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-900 shrink-0">
                 <form onsubmit="handleTeacherSendReply(event)" class="space-y-2.5">
                   <div class="relative">
                     <textarea 
@@ -890,7 +916,7 @@
                       rows="2" 
                       required 
                       placeholder="Escribe tu respuesta para el padre de familia..." 
-                      class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 resize-none"
+                      class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 resize-none"
                     ></textarea>
                   </div>
                   <div class="flex items-center justify-between">
@@ -910,31 +936,31 @@
 
         <!-- SUB-VISTA: REPORTES POR NIÑO -->
         <div id="m-view-reportes" class="space-y-6 hidden animate-in fade-in duration-150">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200/80 pb-4">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200 dark:border-slate-700/80 pb-4">
             <div>
-              <h2 class="text-lg font-bold text-slate-900">Módulo de Reportes por Niño</h2>
-              <p class="text-xs text-slate-500">Emite reportes de conducta, felicitaciones por mérito o citatorios a padres.</p>
+              <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Módulo de Reportes por Niño</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Emite reportes de conducta, felicitaciones por mérito o citatorios a padres.</p>
             </div>
           </div>
 
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <!-- Formulario Reporte -->
             <div class="lg:col-span-5">
-              <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
-                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 shadow-xs space-y-4">
+                <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                   <i data-lucide="file-plus" class="w-4 h-4 text-brand-600"></i>
                   <span>Redactar Reporte</span>
                 </h3>
 
                 <form id="form-reporte" onsubmit="handleCreateReporte(event)" class="space-y-3.5">
                   <div>
-                    <label for="reporte_alumno_uuid" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Seleccionar Alumno *</label>
-                    <select id="reporte_alumno_uuid" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600"></select>
+                    <label for="reporte_alumno_uuid" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Seleccionar Alumno *</label>
+                    <select id="reporte_alumno_uuid" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600"></select>
                   </div>
 
                   <div>
-                    <label for="reporte_tipo" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Tipo de Reporte *</label>
-                    <select id="reporte_tipo" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600">
+                    <label for="reporte_tipo" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Tipo de Reporte *</label>
+                    <select id="reporte_tipo" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600">
                       <option value="Felicitación">🌟 Felicitación / Mérito Académico</option>
                       <option value="Conducta">⚠️ Reporte de Conducta / Disciplina</option>
                       <option value="Citatorio">📋 Citatorio a Padre de Familia</option>
@@ -943,13 +969,13 @@
                   </div>
 
                   <div>
-                    <label for="reporte_titulo" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Título del Reporte *</label>
-                    <input type="text" id="reporte_titulo" required placeholder="Ej. Felicitación por proyecto" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                    <label for="reporte_titulo" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Título del Reporte *</label>
+                    <input type="text" id="reporte_titulo" required placeholder="Ej. Felicitación por proyecto" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
                   </div>
 
                   <div>
-                    <label for="reporte_desc" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Detalle / Observación *</label>
-                    <textarea id="reporte_desc" required rows="3" placeholder="Escribe el reporte para el padre de familia..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600"></textarea>
+                    <label for="reporte_desc" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Detalle / Observación *</label>
+                    <textarea id="reporte_desc" required rows="3" placeholder="Escribe el reporte para el padre de familia..." class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600"></textarea>
                   </div>
 
                   <button type="submit" class="w-full py-2.5 px-4 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer">
@@ -962,12 +988,12 @@
 
             <!-- Lista Reportes -->
             <div class="lg:col-span-7 space-y-4">
-              <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs flex items-center justify-between">
-                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-4 shadow-xs flex items-center justify-between">
+                <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                   <i data-lucide="clipboard-list" class="w-4 h-4 text-brand-600"></i>
                   <span>Historial de Reportes Emitidos</span>
                 </h3>
-                <span id="reportes-count-badge" class="text-xs font-bold bg-slate-100 text-slate-700 px-3 py-1 rounded-xl">0 Reportes</span>
+                <span id="reportes-count-badge" class="text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-3 py-1 rounded-xl">0 Reportes</span>
               </div>
               <div id="reportes-list-container" class="space-y-3"></div>
             </div>
@@ -986,23 +1012,27 @@
   <main id="view-portal-padres" class="flex-1 max-w-4xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-6 hidden space-y-6 animate-in fade-in duration-150">
     
     <!-- Encabezado del Alumno -->
-    <div class="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-700/80 p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div class="flex items-center gap-4">
         <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-brand-600 text-white flex items-center justify-center font-extrabold text-xl shadow-md shrink-0">
           <span id="p-avatar">S</span>
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 id="p-nombre" class="text-lg sm:text-xl font-bold text-slate-900">Sofía Martínez Ruiz</h1>
+            <h1 id="p-nombre" class="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100">Sofía Martínez Ruiz</h1>
             <span class="px-2 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-800 rounded-full">Activo</span>
           </div>
-          <p id="p-grupo-tutor" class="text-xs text-slate-500 mt-0.5">3er Grado Grupo B • Tutor: Carmen Ruiz García</p>
+          <p id="p-grupo-tutor" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">3er Grado Grupo B • Tutor: Carmen Ruiz García</p>
           <p id="p-profesor" class="text-[11px] text-brand-600 font-semibold mt-0.5">Docente Titular: Prof. Carlos Mendoza</p>
         </div>
       </div>
 
       <div class="flex items-center gap-2 self-end sm:self-center">
-        <button onclick="window.print()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all">
+        <button onclick="toggleDarkMode()" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none transition-colors" aria-label="Cambiar modo oscuro">
+          <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+          <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+        </button>
+        <button onclick="window.print()" class="px-3.5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all">
           <i data-lucide="printer" class="w-4 h-4"></i>
           <span>Imprimir Reporte</span>
         </button>
@@ -1017,9 +1047,9 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="print-parent-report">
       
       <!-- 1. ASISTENCIAS -->
-      <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 shadow-xs space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+          <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             <i data-lucide="calendar-check-2" class="w-4 h-4 text-emerald-600"></i>
             <span>Registro de Asistencias</span>
           </h3>
@@ -1041,16 +1071,16 @@
           </div>
         </div>
 
-        <div class="p-3 bg-slate-50 rounded-xl text-xs text-slate-600 flex items-center justify-between">
+        <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl text-xs text-slate-600 dark:text-slate-400 flex items-center justify-between">
           <span>Estado de hoy:</span>
           <strong id="p-asist-hoy-badge" class="text-emerald-700 font-bold">Presente</strong>
         </div>
       </div>
 
       <!-- 2. REPORTE DE EVALUACIÓN (SIN DECIMALES) -->
-      <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 shadow-xs space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+          <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             <i data-lucide="award" class="w-4 h-4 text-brand-600"></i>
             <span>Reporte de Evaluación</span>
           </h3>
@@ -1061,40 +1091,40 @@
       </div>
 
       <!-- 3. PROYECTOS ESCOLARES -->
-      <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 shadow-xs space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+          <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             <i data-lucide="folder-kanban" class="w-4 h-4 text-indigo-600"></i>
             <span>Proyectos</span>
           </h3>
-          <span class="text-xs font-semibold text-slate-500">Campos Formativos</span>
+          <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Campos Formativos</span>
         </div>
 
         <div id="p-proyectos-list" class="space-y-2.5 text-xs"></div>
       </div>
 
       <!-- 4. TAREAS Y ASIGNACIONES -->
-      <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 shadow-xs space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+          <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             <i data-lucide="check-square" class="w-4 h-4 text-emerald-600"></i>
             <span>Tareas</span>
           </h3>
-          <span class="text-xs font-semibold text-slate-500">Actividades en Casa</span>
+          <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Actividades en Casa</span>
         </div>
 
         <div id="p-tareas-list" class="space-y-2.5 text-xs"></div>
       </div>
 
       <!-- 5. NUEVA SECCIÓN: MENSAJES AL MAESTRO (CHAT ASÍNCRONO FAMILIAS) -->
-      <div class="md:col-span-2 bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-xs space-y-5">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+      <div class="md:col-span-2 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-700/80 p-5 sm:p-6 shadow-xs space-y-5">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
           <div class="flex items-center gap-2.5">
             <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
               <i data-lucide="message-square" class="w-4 h-4"></i>
             </div>
             <div>
-              <h3 class="text-sm font-bold text-slate-900">Mensajes al Maestro</h3>
+              <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100">Mensajes al Maestro</h3>
               <p class="text-[11px] text-slate-400">Canal directo para avisos, justificantes y consultas académicas.</p>
             </div>
           </div>
@@ -1104,11 +1134,11 @@
         </div>
 
         <!-- Formulario para Enviar Nuevo Mensaje -->
-        <form onsubmit="handleParentSendMessage(event)" class="bg-slate-50/70 p-4 rounded-2xl border border-slate-200/70 space-y-3">
+        <form onsubmit="handleParentSendMessage(event)" class="bg-slate-50 dark:bg-slate-800/70 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/70 space-y-3">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label for="p_msg_asunto" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Motivo / Asunto *</label>
-              <select id="p_msg_asunto" required class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600">
+              <label for="p_msg_asunto" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Motivo / Asunto *</label>
+              <select id="p_msg_asunto" required class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600">
                 <option value="Justificante de Inasistencia">📋 Justificante de Inasistencia / Salud</option>
                 <option value="Duda sobre Tarea o Proyecto">📚 Duda sobre Tarea o Proyecto</option>
                 <option value="Consulta sobre Calificación">📊 Consulta sobre Calificación</option>
@@ -1117,14 +1147,14 @@
               </select>
             </div>
             <div>
-              <label for="p_msg_tutor_name" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Nombre del Tutor</label>
-              <input type="text" id="p_msg_tutor_name" readonly class="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs text-slate-600 cursor-not-allowed" />
+              <label for="p_msg_tutor_name" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Nombre del Tutor</label>
+              <input type="text" id="p_msg_tutor_name" readonly class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-600 dark:text-slate-400 cursor-not-allowed" />
             </div>
           </div>
 
           <div>
-            <label for="p_msg_texto" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Mensaje para el Docente *</label>
-            <textarea id="p_msg_texto" required rows="2" placeholder="Escribe tu mensaje o motivo detallado..." class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 resize-none"></textarea>
+            <label for="p_msg_texto" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Mensaje para el Docente *</label>
+            <textarea id="p_msg_texto" required rows="2" placeholder="Escribe tu mensaje o motivo detallado..." class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 resize-none"></textarea>
           </div>
 
           <div class="flex justify-end">
@@ -1137,7 +1167,7 @@
 
         <!-- Historial Visual de Mensajes (Burbujas tipo Chat / Tickets) -->
         <div class="space-y-3">
-          <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Historial de Comunicación</h4>
+          <h4 class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Historial de Comunicación</h4>
           <div id="parent-chat-history" class="space-y-3 max-h-[320px] overflow-y-auto pr-1">
             <!-- Conversaciones renderizadas por JS -->
           </div>
@@ -1145,13 +1175,13 @@
       </div>
 
       <!-- 6. REPORTES Y AVISOS INDIVIDUALES -->
-      <div class="md:col-span-2 bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+      <div class="md:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 shadow-xs space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+          <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             <i data-lucide="clipboard-check" class="w-4 h-4 text-amber-600"></i>
             <span>Reportes & Avisos del Maestro</span>
           </h3>
-          <span id="p-reportes-count" class="text-xs font-semibold text-slate-500">0 Registros</span>
+          <span id="p-reportes-count" class="text-xs font-semibold text-slate-500 dark:text-slate-400">0 Registros</span>
         </div>
 
         <div id="p-reportes-list" class="space-y-2.5 text-xs"></div>
@@ -1165,7 +1195,7 @@
   <!-- MODAL: ESCÁNER QR PARA PADRES (CÁMARA TRASERA FORZADA)       -->
   <!-- ============================================================ -->
   <div id="modal-parent-scanner" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-sm w-full overflow-hidden shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-700 animate-in fade-in zoom-in-95 duration-200">
       
       <div class="bg-gradient-to-r from-indigo-700 to-brand-700 px-5 py-4 text-white flex items-center justify-between">
         <div class="flex items-center gap-2">
@@ -1179,7 +1209,7 @@
 
       <div class="p-5 text-center space-y-4">
         <div class="flex items-center justify-between">
-          <p class="text-xs text-slate-500 text-left">Apunta al código QR de la credencial escolar.</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 text-left">Apunta al código QR de la credencial escolar.</p>
           <span class="text-[10px] font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200 shrink-0">
             📷 Cámara Trasera
           </span>
@@ -1193,7 +1223,7 @@
           </div>
         </div>
 
-        <button onclick="toggleParentScannerModal()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">
+        <button onclick="toggleParentScannerModal()" class="w-full py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold">
           Cerrar Cámara
         </button>
       </div>
@@ -1203,7 +1233,7 @@
 
   <!-- MODAL: CONFIGURAR MATERIAS DINÁMICAS -->
   <div id="modal-materias" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-100">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-700">
       
       <div class="bg-gradient-to-r from-indigo-700 to-brand-700 px-6 py-4 text-white flex items-center justify-between">
         <div class="flex items-center gap-2">
@@ -1216,19 +1246,19 @@
       </div>
 
       <div class="p-6 space-y-5">
-        <p class="text-xs text-slate-500">
+        <p class="text-xs text-slate-500 dark:text-slate-400">
           Agrega o elimina las materias del Reporte de Evaluación. Esta plantilla se aplica automáticamente a todos los alumnos.
         </p>
 
         <form onsubmit="handleAddMateria(event)" class="flex gap-2">
-          <input type="text" id="new-materia-name" required placeholder="Nombre de la materia (ej. Robótica, Inglés...)" class="flex-1 px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+          <input type="text" id="new-materia-name" required placeholder="Nombre de la materia (ej. Robótica, Inglés...)" class="flex-1 px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
           <button type="submit" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold flex items-center gap-1 shrink-0 cursor-pointer">
             <i data-lucide="plus" class="w-4 h-4"></i>
             <span>Agregar</span>
           </button>
         </form>
 
-        <div class="border border-slate-200 rounded-2xl overflow-hidden divide-y divide-slate-100 max-h-60 overflow-y-auto" id="materias-modal-list"></div>
+        <div class="border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-700 max-h-60 overflow-y-auto" id="materias-modal-list"></div>
 
         <div class="flex justify-end pt-2">
           <button onclick="closeMateriasModal()" class="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold cursor-pointer">
@@ -1242,7 +1272,7 @@
 
   <!-- MODAL: CREDENCIAL ESCOLAR QR -->
   <div id="modal-qr-credential" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-100">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-700">
       
       <div class="bg-gradient-to-r from-brand-700 to-indigo-700 px-6 py-4 text-white flex items-center justify-between">
         <div class="flex items-center gap-2">
@@ -1260,24 +1290,24 @@
           <span id="qr-modal-school-name">Lumni • Escuela</span>
         </div>
 
-        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 inline-block shadow-inner mx-auto">
+        <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 inline-block shadow-inner mx-auto">
           <div id="modal-qrcode-target" class="w-[150px] h-[150px] flex items-center justify-center mx-auto"></div>
           <span class="text-[10px] font-mono text-slate-400 block mt-2">CÓDIGO QR DE ASISTENCIA</span>
         </div>
 
         <div>
-          <h3 id="qr-modal-student-name" class="text-lg font-bold text-slate-900 leading-tight">Sofía Martínez Ruiz</h3>
+          <h3 id="qr-modal-student-name" class="text-lg font-bold text-slate-900 dark:text-slate-100 leading-tight">Sofía Martínez Ruiz</h3>
           <p id="qr-modal-student-group" class="text-xs text-brand-600 font-semibold mt-0.5">3er Grado Grupo B</p>
-          <p id="qr-modal-student-tutor" class="text-xs text-slate-500 mt-1">Tutor: Carmen Ruiz García</p>
+          <p id="qr-modal-student-tutor" class="text-xs text-slate-500 dark:text-slate-400 mt-1">Tutor: Carmen Ruiz García</p>
         </div>
 
-        <div class="bg-slate-100 py-1.5 px-3 rounded-xl border border-slate-200 font-mono text-[11px] text-slate-700 flex items-center justify-between">
+        <div class="bg-slate-100 dark:bg-slate-800 py-1.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700 font-mono text-[11px] text-slate-700 dark:text-slate-300 flex items-center justify-between">
           <span>Código ID:</span>
           <span id="qr-modal-uuid-txt" class="font-bold text-brand-700">alu-12345...</span>
         </div>
       </div>
 
-      <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-end gap-2">
+      <div class="bg-slate-50 dark:bg-slate-800 px-6 py-3.5 border-t border-slate-100 dark:border-slate-700 flex items-center justify-end gap-2">
         <button onclick="window.print()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all">
           <i data-lucide="printer" class="w-4 h-4"></i>
           <span>Imprimir</span>
@@ -1293,7 +1323,7 @@
 
   <!-- MODAL: EDITAR ALUMNO -->
   <div id="modal-edit-alumno" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-100">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-700">
       
       <div class="bg-slate-900 px-6 py-4 text-white flex items-center justify-between">
         <div class="flex items-center gap-2">
@@ -1309,22 +1339,22 @@
         <input type="hidden" id="edit-alumno-uuid" />
 
         <div>
-          <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Nombre Completo</label>
-          <input type="text" id="edit-alumno-nombre" required class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+          <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Nombre Completo</label>
+          <input type="text" id="edit-alumno-nombre" required class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Nombre del Tutor</label>
-          <input type="text" id="edit-alumno-tutor" required class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+          <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Nombre del Tutor</label>
+          <input type="text" id="edit-alumno-tutor" required class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Teléfono</label>
-          <input type="tel" id="edit-alumno-tel" required class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+          <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Teléfono</label>
+          <input type="tel" id="edit-alumno-tel" required class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
         </div>
 
         <div class="pt-2 flex items-center justify-end gap-2">
-          <button type="button" onclick="closeEditModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold">
+          <button type="button" onclick="closeEditModal()" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold">
             Cancelar
           </button>
           <button type="submit" class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs">
@@ -1339,7 +1369,7 @@
 
   <!-- MODAL: CREAR PROYECTO -->
   <div id="modal-new-project" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-100">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-700">
       
       <div class="bg-slate-900 px-6 py-4 text-white flex items-center justify-between">
         <div class="flex items-center gap-2">
@@ -1353,44 +1383,44 @@
 
       <form id="form-new-project" onsubmit="handleCreateProject(event)" class="p-6 space-y-4 text-left">
         <div>
-          <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Título del Proyecto *</label>
-          <input type="text" id="proj-title" required placeholder="Ej. Feria de Ciencias: Ecosistemas" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+          <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Título del Proyecto *</label>
+          <input type="text" id="proj-title" required placeholder="Ej. Feria de Ciencias: Ecosistemas" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">Campos Formativos Articulados *</label>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50 p-3 rounded-2xl border border-slate-200 text-xs">
+          <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Campos Formativos Articulados *</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs">
             <label class="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" name="proj_campo" value="Lenguajes" class="rounded text-brand-600 focus:ring-brand-500" checked />
-              <span class="font-semibold text-slate-800">🗣️ Lenguajes</span>
+              <span class="font-semibold text-slate-800 dark:text-slate-200">🗣️ Lenguajes</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" name="proj_campo" value="Saberes y Pensamiento Científico" class="rounded text-brand-600 focus:ring-brand-500" checked />
-              <span class="font-semibold text-slate-800">🔬 Saberes y Pensamiento</span>
+              <span class="font-semibold text-slate-800 dark:text-slate-200">🔬 Saberes y Pensamiento</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" name="proj_campo" value="Ética, Naturaleza y Sociedades" class="rounded text-brand-600 focus:ring-brand-500" />
-              <span class="font-semibold text-slate-800">🌍 Ética y Sociedades</span>
+              <span class="font-semibold text-slate-800 dark:text-slate-200">🌍 Ética y Sociedades</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" name="proj_campo" value="De lo Humano y lo Comunitario" class="rounded text-brand-600 focus:ring-brand-500" />
-              <span class="font-semibold text-slate-800">🤝 De lo Humano y Comunitario</span>
+              <span class="font-semibold text-slate-800 dark:text-slate-200">🤝 De lo Humano y Comunitario</span>
             </label>
           </div>
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Fecha de Entrega *</label>
-          <input type="date" id="proj-date" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+          <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Fecha de Entrega *</label>
+          <input type="date" id="proj-date" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Instrucciones</label>
-          <textarea id="proj-desc" rows="2" placeholder="Criterios y rúbrica..." class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600"></textarea>
+          <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Instrucciones</label>
+          <textarea id="proj-desc" rows="2" placeholder="Criterios y rúbrica..." class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600"></textarea>
         </div>
 
         <div class="pt-2 flex items-center justify-end gap-2">
-          <button type="button" onclick="closeNewProjectModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold">
+          <button type="button" onclick="closeNewProjectModal()" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold">
             Cancelar
           </button>
           <button type="submit" class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs">
@@ -1405,7 +1435,7 @@
 
   <!-- MODAL: CREAR TAREA -->
   <div id="modal-new-tarea" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-100">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-700">
       
       <div class="bg-slate-900 px-6 py-4 text-white flex items-center justify-between">
         <div class="flex items-center gap-2">
@@ -1419,44 +1449,44 @@
 
       <form id="form-new-tarea" onsubmit="handleCreateTarea(event)" class="p-6 space-y-4 text-left">
         <div>
-          <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Título de la Tarea *</label>
-          <input type="text" id="tarea-title" required placeholder="Ej. Ejercicios de Fracciones y Lectura Comprensiva" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600" />
+          <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Título de la Tarea *</label>
+          <input type="text" id="tarea-title" required placeholder="Ej. Ejercicios de Fracciones y Lectura Comprensiva" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600" />
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">Campos Formativos Articulados *</label>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50 p-3 rounded-2xl border border-slate-200 text-xs">
+          <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Campos Formativos Articulados *</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs">
             <label class="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" name="tarea_campo" value="Lenguajes" class="rounded text-indigo-600 focus:ring-indigo-500" checked />
-              <span class="font-semibold text-slate-800">🗣️ Lenguajes</span>
+              <span class="font-semibold text-slate-800 dark:text-slate-200">🗣️ Lenguajes</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" name="tarea_campo" value="Saberes y Pensamiento Científico" class="rounded text-indigo-600 focus:ring-indigo-500" checked />
-              <span class="font-semibold text-slate-800">🔬 Saberes y Pensamiento</span>
+              <span class="font-semibold text-slate-800 dark:text-slate-200">🔬 Saberes y Pensamiento</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" name="tarea_campo" value="Ética, Naturaleza y Sociedades" class="rounded text-indigo-600 focus:ring-indigo-500" />
-              <span class="font-semibold text-slate-800">🌍 Ética y Sociedades</span>
+              <span class="font-semibold text-slate-800 dark:text-slate-200">🌍 Ética y Sociedades</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" name="tarea_campo" value="De lo Humano y lo Comunitario" class="rounded text-indigo-600 focus:ring-indigo-500" />
-              <span class="font-semibold text-slate-800">🤝 De lo Humano y Comunitario</span>
+              <span class="font-semibold text-slate-800 dark:text-slate-200">🤝 De lo Humano y Comunitario</span>
             </label>
           </div>
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Fecha de Entrega *</label>
-          <input type="date" id="tarea-date" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600" />
+          <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Fecha de Entrega *</label>
+          <input type="date" id="tarea-date" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600" />
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Instrucciones para Casa</label>
-          <textarea id="tarea-desc" rows="2" placeholder="Páginas del libro o ejercicios a realizar..." class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600"></textarea>
+          <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Instrucciones para Casa</label>
+          <textarea id="tarea-desc" rows="2" placeholder="Páginas del libro o ejercicios a realizar..." class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600"></textarea>
         </div>
 
         <div class="pt-2 flex items-center justify-end gap-2">
-          <button type="button" onclick="closeNewTareaModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold">
+          <button type="button" onclick="closeNewTareaModal()" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold">
             Cancelar
           </button>
           <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs">
@@ -1470,10 +1500,10 @@
   </div>
 
   <!-- Footer en Vistas Sin Sidebar -->
-  <footer id="global-footer" class="bg-white border-t border-slate-200/80 py-4 mt-auto">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+  <footer id="global-footer" class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700/80 py-4 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 dark:text-slate-400 gap-2">
       <div class="flex items-center gap-2">
-        <span class="font-extrabold text-slate-800">Lumni</span>
+        <span class="font-extrabold text-slate-800 dark:text-slate-200">Lumni</span>
         <span>• Plataforma Escolar Inteligente</span>
       </div>
       <div class="flex items-center gap-4">

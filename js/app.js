@@ -248,13 +248,13 @@
       if (mode === 'login') {
         formLogin.classList.remove('hidden');
         formRegister.classList.add('hidden');
-        btnLogin.className = "flex-1 py-2 rounded-xl text-xs font-bold bg-white text-slate-900 shadow-xs transition-all cursor-pointer";
-        btnRegister.className = "flex-1 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-900 transition-all cursor-pointer";
+        btnLogin.className = "flex-1 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-xs transition-all cursor-pointer";
+        btnRegister.className = "flex-1 py-2 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-slate-100 transition-all cursor-pointer";
       } else {
         formLogin.classList.add('hidden');
         formRegister.classList.remove('hidden');
-        btnRegister.className = "flex-1 py-2 rounded-xl text-xs font-bold bg-white text-slate-900 shadow-xs transition-all cursor-pointer";
-        btnLogin.className = "flex-1 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-900 transition-all cursor-pointer";
+        btnRegister.className = "flex-1 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-xs transition-all cursor-pointer";
+        btnLogin.className = "flex-1 py-2 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-slate-100 transition-all cursor-pointer";
       }
       lucide.createIcons();
     }
@@ -332,7 +332,7 @@
           } else {
             viewEl.classList.add('hidden');
             if (btnEl) {
-              btnEl.className = "w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 hover:text-brand-700 hover:bg-brand-50 group";
+              btnEl.className = "w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 hover:bg-brand-50 group";
               const icon = btnEl.querySelector('i');
               if (icon) icon.className = "w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600";
               const span = btnEl.querySelector('span:not(#sidebar-unread-badge)');
@@ -409,9 +409,9 @@
         sum += parseFloat(cal);
         count++;
         return `
-          <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-100">
-            <span class="font-bold text-slate-800">${m}</span>
-            <span class="px-2.5 py-1 bg-white rounded-lg border border-slate-200 font-extrabold text-brand-700 text-xs shadow-2xs">
+          <div class="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
+            <span class="font-bold text-slate-800 dark:text-slate-200">${m}</span>
+            <span class="px-2.5 py-1 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 font-extrabold text-brand-700 text-xs shadow-2xs">
               ${cal}
             </span>
           </div>
@@ -433,13 +433,13 @@
           `).join(' ');
 
           return `
-            <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-1.5">
+            <div class="p-3.5 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-1.5">
               <div class="flex items-center justify-between gap-2">
                 <div class="flex flex-wrap gap-1">${camposBadges}</div>
                 <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md shrink-0">Nota: ${note}</span>
               </div>
-              <h4 class="font-bold text-slate-800 text-xs">${p.titulo}</h4>
-              <p class="text-[11px] text-slate-500">${p.desc}</p>
+              <h4 class="font-bold text-slate-800 dark:text-slate-200 text-xs">${p.titulo}</h4>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">${p.desc}</p>
               <div class="text-[10px] text-slate-400 flex items-center justify-between pt-1">
                 <span>Entrega: ${p.fecha}</span>
                 <span class="text-indigo-600 font-semibold">Proyecto Integrador</span>
@@ -461,13 +461,13 @@
           `).join(' ');
 
           return `
-            <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-1.5">
+            <div class="p-3.5 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-1.5">
               <div class="flex items-center justify-between gap-2">
                 <div class="flex flex-wrap gap-1">${camposBadges}</div>
                 <span class="text-[11px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md shrink-0">Nota: ${note}</span>
               </div>
-              <h4 class="font-bold text-slate-800 text-xs">${t.titulo}</h4>
-              <p class="text-[11px] text-slate-500">${t.desc}</p>
+              <h4 class="font-bold text-slate-800 dark:text-slate-200 text-xs">${t.titulo}</h4>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">${t.desc}</p>
               <div class="text-[10px] text-slate-400 flex items-center justify-between pt-1">
                 <span>Entrega: ${t.fecha}</span>
                 <span class="text-emerald-600 font-semibold">Tarea en Casa</span>
@@ -489,13 +489,13 @@
         repContainer.innerHTML = '<p class="text-slate-400 text-center py-4">Excelente: Sin reportes de conducta registrados.</p>';
       } else {
         repContainer.innerHTML = studentReports.map(r => `
-          <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
+          <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 space-y-1">
             <div class="flex items-center justify-between">
               <span class="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">${r.tipo}</span>
               <span class="text-[10px] text-slate-400">${r.fecha}</span>
             </div>
-            <h4 class="font-bold text-slate-800 text-xs">${r.titulo}</h4>
-            <p class="text-[11px] text-slate-600">${r.desc}</p>
+            <h4 class="font-bold text-slate-800 dark:text-slate-200 text-xs">${r.titulo}</h4>
+            <p class="text-[11px] text-slate-600 dark:text-slate-400">${r.desc}</p>
           </div>
         `).join('');
       }
@@ -694,20 +694,20 @@
       }
 
       tbody.innerHTML = alumnosState.map(a => {
-        let badgeColor = 'bg-slate-100 text-slate-700';
+        let badgeColor = 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300';
         if (a.asistenciaHoy === 'presente') badgeColor = 'bg-emerald-100 text-emerald-800 border border-emerald-200';
         if (a.asistenciaHoy === 'falta') badgeColor = 'bg-rose-100 text-rose-800 border border-rose-200';
         if (a.asistenciaHoy === 'retardo') badgeColor = 'bg-amber-100 text-amber-800 border border-amber-200';
 
         return `
-          <tr class="hover:bg-slate-50 transition-colors">
-            <td class="px-4 py-3 font-semibold text-slate-900">${a.nombre}</td>
+          <tr class="hover:bg-slate-50 dark:bg-slate-800 transition-colors">
+            <td class="px-4 py-3 font-semibold text-slate-900 dark:text-slate-100">${a.nombre}</td>
             <td class="px-4 py-3">
               <span class="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${badgeColor}">
                 ${a.asistenciaHoy}
               </span>
             </td>
-            <td class="px-4 py-3 font-mono text-xs text-slate-500">${a.horaAsistencia}</td>
+            <td class="px-4 py-3 font-mono text-xs text-slate-500 dark:text-slate-400">${a.horaAsistencia}</td>
             <td class="px-4 py-3 text-right space-x-1">
               <button onclick="setAlumnoAttendance('${a.uuid}', 'presente')" title="Presente" class="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-xs font-bold">P</button>
               <button onclick="setAlumnoAttendance('${a.uuid}', 'retardo')" title="Retardo" class="px-2 py-1 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg text-xs font-bold">R</button>
@@ -746,17 +746,17 @@
         return `
           <div
             onclick="selectTeacherThread(${th.id})"
-            class="p-4 cursor-pointer transition-all ${isSelected ? 'bg-brand-50/80 border-l-4 border-brand-600' : 'hover:bg-slate-50'} ${isUnread ? 'bg-indigo-50/30 font-semibold' : ''}"
+            class="p-4 cursor-pointer transition-all ${isSelected ? 'bg-brand-50/80 border-l-4 border-brand-600' : 'hover:bg-slate-50 dark:bg-slate-800'} ${isUnread ? 'bg-indigo-50/30 font-semibold' : ''}"
           >
             <div class="flex items-center justify-between mb-1">
-              <h4 class="text-xs font-bold text-slate-900 truncate">${a.nombre}</h4>
+              <h4 class="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">${a.nombre}</h4>
               <span class="text-[10px] text-slate-400 shrink-0">${lastMsg.fecha.split(' ')[1] || ''}</span>
             </div>
             <div class="flex items-center justify-between gap-1 mb-1">
               <span class="text-[11px] text-brand-700 font-semibold truncate">${th.asunto}</span>
               ${isUnread ? '<span class="px-1.5 py-0.5 text-[9px] font-bold bg-brand-600 text-white rounded-md shrink-0">Nuevo</span>' : '<span class="text-[10px] text-slate-400 shrink-0">Leído</span>'}
             </div>
-            <p class="text-[11px] text-slate-500 line-clamp-1">${lastMsg.texto}</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">${lastMsg.texto}</p>
           </div>
         `;
       }).join('');
@@ -794,7 +794,7 @@
         const isMe = m.remitente === 'maestro';
         return `
           <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
-            <div class="max-w-md ${isMe ? 'bg-brand-600 text-white rounded-2xl rounded-tr-xs' : 'bg-white text-slate-800 border border-slate-200/80 rounded-2xl rounded-tl-xs shadow-2xs'} p-3.5 space-y-1">
+            <div class="max-w-md ${isMe ? 'bg-brand-600 text-white rounded-2xl rounded-tr-xs' : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700/80 rounded-2xl rounded-tl-xs shadow-2xs'} p-3.5 space-y-1">
               <div class="flex items-center justify-between gap-3 text-[10px] ${isMe ? 'text-brand-200' : 'text-slate-400'} font-bold">
                 <span>${m.autor}</span>
                 <span>${m.fecha}</span>
@@ -912,13 +912,13 @@
       const studentThreads = mensajesState.filter(m => m.alumnoUuid === studentUuid);
 
       if (studentThreads.length === 0) {
-        container.innerHTML = `<div class="p-6 text-center text-xs text-slate-400 bg-slate-50 rounded-2xl border border-slate-100">Sin mensajes registrados. Usa el formulario superior para escribir al docente.</div>`;
+        container.innerHTML = `<div class="p-6 text-center text-xs text-slate-400 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">Sin mensajes registrados. Usa el formulario superior para escribir al docente.</div>`;
         return;
       }
 
       container.innerHTML = studentThreads.map(th => `
-        <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-200/70 space-y-3">
-          <div class="flex items-center justify-between border-b border-slate-200/60 pb-2">
+        <div class="bg-slate-50 dark:bg-slate-800/70 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/70 space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700/60 pb-2">
             <span class="text-xs font-bold text-brand-700 flex items-center gap-1.5">
               <i data-lucide="tag" class="w-3.5 h-3.5"></i>
               <span>${th.asunto}</span>
@@ -931,7 +931,7 @@
               const isParent = m.remitente === 'padre';
               return `
                 <div class="flex flex-col ${isParent ? 'items-end' : 'items-start'}">
-                  <div class="max-w-md ${isParent ? 'bg-indigo-600 text-white rounded-2xl rounded-tr-xs' : 'bg-white text-slate-800 border border-slate-200 rounded-2xl rounded-tl-xs shadow-2xs'} p-3 text-xs space-y-1">
+                  <div class="max-w-md ${isParent ? 'bg-indigo-600 text-white rounded-2xl rounded-tr-xs' : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-xs shadow-2xs'} p-3 text-xs space-y-1">
                     <div class="flex items-center justify-between gap-3 text-[10px] ${isParent ? 'text-indigo-200' : 'text-brand-600 font-bold'}">
                       <span>${m.autor}</span>
                       <span>${m.fecha}</span>
@@ -1020,8 +1020,8 @@
 
       tbody.innerHTML = alumnosState.map((alumno, aIdx) => {
         if (!alumno.calificaciones) alumno.calificaciones = {};
-        let rowHtml = `<tr class="hover:bg-slate-50 transition-colors">
-          <td class="px-4 py-3 font-semibold text-slate-900">${alumno.nombre}</td>`;
+        let rowHtml = `<tr class="hover:bg-slate-50 dark:bg-slate-800 transition-colors">
+          <td class="px-4 py-3 font-semibold text-slate-900 dark:text-slate-100">${alumno.nombre}</td>`;
 
         let sum = 0, count = 0;
         materiasState.forEach(m => {
@@ -1038,7 +1038,7 @@
                 max="10"
                 value="${val}"
                 onchange="updateDynamicGrade(${aIdx}, '${m}', this.value)"
-                class="w-16 text-center py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600"
+                class="w-16 text-center py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold focus:bg-white dark:bg-slate-900 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600"
               />
             </td>
           `;
@@ -1094,10 +1094,10 @@
         return;
       }
       container.innerHTML = materiasState.map((mat, idx) => `
-        <div class="p-3 flex items-center justify-between hover:bg-slate-50 transition-colors">
+        <div class="p-3 flex items-center justify-between hover:bg-slate-50 dark:bg-slate-800 transition-colors">
           <div class="flex items-center gap-2">
             <span class="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center font-bold text-xs">${idx + 1}</span>
-            <span class="font-bold text-xs text-slate-800">${mat}</span>
+            <span class="font-bold text-xs text-slate-800 dark:text-slate-200">${mat}</span>
           </div>
           <button onclick="deleteMateria(${idx})" class="p-1 text-slate-400 hover:text-rose-600 rounded-lg cursor-pointer" title="Eliminar">
             <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -1207,13 +1207,13 @@
         `).join(' ');
 
         return `
-          <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex flex-col justify-between space-y-4">
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 shadow-xs flex flex-col justify-between space-y-4">
             <div>
               <div class="flex flex-wrap gap-1 mb-2">${camposBadges}</div>
-              <h3 class="font-bold text-slate-900 text-sm mt-1">${proj.titulo}</h3>
-              <p class="text-xs text-slate-500 mt-1 line-clamp-2">${proj.desc}</p>
+              <h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm mt-1">${proj.titulo}</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">${proj.desc}</p>
             </div>
-            <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <div class="pt-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
               <span>Entrega: ${proj.fecha}</span>
               <button onclick="deleteProject(${idx})" class="text-slate-400 hover:text-rose-600 p-1 cursor-pointer">
                 <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -1278,13 +1278,13 @@
         `).join(' ');
 
         return `
-          <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex flex-col justify-between space-y-4">
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 shadow-xs flex flex-col justify-between space-y-4">
             <div>
               <div class="flex flex-wrap gap-1 mb-2">${camposBadges}</div>
-              <h3 class="font-bold text-slate-900 text-sm mt-1">${tarea.titulo}</h3>
-              <p class="text-xs text-slate-500 mt-1 line-clamp-2">${tarea.desc}</p>
+              <h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm mt-1">${tarea.titulo}</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">${tarea.desc}</p>
             </div>
-            <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <div class="pt-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
               <span>Entrega: ${tarea.fecha}</span>
               <button onclick="deleteTarea(${idx})" class="text-slate-400 hover:text-rose-600 p-1 cursor-pointer">
                 <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -1343,13 +1343,13 @@
       }
 
       tbody.innerHTML = data.map(a => `
-        <tr class="hover:bg-slate-50 transition-colors block md:table-row border-b md:border-none border-slate-200/60 pb-3 md:pb-0 mb-3 md:mb-0">
+        <tr class="hover:bg-slate-50 dark:bg-slate-800 transition-colors block md:table-row border-b md:border-none border-slate-200 dark:border-slate-700/60 pb-3 md:pb-0 mb-3 md:mb-0">
           <td class="px-4 py-3 block md:table-cell">
-            <div class="font-bold text-slate-900">${a.nombre}</div>
+            <div class="font-bold text-slate-900 dark:text-slate-100">${a.nombre}</div>
             <div class="text-[10px] text-slate-400 font-mono">${a.uuid.substring(0, 13)}...</div>
           </td>
           <td class="px-4 py-3 block md:table-cell">
-            <div class="font-medium text-slate-800">${a.tutor}</div>
+            <div class="font-medium text-slate-800 dark:text-slate-200">${a.tutor}</div>
             <div class="text-[11px] text-slate-400">${a.telefono}</div>
           </td>
           <td class="px-4 py-3 block md:table-cell">
@@ -1359,10 +1359,10 @@
             </button>
           </td>
           <td class="px-4 py-3 text-right space-x-1 block md:table-cell">
-            <button onclick="openEditModal('${a.uuid}')" title="Editar" class="p-1.5 text-slate-500 hover:text-brand-600 rounded-lg cursor-pointer">
+            <button onclick="openEditModal('${a.uuid}')" title="Editar" class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-brand-600 rounded-lg cursor-pointer">
               <i data-lucide="edit-2" class="w-4 h-4"></i>
             </button>
-            <button onclick="deleteAlumno('${a.uuid}')" title="Eliminar" class="p-1.5 text-slate-500 hover:text-rose-600 rounded-lg cursor-pointer">
+            <button onclick="deleteAlumno('${a.uuid}')" title="Eliminar" class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-rose-600 rounded-lg cursor-pointer">
               <i data-lucide="trash-2" class="w-4 h-4"></i>
             </button>
           </td>
@@ -1491,7 +1491,7 @@
     function renderReportesList() {
       const container = document.getElementById('reportes-list-container');
       if (reportesState.length === 0) {
-        container.innerHTML = `<div class="bg-white rounded-2xl border border-slate-200/80 p-6 text-center text-xs text-slate-400">No hay reportes emitidos.</div>`;
+        container.innerHTML = `<div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-6 text-center text-xs text-slate-400">No hay reportes emitidos.</div>`;
         return;
       }
 
@@ -1505,13 +1505,13 @@
       container.innerHTML = reportesState.map((rep, idx) => {
         const a = alumnosState.find(x => x.uuid === rep.alumnoUuid) || { nombre: 'Alumno' };
         return `
-          <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs space-y-2">
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-4 shadow-xs space-y-2">
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-2">
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badgeStyles[rep.tipo] || 'bg-slate-50 text-slate-700'}">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badgeStyles[rep.tipo] || 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300'}">
                   ${rep.tipo}
                 </span>
-                <span class="font-bold text-xs text-slate-900">${a.nombre}</span>
+                <span class="font-bold text-xs text-slate-900 dark:text-slate-100">${a.nombre}</span>
               </div>
               <div class="flex items-center gap-2">
                 <span class="text-[11px] text-slate-400">${rep.fecha}</span>
@@ -1520,8 +1520,8 @@
                 </button>
               </div>
             </div>
-            <h4 class="text-xs font-bold text-slate-800">${rep.titulo}</h4>
-            <p class="text-xs text-slate-600">${rep.desc}</p>
+            <h4 class="text-xs font-bold text-slate-800 dark:text-slate-200">${rep.titulo}</h4>
+            <p class="text-xs text-slate-600 dark:text-slate-400">${rep.desc}</p>
           </div>
         `;
       }).join('');
@@ -1547,7 +1547,7 @@
           <div class="flex items-center gap-2.5">
             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
             <div>
-              <p class="font-bold text-slate-800">${a.nombre}</p>
+              <p class="font-bold text-slate-800 dark:text-slate-200">${a.nombre}</p>
               <p class="text-[11px] text-slate-400">Entrada registrada • ${a.horaAsistencia}</p>
             </div>
           </div>

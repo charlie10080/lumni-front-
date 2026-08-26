@@ -19,3 +19,39 @@
         background: white;
       }
     }
+
+/* Animaciones para el fondo del landing page */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rocket-fly {
+  0% {
+    transform: translate(0, 0) rotate(45deg);
+  }
+  25% {
+    transform: translate(15px, -15px) rotate(45deg);
+  }
+  50% {
+    transform: translate(0, -30px) rotate(45deg);
+  }
+  75% {
+    transform: translate(-15px, -15px) rotate(45deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(45deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+.animate-rocket {
+  animation: rocket-fly 4s ease-in-out infinite;
+}
