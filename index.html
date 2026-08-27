@@ -1907,21 +1907,21 @@
     </div>
   </div>
 
-  <!-- MODAL: BOLETA OFICIAL DE CALIFICACIONES IMPRIMIBLE -->
+  <!-- MODAL: REPORTE DE EVALUACIÓN Y ASISTENCIA (NO OFICIAL / INFORMATIVO) -->
   <div id="modal-boleta" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 hidden overflow-y-auto">
     <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-700 my-auto">
       
       <div class="bg-gradient-to-r from-brand-800 to-indigo-800 px-6 py-4 text-white flex items-center justify-between">
         <div class="flex items-center gap-2">
           <i data-lucide="file-text" class="w-5 h-5 text-amber-300"></i>
-          <span class="font-bold text-sm">Boleta Oficial de Evaluación y Asistencia</span>
+          <span class="font-bold text-sm">Reporte de Evaluación y Asistencia (Informativo)</span>
         </div>
-        <button onclick="closeBoletaModal()" class="text-white/80 hover:text-white p-1 rounded-lg" aria-label="Cerrar boleta">
+        <button onclick="closeBoletaModal()" class="text-white/80 hover:text-white p-1 rounded-lg cursor-pointer" aria-label="Cerrar reporte">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <div id="print-boleta-area" class="p-6 sm:p-8 space-y-6 text-slate-800 bg-white">
+      <div id="print-boleta-area" class="p-6 sm:p-8 space-y-5 text-slate-800 bg-white">
         <!-- Encabezado Institucional -->
         <div class="border-b-2 border-brand-700 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-center sm:text-left">
           <div>
@@ -1929,10 +1929,12 @@
               <div class="w-8 h-8 rounded-xl bg-brand-600 text-white flex items-center justify-center font-bold text-sm">L</div>
               <h2 id="boleta-school-name" class="text-base sm:text-lg font-extrabold uppercase tracking-wide text-brand-900">INSTITUTO LUMNI</h2>
             </div>
-            <p class="text-[11px] text-slate-500 font-semibold mt-0.5">SISTEMA OFICIAL DE EVALUACIÓN Y SEGUIMIENTO ESCOLAR</p>
+            <p class="text-[11px] text-slate-500 font-semibold mt-0.5">SISTEMA LUMNI • SEGUIMIENTO Y EVALUACIÓN PEDAGÓGICA</p>
           </div>
           <div class="text-center sm:text-right">
-            <span class="px-2.5 py-1 bg-brand-50 text-brand-800 rounded-lg text-xs font-bold border border-brand-200 block sm:inline-block">BOLETA OFICIAL</span>
+            <span class="px-2.5 py-1 bg-amber-50 text-amber-800 rounded-lg text-[10px] font-extrabold border border-amber-200 block sm:inline-block uppercase tracking-wider">
+              DOCUMENTO NO OFICIAL • INFORMATIVO
+            </span>
             <p id="boleta-ciclo" class="text-xs text-slate-500 font-bold mt-1">Ciclo Escolar: 2026-2027</p>
           </div>
         </div>
@@ -2009,7 +2011,7 @@
         </div>
 
         <!-- Observaciones y Firmas -->
-        <div class="pt-4 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-6 items-end">
+        <div class="pt-3 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-6 items-end">
           <div class="space-y-1">
             <span class="text-[10px] font-bold text-slate-400 uppercase">Observaciones Pedagógicas:</span>
             <p id="boleta-observaciones" class="text-xs text-slate-600 italic bg-slate-50 p-2.5 rounded-xl border border-slate-200">
@@ -2025,15 +2027,23 @@
             <div id="boleta-qr-target" class="w-16 h-16 shrink-0 flex items-center justify-center border border-slate-200 rounded-lg p-1 bg-white"></div>
           </div>
         </div>
+
+        <!-- Disclaimer / Aviso de Documento No Oficial -->
+        <div class="pt-3 border-t border-slate-200/80 text-center">
+          <p class="text-[9.5px] text-slate-500 leading-snug">
+            ⚠️ <strong>AVISO LEGAL / DOCUMENTO INFORMATIVO:</strong> Este reporte de evaluación y asistencia es emitido como un instrumento pedagógico interno para seguimiento entre el docente y padres de familia. <strong>No constituye una boleta oficial ni cuenta con validez legal o acreditación ante la SEP u organismos gubernamentales.</strong>
+          </p>
+        </div>
+
       </div>
 
       <div class="bg-slate-50 dark:bg-slate-800 px-6 py-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-end gap-2">
-        <button onclick="closeBoletaModal()" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-all">
+        <button onclick="closeBoletaModal()" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-all cursor-pointer">
           Cerrar
         </button>
         <button onclick="window.print()" class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md transition-all cursor-pointer">
           <i data-lucide="printer" class="w-4 h-4"></i>
-          <span>Imprimir Boleta Oficial</span>
+          <span>Imprimir Reporte Informativo</span>
         </button>
       </div>
 
