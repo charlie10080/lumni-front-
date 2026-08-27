@@ -230,6 +230,15 @@
       }
     ];
 
+    const stateListeners = [];
+    function subscribeToState(listener) {
+      stateListeners.push(listener);
+    }
+
+    function notifyStateChange() {
+      stateListeners.forEach(listener => listener());
+    }
+
     function saveState() {
       localStorage.setItem('lumni_maestro', JSON.stringify(maestroState));
       localStorage.setItem('lumni_materias', JSON.stringify(materiasState));
@@ -239,6 +248,8 @@
       localStorage.setItem('lumni_mensajes', JSON.stringify(mensajesState));
       localStorage.setItem('lumni_reportes', JSON.stringify(reportesState));
       localStorage.setItem('lumni_anuncios', JSON.stringify(anunciosState));
+
+      notifyStateChange();
     }
 
     // Efectos de sonido sintéticos Web Audio API (100% offline)
@@ -284,7 +295,7 @@
       'view-portal-padres'
     ];
 
-    function showView(targetViewId) {
+    function showView(targetViewId, pushState = true) {
       MAIN_VIEWS.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
@@ -305,9 +316,27 @@
       if (isCameraActive) stopQrCamera();
       if (isParentCameraActive) stopParentQrCamera();
 
+      if (pushState && window.history.pushState) {
+        let path = '/';
+        if(targetViewId === 'view-auth-maestro') path = '#/docente/auth';
+        if(targetViewId === 'view-auth-padre') path = '#/familias/auth';
+        if(targetViewId === 'view-portal-maestro') path = '#/docente/dashboard';
+        if(targetViewId === 'view-portal-padres') path = '#/familias/portal';
+
+        window.history.pushState({ view: targetViewId }, '', path);
+      }
+
       window.scrollTo({ top: 0, behavior: 'smooth' });
       if (window.lucide) lucide.createIcons();
     }
+
+    window.addEventListener('popstate', (e) => {
+      if (e.state && e.state.view) {
+        showView(e.state.view, false);
+      } else {
+        showView('view-landing', false);
+      }
+    });
 
     function logout() {
       showView('view-landing');
@@ -369,36 +398,26 @@
     function handleTeacherLoginSubmit(e) {
       e.preventDefault();
       const btn = e.target.querySelector('button[type="submit"]');
-      const originalHtml = btn.innerHTML;
-      btn.innerHTML = '<span>Cargando...</span>';
-      btn.disabled = true;
 
-      setTimeout(() => {
-        btn.innerHTML = originalHtml;
-        btn.disabled = false;
+      withLoading(btn, () => {
         openTeacherDashboard();
         showToast(`¡Bienvenido de nuevo, ${maestroState.nombre}!`, "success");
-      }, 500);
+      });
     }
 
     function handleTeacherRegisterSubmit(e) {
       e.preventDefault();
       const btn = e.target.querySelector('button[type="submit"]');
-      const originalHtml = btn.innerHTML;
-      btn.innerHTML = '<span>Cargando...</span>';
-      btn.disabled = true;
 
-      maestroState.nombre = document.getElementById('reg_nombre').value.trim();
-      maestroState.correo = document.getElementById('reg_correo').value.trim();
-      maestroState.grupo = document.getElementById('reg_grupo').value.trim();
-      saveState();
+      withLoading(btn, () => {
+        maestroState.nombre = document.getElementById('reg_nombre').value.trim();
+        maestroState.correo = document.getElementById('reg_correo').value.trim();
+        maestroState.grupo = document.getElementById('reg_grupo').value.trim();
+        saveState();
 
-      setTimeout(() => {
-        btn.innerHTML = originalHtml;
-        btn.disabled = false;
         openTeacherDashboard();
         showToast(`¡Registro completado! Bienvenido(a), ${maestroState.nombre}`, "success");
-      }, 500);
+      });
     }
 
     function openTeacherDashboard() {
@@ -630,14 +649,20 @@
     }
 
     // Modal Escáner QR de Padres
+    let cleanupParentScannerTrap = null;
     function toggleParentScannerModal() {
       const modal = document.getElementById('modal-parent-scanner');
       if (modal.classList.contains('hidden')) {
         modal.classList.remove('hidden');
         startParentQrCamera();
+        cleanupParentScannerTrap = trapFocus(modal);
       } else {
         modal.classList.add('hidden');
         stopParentQrCamera();
+        if(cleanupParentScannerTrap) {
+            cleanupParentScannerTrap();
+            cleanupParentScannerTrap = null;
+        }
       }
       lucide.createIcons();
     }
@@ -1492,14 +1517,21 @@
       showToast("¡Reporte de Evaluación guardado exitosamente!", "success");
     }
 
+    let cleanupMateriasTrap = null;
     function openMateriasModal() {
       renderMateriasModalList();
-      document.getElementById('modal-materias').classList.remove('hidden');
+      const modal = document.getElementById('modal-materias');
+      modal.classList.remove('hidden');
+      cleanupMateriasTrap = trapFocus(modal);
       lucide.createIcons();
     }
 
     function closeMateriasModal() {
       document.getElementById('modal-materias').classList.add('hidden');
+      if (cleanupMateriasTrap) {
+          cleanupMateriasTrap();
+          cleanupMateriasTrap = null;
+      }
     }
 
     function renderMateriasModalList() {
@@ -1574,13 +1606,20 @@
     // ==========================================================
     // 9. PROYECTOS & TAREAS
     // ==========================================================
+    let cleanupProjectTrap = null;
     function openNewProjectModal() {
-      document.getElementById('modal-new-project').classList.remove('hidden');
+      const modal = document.getElementById('modal-new-project');
+      modal.classList.remove('hidden');
+      cleanupProjectTrap = trapFocus(modal);
       lucide.createIcons();
     }
 
     function closeNewProjectModal() {
       document.getElementById('modal-new-project').classList.add('hidden');
+      if (cleanupProjectTrap) {
+          cleanupProjectTrap();
+          cleanupProjectTrap = null;
+      }
     }
 
     function handleCreateProject(e) {
@@ -1654,13 +1693,20 @@
       showToast("Proyecto eliminado", "info");
     }
 
+    let cleanupTareaTrap = null;
     function openNewTareaModal() {
-      document.getElementById('modal-new-tarea').classList.remove('hidden');
+      const modal = document.getElementById('modal-new-tarea');
+      modal.classList.remove('hidden');
+      cleanupTareaTrap = trapFocus(modal);
       lucide.createIcons();
     }
 
     function closeNewTareaModal() {
       document.getElementById('modal-new-tarea').classList.add('hidden');
+      if (cleanupTareaTrap) {
+          cleanupTareaTrap();
+          cleanupTareaTrap = null;
+      }
     }
 
     function handleCreateTarea(e) {
@@ -2081,26 +2127,30 @@
       }
 
       const form = e.target;
-      const nuevoAlumno = {
-        uuid: 'alu-' + crypto.randomUUID(),
-        nombre: document.getElementById('alumno_nombre').value.trim(),
-        tutor: document.getElementById('alumno_tutor').value.trim(),
-        telefono: document.getElementById('alumno_telefono').value.trim(),
-        suscripcion: 'activa',
-        asistenciaHoy: 'pendiente',
-        horaAsistencia: '--:--',
-        asistenciasTotales: { presentes: 1, retardos: 0, faltas: 0 },
-        calificaciones: {}
-      };
+      const btn = form.querySelector('button[type="submit"]');
 
-      materiasState.forEach(m => nuevoAlumno.calificaciones[m] = 9.0);
+      withLoading(btn, () => {
+        const nuevoAlumno = {
+          uuid: 'alu-' + crypto.randomUUID(),
+          nombre: document.getElementById('alumno_nombre').value.trim(),
+          tutor: document.getElementById('alumno_tutor').value.trim(),
+          telefono: document.getElementById('alumno_telefono').value.trim(),
+          suscripcion: 'activa',
+          asistenciaHoy: 'pendiente',
+          horaAsistencia: '--:--',
+          asistenciasTotales: { presentes: 1, retardos: 0, faltas: 0 },
+          calificaciones: {}
+        };
 
-      alumnosState.unshift(nuevoAlumno);
-      updateTeacherViews();
-      renderParentDemoChips();
-      form.reset();
-      showToast("Alumno registrado con suscripción activa asignada", "success");
-      openQrModal(nuevoAlumno.uuid);
+        materiasState.forEach(m => nuevoAlumno.calificaciones[m] = 9.0);
+
+        alumnosState.unshift(nuevoAlumno);
+        updateTeacherViews();
+        renderParentDemoChips();
+        form.reset();
+        showToast("Alumno registrado con suscripción activa asignada", "success");
+        openQrModal(nuevoAlumno.uuid);
+      });
     }
 
     function sortAlumnos(col) {
@@ -2638,6 +2688,25 @@
 
       renderParentDemoChips();
 
+      // Cuando el estado cambia y estamos en el dashboard del maestro, actualizamos la vista
+      subscribeToState(() => {
+        const portalMaestro = document.getElementById('view-portal-maestro');
+        if (portalMaestro && !portalMaestro.classList.contains('hidden')) {
+           // updateTeacherViews ya es llamado en muchas funciones explícitamente,
+           // esto asegura que si agregamos nuevas funciones que solo hacen saveState(),
+           // la UI se actualice.
+           // Sin embargo, para evitar loops infinitos si updateTeacherViews llama saveState (sí lo hace),
+           // lo mantenemos simple o refactorizamos updateTeacherViews.
+           // *Nota:* updateTeacherViews() llama a saveState(). Lo omitiremos aquí
+           // para evitar un bucle infinito en esta versión Vanilla JS simplificada.
+        }
+      });
+
       // INICIA EN LA LANDING
-      showView('view-landing');
+      const hash = window.location.hash;
+      if (hash.includes('/docente/auth')) showView('view-auth-maestro', false);
+      else if (hash.includes('/familias/auth')) showView('view-auth-padre', false);
+      else if (hash.includes('/docente/dashboard')) showView('view-portal-maestro', false);
+      else if (hash.includes('/familias/portal')) showView('view-portal-padres', false);
+      else showView('view-landing', false);
     });
