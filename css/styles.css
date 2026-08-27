@@ -48,17 +48,22 @@ html.dark textarea::placeholder {
         visibility: hidden !important;
       }
       #print-modal-area, #print-modal-area *,
-      #print-parent-report, #print-parent-report * {
+      #print-parent-report, #print-parent-report *,
+      #print-boleta-area, #print-boleta-area * {
         visibility: visible !important;
       }
-      #print-modal-area, #print-parent-report {
+      #print-modal-area, #print-parent-report, #print-boleta-area {
         position: absolute;
         left: 0;
         top: 0;
         width: 100%;
         margin: 0;
-        padding: 16px;
-        background: white;
+        padding: 24px;
+        background: white !important;
+        color: #0f172a !important;
+      }
+      #print-boleta-area {
+        max-width: 100% !important;
       }
     }
 

@@ -172,6 +172,39 @@
       localStorage.setItem('lumni_tareas', JSON.stringify(tareasState));
       localStorage.setItem('lumni_mensajes', JSON.stringify(mensajesState));
       localStorage.setItem('lumni_reportes', JSON.stringify(reportesState));
+      localStorage.setItem('lumni_anuncios', JSON.stringify(anunciosState));
+    }
+
+    // Efectos de sonido sintéticos Web Audio API (100% offline)
+    function playScanChime(type = 'success') {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        if (type === 'success') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+          osc.frequency.setValueAtTime(880, ctx.currentTime + 0.08); // A5
+          gain.gain.setValueAtTime(0.15, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+          osc.start(ctx.currentTime);
+          osc.stop(ctx.currentTime + 0.25);
+        } else {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(300, ctx.currentTime);
+          gain.gain.setValueAtTime(0.2, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+          osc.start(ctx.currentTime);
+          osc.stop(ctx.currentTime + 0.3);
+        }
+      } catch (e) {
+        console.warn("Audio chime no disponible", e);
+      }
     }
 
     // ==========================================================
@@ -387,6 +420,7 @@
         return;
       }
 
+      playScanChime('success');
       if (isParentCameraActive) stopParentQrCamera();
 
       currentParentStudent = alumno;
@@ -670,10 +704,12 @@
     function handleAttendanceScan(scannedUuid) {
       const a = alumnosState.find(x => x.uuid.toLowerCase() === scannedUuid.toLowerCase() || x.uuid.includes(scannedUuid));
       if (!a) {
+        playScanChime('error');
         showToast("Código QR no reconocido en el grupo.", "error");
         return;
       }
 
+      playScanChime('success');
       const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       a.asistenciaHoy = 'presente';
       a.horaAsistencia = timeStr;
@@ -693,6 +729,8 @@
       alumnosState.forEach(a => {
         a.asistenciaHoy = status;
         a.horaAsistencia = status === 'presente' ? timeStr : '--:--';
+        if (!a.asistenciasTotales) a.asistenciasTotales = { presentes: 0, retardos: 0, faltas: 0 };
+        if (status === 'presente') a.asistenciasTotales.presentes += 1;
       });
       updateTeacherViews();
       showToast("Todos marcados como presentes", "success");
@@ -702,18 +740,50 @@
       const a = alumnosState.find(x => x.uuid === uuid);
       if (!a) return;
       a.asistenciaHoy = status;
-      a.horaAsistencia = status === 'presente' ? new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--';
+      a.horaAsistencia = (status === 'presente' || status === 'retardo') ? new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--';
       updateTeacherViews();
     }
 
-    function renderAttendanceTable() {
+    let currentAsistFilter = 'todos';
+
+    function setAsistFilter(status) {
+      currentAsistFilter = status;
+      ['todos', 'presente', 'retardo', 'falta', 'pendiente'].forEach(s => {
+        const btn = document.getElementById(`filter-btn-asist-${s}`);
+        if (btn) {
+          if (s === status) {
+            btn.className = "px-2.5 py-1 rounded-lg bg-brand-600 text-white font-bold transition-all cursor-pointer shadow-xs";
+          } else {
+            btn.className = "px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer";
+          }
+        }
+      });
+      filterAttendanceTable();
+    }
+
+    function filterAttendanceTable() {
+      const q = document.getElementById('asist-search-input')?.value.toLowerCase().trim() || '';
+      const filtered = alumnosState.filter(a => {
+        const matchStatus = currentAsistFilter === 'todos' || a.asistenciaHoy === currentAsistFilter;
+        const matchQuery = !q || a.nombre.toLowerCase().includes(q) || a.tutor.toLowerCase().includes(q);
+        return matchStatus && matchQuery;
+      });
+      renderAttendanceTable(filtered);
+    }
+
+    function renderAttendanceTable(customData = null) {
       const tbody = document.getElementById('attendance-table-body');
-      if (alumnosState.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8"><div class="flex flex-col items-center justify-center gap-2 text-slate-400"><i data-lucide="scan-line" class="w-8 h-8 text-slate-300"></i><p class="text-sm font-semibold text-slate-500">Sin alumnos para asistencia</p></div></td></tr>`;
+      const data = customData || alumnosState;
+      const countBadge = document.getElementById('asist-count-badge');
+      if (countBadge) countBadge.textContent = `${data.length} Alumnos`;
+
+      if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8"><div class="flex flex-col items-center justify-center gap-2 text-slate-400"><i data-lucide="scan-line" class="w-8 h-8 text-slate-300"></i><p class="text-sm font-semibold text-slate-500">Sin alumnos que coincidan con la búsqueda</p></div></td></tr>`;
+        lucide.createIcons();
         return;
       }
 
-      tbody.innerHTML = alumnosState.map(a => {
+      tbody.innerHTML = data.map(a => {
         let badgeColor = 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300';
         if (a.asistenciaHoy === 'presente') badgeColor = 'bg-emerald-100 text-emerald-800 border border-emerald-200';
         if (a.asistenciaHoy === 'falta') badgeColor = 'bg-rose-100 text-rose-800 border border-rose-200';
@@ -721,7 +791,10 @@
 
         return `
           <tr class="hover:bg-slate-50 dark:bg-slate-800 transition-colors">
-            <td class="px-4 py-3 font-semibold text-slate-900 dark:text-slate-100">${a.nombre}</td>
+            <td class="px-4 py-3">
+              <div class="font-semibold text-slate-900 dark:text-slate-100">${a.nombre}</div>
+              <div class="text-[10px] text-slate-400">${a.tutor}</div>
+            </td>
             <td class="px-4 py-3">
               <span class="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${badgeColor}">
                 ${a.asistenciaHoy}
@@ -729,13 +802,14 @@
             </td>
             <td class="px-4 py-3 font-mono text-xs text-slate-500 dark:text-slate-400">${a.horaAsistencia}</td>
             <td class="px-4 py-3 text-right space-x-1">
-              <button onclick="setAlumnoAttendance('${a.uuid}', 'presente')" title="Presente" class="px-2 py-1 bg-emerald-50 dark:bg-emerald-900/40 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-400 rounded-lg text-xs font-bold">P</button>
-              <button onclick="setAlumnoAttendance('${a.uuid}', 'retardo')" title="Retardo" class="px-2 py-1 bg-amber-50 dark:bg-amber-900/40 hover:bg-amber-100 text-amber-700 dark:text-amber-400 rounded-lg text-xs font-bold">R</button>
-              <button onclick="setAlumnoAttendance('${a.uuid}', 'falta')" title="Falta" class="px-2 py-1 bg-rose-50 dark:bg-rose-900/40 hover:bg-rose-100 text-rose-700 dark:text-rose-400 rounded-lg text-xs font-bold">F</button>
+              <button onclick="setAlumnoAttendance('${a.uuid}', 'presente')" title="Presente" class="px-2.5 py-1 bg-emerald-50 dark:bg-emerald-900/40 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-400 rounded-lg text-xs font-bold transition-all cursor-pointer">P</button>
+              <button onclick="setAlumnoAttendance('${a.uuid}', 'retardo')" title="Retardo" class="px-2.5 py-1 bg-amber-50 dark:bg-amber-900/40 hover:bg-amber-100 text-amber-700 dark:text-amber-400 rounded-lg text-xs font-bold transition-all cursor-pointer">R</button>
+              <button onclick="setAlumnoAttendance('${a.uuid}', 'falta')" title="Falta" class="px-2.5 py-1 bg-rose-50 dark:bg-rose-900/40 hover:bg-rose-100 text-rose-700 dark:text-rose-400 rounded-lg text-xs font-bold transition-all cursor-pointer">F</button>
             </td>
           </tr>
         `;
       }).join('');
+      lucide.createIcons();
     }
 
     // ==========================================================
@@ -810,7 +884,29 @@
       document.getElementById('thread-last-date').textContent = lastMsg ? lastMsg.fecha : 'Hoy';
 
       const body = document.getElementById('thread-messages-body');
-      body.innerHTML = th.mensajes.map(m => {
+      const isJustificante = th.asunto && th.asunto.toLowerCase().includes('justificante');
+      const quickActionHtml = `
+        <div class="p-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 flex flex-wrap items-center justify-between gap-2 shadow-2xs mb-2">
+          <div class="flex items-center gap-2">
+            <i data-lucide="${isJustificante ? 'file-check' : 'user-check'}" class="w-4 h-4 text-brand-600 dark:text-brand-400"></i>
+            <span class="text-xs font-bold text-slate-800 dark:text-slate-200">Acciones del Alumno:</span>
+          </div>
+          <div class="flex items-center gap-2">
+            ${isJustificante ? `
+              <button onclick="handleQuickJustify('${th.alumnoUuid}', ${th.id})" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all shadow-xs flex items-center gap-1 cursor-pointer">
+                <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                <span>Justificar Falta de Hoy</span>
+              </button>
+            ` : ''}
+            <button onclick="openBoletaModal('${th.alumnoUuid}')" class="px-2.5 py-1 bg-brand-50 dark:bg-brand-900/40 hover:bg-brand-100 text-brand-700 dark:text-brand-300 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer">
+              <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+              <span>Ver Boleta</span>
+            </button>
+          </div>
+        </div>
+      `;
+
+      body.innerHTML = quickActionHtml + th.mensajes.map(m => {
         const isMe = m.remitente === 'maestro';
         return `
           <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
@@ -826,6 +922,31 @@
       }).join('');
 
       body.scrollTop = body.scrollHeight;
+    }
+
+    function handleQuickJustify(alumnoUuid, threadId) {
+      const alumno = alumnosState.find(a => a.uuid === alumnoUuid);
+      if (!alumno) return;
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      alumno.asistenciaHoy = 'presente';
+      alumno.horaAsistencia = `${timeStr} (Justificado)`;
+      if (!alumno.asistenciasTotales) alumno.asistenciasTotales = { presentes: 0, retardos: 0, faltas: 0 };
+      alumno.asistenciasTotales.presentes += 1;
+
+      const th = mensajesState.find(x => x.id === threadId);
+      if (th) {
+        const now = new Date();
+        const fechaStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+        th.mensajes.push({
+          remitente: 'maestro',
+          autor: maestroState.nombre,
+          texto: 'Enterado y recibido. He registrado la inasistencia como justificada en el sistema escolar.',
+          fecha: fechaStr
+        });
+      }
+
+      updateTeacherViews();
+      showToast(`Falta de ${alumno.nombre} registrada como justificada`, "success");
     }
 
     function handleTeacherSendReply(e) {
@@ -1039,6 +1160,8 @@
       renderReportesList();
       populateReportesSelect();
       renderDashboardActivity();
+      renderTeacherAnunciosList();
+      renderAnunciosPadres();
       updateUnreadBadges();
 
       saveState();
@@ -1070,11 +1193,12 @@
       materiasState.forEach(m => {
         headersHtml += `<th class="px-3 py-3 text-center cursor-pointer select-none" onclick="sortGrades('${m}')">${m} ${getSortIcon(m)}</th>`;
       });
-      headersHtml += `<th class="px-4 py-3 text-center cursor-pointer select-none" onclick="sortGrades('promedio')">Promedio (Entero) ${getSortIcon('promedio')}</th></tr>`;
+      headersHtml += `<th class="px-4 py-3 text-center cursor-pointer select-none" onclick="sortGrades('promedio')">Promedio (Entero) ${getSortIcon('promedio')}</th>`;
+      headersHtml += `<th class="px-3 py-3 text-right">Boleta</th></tr>`;
       thead.innerHTML = headersHtml;
 
       if (alumnosState.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="${materiasState.length + 2}" class="px-4 py-8"><div class="flex flex-col items-center justify-center gap-2 text-slate-400"><i data-lucide="award" class="w-8 h-8 text-slate-300"></i><p class="text-sm font-semibold text-slate-500">Sin alumnos para evaluar</p></div></td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="${materiasState.length + 3}" class="px-4 py-8"><div class="flex flex-col items-center justify-center gap-2 text-slate-400"><i data-lucide="award" class="w-8 h-8 text-slate-300"></i><p class="text-sm font-semibold text-slate-500">Sin alumnos para evaluar</p></div></td></tr>`;
         return;
       }
 
@@ -1132,6 +1256,12 @@
         rowHtml += `
           <td class="px-4 py-3 text-center font-extrabold text-brand-600 dark:text-brand-400 text-sm" id="prom-alumno-${aIdx}">
             ${promRounded}
+          </td>
+          <td class="px-3 py-3 text-right">
+            <button onclick="openBoletaModal('${alumno.uuid}')" class="px-2 py-1 bg-brand-50 dark:bg-brand-900/40 hover:bg-brand-100 text-brand-700 dark:text-brand-300 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1 cursor-pointer">
+              <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+              <span>Boleta</span>
+            </button>
           </td>
         </tr>`;
 
@@ -1481,41 +1611,267 @@
     }
 
     // ==========================================================
-    // 9.6 ANUNCIOS GENERALES
+    // 9.6 ANUNCIOS GENERALES (DOCENTE & FAMILIAS)
     // ==========================================================
     let anunciosState = JSON.parse(localStorage.getItem('lumni_anuncios')) || [
       {
         id: 1,
         fecha: '2026-08-25',
         titulo: 'Reunión de Padres de Familia',
-        desc: 'El próximo viernes tendremos reunión para entrega de resultados del primer bloque.'
+        desc: 'El próximo viernes tendremos reunión general para entrega de resultados del primer bloque y acuerdos pedagógicos.'
       },
       {
         id: 2,
         fecha: '2026-08-20',
-        titulo: 'Suspensión de labores',
-        desc: 'El próximo lunes no habrá clases por día festivo oficial.'
+        titulo: 'Suspensión Oficial de Labores',
+        desc: 'El próximo lunes no habrá clases por conmemoración del calendario cívico escolar.'
       }
     ];
+
+    function renderTeacherAnunciosList() {
+      const container = document.getElementById('dash-anuncios-list');
+      if (!container) return;
+
+      if (anunciosState.length === 0) {
+        container.innerHTML = `<p class="text-slate-400 py-6 text-center text-xs">No hay avisos publicados. Publica uno con el botón "+ Nuevo Aviso".</p>`;
+        return;
+      }
+
+      container.innerHTML = anunciosState.map((a, idx) => `
+        <div class="bg-slate-50 dark:bg-slate-800/80 rounded-xl p-3 border border-slate-200 dark:border-slate-700/80 space-y-1 transition-all">
+          <div class="flex items-center justify-between gap-2">
+            <h4 class="font-bold text-xs text-slate-900 dark:text-slate-100">${a.titulo}</h4>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <span class="text-[10px] text-slate-400 font-medium">${a.fecha}</span>
+              <button onclick="deleteAnuncio(${idx})" class="p-1 text-slate-400 hover:text-rose-600 rounded cursor-pointer" title="Eliminar aviso" aria-label="Eliminar aviso">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">${a.desc}</p>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function openNewAnuncioModal() {
+      const dateInput = document.getElementById('anuncio-fecha');
+      if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+      document.getElementById('modal-new-anuncio').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeNewAnuncioModal() {
+      document.getElementById('modal-new-anuncio').classList.add('hidden');
+      document.getElementById('form-new-anuncio')?.reset();
+    }
+
+    function handleCreateAnuncio(e) {
+      e.preventDefault();
+      const titulo = document.getElementById('anuncio-titulo').value.trim();
+      const fecha = document.getElementById('anuncio-fecha').value;
+      const desc = document.getElementById('anuncio-desc').value.trim();
+
+      anunciosState.unshift({
+        id: Date.now(),
+        fecha: fecha || new Date().toISOString().split('T')[0],
+        titulo,
+        desc
+      });
+
+      closeNewAnuncioModal();
+      updateTeacherViews();
+      showToast("Aviso escolar publicado exitosamente", "success");
+    }
+
+    function deleteAnuncio(idx) {
+      if (!confirm("¿Deseas eliminar este aviso escolar?")) return;
+      anunciosState.splice(idx, 1);
+      updateTeacherViews();
+      showToast("Aviso escolar eliminado", "info");
+    }
 
     function renderAnunciosPadres() {
       const container = document.getElementById('p-anuncios-list');
       if (!container) return;
 
       if (anunciosState.length === 0) {
-        container.innerHTML = '<p class="text-xs text-white/70">No hay avisos recientes.</p>';
+        container.innerHTML = '<p class="text-xs text-white/70">No hay avisos recientes en el tablero.</p>';
         return;
       }
 
       container.innerHTML = anunciosState.map(a => `
-        <div class="bg-white/10 rounded-xl p-3 border border-white/20 backdrop-blur-sm">
-          <div class="flex items-center justify-between gap-2 mb-1">
-            <h4 class="font-bold text-sm">${a.titulo}</h4>
-            <span class="text-[10px] text-white/70">${a.fecha}</span>
+        <div class="bg-white/10 rounded-xl p-3 border border-white/20 backdrop-blur-sm space-y-1">
+          <div class="flex items-center justify-between gap-2">
+            <h4 class="font-bold text-sm text-white">${a.titulo}</h4>
+            <span class="text-[10px] text-white/80 shrink-0 font-medium">${a.fecha}</span>
           </div>
           <p class="text-xs text-white/90 leading-relaxed">${a.desc}</p>
         </div>
       `).join('');
+    }
+
+    // ==========================================================
+    // 9.7 BOLETA OFICIAL DE CALIFICACIONES (IMPRIMIBLE CON QR)
+    // ==========================================================
+    let currentBoletaStudent = null;
+
+    function openBoletaModal(uuid) {
+      const student = alumnosState.find(a => a.uuid === uuid);
+      if (!student) {
+        showToast("Alumno no encontrado", "error");
+        return;
+      }
+      currentBoletaStudent = student;
+      renderBoletaModal(student);
+      document.getElementById('modal-boleta').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function openParentBoletaModal() {
+      if (!currentParentStudent) {
+        showToast("No hay alumno seleccionado", "error");
+        return;
+      }
+      openBoletaModal(currentParentStudent.uuid);
+    }
+
+    function closeBoletaModal() {
+      document.getElementById('modal-boleta').classList.add('hidden');
+    }
+
+    function renderBoletaModal(student) {
+      document.getElementById('boleta-school-name').textContent = (maestroState.colegio || 'Instituto Lumni').toUpperCase();
+      document.getElementById('boleta-ciclo').textContent = `Ciclo Escolar: ${maestroState.ciclo || '2026-2027'}`;
+      document.getElementById('boleta-student-name').textContent = student.nombre;
+      document.getElementById('boleta-student-group').textContent = maestroState.grupo || '3er Grado Grupo B';
+      document.getElementById('boleta-student-tutor').textContent = student.tutor;
+      document.getElementById('boleta-teacher-name').textContent = maestroState.nombre;
+      document.getElementById('boleta-signature-teacher').textContent = maestroState.nombre;
+
+      // Calificaciones por Asignatura
+      const tbody = document.getElementById('boleta-grades-tbody');
+      let sum = 0;
+      let count = 0;
+      tbody.innerHTML = materiasState.map(m => {
+        const val = student.calificaciones?.[m] !== undefined ? parseFloat(student.calificaciones[m]) : 9.0;
+        sum += val;
+        count++;
+        let rating = 'Sobresaliente';
+        if (val < 6) rating = 'Insuficiente';
+        else if (val < 7.5) rating = 'Básico';
+        else if (val < 9) rating = 'Satisfactorio';
+
+        return `
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="px-4 py-2.5 font-semibold text-slate-900">${m}</td>
+            <td class="px-4 py-2.5 text-center font-mono font-bold text-slate-800">${val.toFixed(1)}</td>
+            <td class="px-4 py-2.5 text-center text-xs font-semibold ${val >= 9 ? 'text-emerald-700' : (val >= 7 ? 'text-indigo-700' : 'text-amber-700')}">${rating}</td>
+          </tr>
+        `;
+      }).join('');
+
+      const avg = count > 0 ? (sum / count) : 10;
+      document.getElementById('boleta-final-average').textContent = avg.toFixed(1);
+      let finalRating = 'Sobresaliente';
+      if (avg < 6) finalRating = 'Insuficiente';
+      else if (avg < 7.5) finalRating = 'Básico';
+      else if (avg < 9) finalRating = 'Satisfactorio';
+      document.getElementById('boleta-final-rating').textContent = finalRating;
+
+      // Resumen de Asistencias
+      const pres = student.asistenciasTotales?.presentes || (student.asistenciaHoy === 'presente' ? 1 : 0);
+      const ret = student.asistenciasTotales?.retardos || (student.asistenciaHoy === 'retardo' ? 1 : 0);
+      const falt = student.asistenciasTotales?.faltas || (student.asistenciaHoy === 'falta' ? 1 : 0);
+      const total = pres + ret + falt;
+      const rate = total > 0 ? Math.round(((pres + ret * 0.5) / total) * 100) : 100;
+
+      document.getElementById('boleta-asist-presentes').textContent = pres;
+      document.getElementById('boleta-asist-retardos').textContent = ret;
+      document.getElementById('boleta-asist-faltas').textContent = falt;
+      document.getElementById('boleta-asist-rate').textContent = `${rate}%`;
+
+      // Mini QR de validación en la Boleta
+      const qrTarget = document.getElementById('boleta-qr-target');
+      if (qrTarget) {
+        qrTarget.innerHTML = '';
+        new QRCode(qrTarget, {
+          text: student.uuid,
+          width: 56,
+          height: 56,
+          colorDark: "#1e1b4b",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      }
+    }
+
+    // ==========================================================
+    // 9.8 RESPALDO Y RESTAURACIÓN DE DATOS (JSON)
+    // ==========================================================
+    function exportFullBackupJSON() {
+      const fullBackup = {
+        sistema: 'Lumni',
+        version: '2.0',
+        fechaExportacion: new Date().toISOString(),
+        maestro: maestroState,
+        materias: materiasState,
+        alumnos: alumnosState,
+        proyectos: proyectosState,
+        tareas: tareasState,
+        mensajes: mensajesState,
+        reportes: reportesState,
+        anuncios: anunciosState
+      };
+
+      const jsonStr = JSON.stringify(fullBackup, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `lumni_respaldo_escolar_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast("Copia de seguridad descargada exitosamente", "success");
+    }
+
+    function importBackupJSON(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (!data.alumnos || !data.maestro) {
+            throw new Error("Estructura de respaldo no válida");
+          }
+          if (data.maestro) maestroState = data.maestro;
+          if (data.materias) materiasState = data.materias;
+          if (data.alumnos) alumnosState = data.alumnos;
+          if (data.proyectos) proyectosState = data.proyectos;
+          if (data.tareas) tareasState = data.tareas;
+          if (data.mensajes) mensajesState = data.mensajes;
+          if (data.reportes) reportesState = data.reportes;
+          if (data.anuncios) anunciosState = data.anuncios;
+
+          saveState();
+          updateTeacherViews();
+          renderParentDemoChips();
+          showToast("Base de datos restaurada correctamente", "success");
+        } catch (err) {
+          showToast("Error al importar: el archivo JSON no es válido", "error");
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    function resetToDefaultData() {
+      if (!confirm("¿Restablecer todos los datos a la demostración inicial? Esta acción reiniciará los registros locales.")) return;
+      localStorage.clear();
+      location.reload();
     }
 
     // ==========================================================
@@ -1607,10 +1963,16 @@
             <div class="text-[11px] text-slate-400">${a.telefono}</div>
           </td>
           <td class="px-4 py-3 block md:table-cell">
-            <button onclick="openQrModal('${a.uuid}')" class="px-2.5 py-1 bg-brand-50 dark:bg-brand-900/40 hover:bg-brand-100 text-brand-700 dark:text-brand-300 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1 cursor-pointer">
-              <i data-lucide="qr-code" class="w-3.5 h-3.5"></i>
-              <span>Credencial</span>
-            </button>
+            <div class="flex items-center gap-1.5">
+              <button onclick="openQrModal('${a.uuid}')" class="px-2.5 py-1 bg-brand-50 dark:bg-brand-900/40 hover:bg-brand-100 text-brand-700 dark:text-brand-300 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1 cursor-pointer">
+                <i data-lucide="qr-code" class="w-3.5 h-3.5"></i>
+                <span>Credencial</span>
+              </button>
+              <button onclick="openBoletaModal('${a.uuid}')" class="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/40 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1 cursor-pointer">
+                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                <span>Boleta</span>
+              </button>
+            </div>
           </td>
           <td class="px-4 py-3 text-right space-x-1 block md:table-cell">
             <button onclick="openEditModal('${a.uuid}')" title="Editar" class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:text-brand-400 rounded-lg cursor-pointer">
@@ -1625,9 +1987,14 @@
     }
 
     function filterAlumnosTable() {
-      const q = document.getElementById('search-alumnos-input').value.toLowerCase().trim();
+      const q = document.getElementById('search-alumnos-input')?.value.toLowerCase().trim() || '';
       if (!q) { renderAlumnosTable(); return; }
-      const res = alumnosState.filter(a => a.nombre.toLowerCase().includes(q) || a.uuid.toLowerCase().includes(q));
+      const res = alumnosState.filter(a => 
+        a.nombre.toLowerCase().includes(q) || 
+        a.tutor.toLowerCase().includes(q) || 
+        a.telefono.toLowerCase().includes(q) || 
+        a.uuid.toLowerCase().includes(q)
+      );
       renderAlumnosTable(res);
       lucide.createIcons();
     }
