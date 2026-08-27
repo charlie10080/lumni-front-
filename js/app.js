@@ -486,6 +486,12 @@
         return;
       }
 
+      if ((alumno.suscripcion || 'activa') === 'cancelada') {
+        playScanChime('warning');
+        alert(`⚠️ Cuenta Desactivada / Sin Pago\n\nEl acceso al portal escolar para ${alumno.nombre} se encuentra temporalmente desactivado por falta de pago de suscripción escolar ($20 MXN/mes).\n\nComunícate con el docente (${maestroState.nombre}) para reactivar el servicio.`);
+        return;
+      }
+
       playScanChime('success');
       if (isParentCameraActive) stopParentQrCamera();
 
@@ -2053,6 +2059,30 @@
       lucide.createIcons();
     }
 
+    let currentAlumnosStatusFilter = 'todos';
+
+    function setAlumnosFilter(status) {
+      currentAlumnosStatusFilter = status;
+      ['filter-alu-todos', 'filter-alu-activos', 'filter-alu-desactivados'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        btn.className = "px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer";
+      });
+
+      const activeBtn = document.getElementById(`filter-alu-${status}`);
+      if (activeBtn) {
+        if (status === 'activa' || status === 'activos') {
+          activeBtn.className = "px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-xs transition-all cursor-pointer";
+        } else if (status === 'desactivada' || status === 'desactivados') {
+          activeBtn.className = "px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-600 text-white shadow-xs transition-all cursor-pointer";
+        } else {
+          activeBtn.className = "px-2.5 py-1 rounded-lg text-xs font-bold bg-brand-600 text-white shadow-xs transition-all cursor-pointer";
+        }
+      }
+
+      filterAlumnosTable();
+    }
+
     function toggleAlumnoSuscripcion(uuid) {
       const a = alumnosState.find(x => x.uuid === uuid);
       if (!a) return;
@@ -2060,19 +2090,40 @@
 
       if (current !== 'cancelada') {
         a.suscripcion = 'cancelada';
-        showToast(`${a.nombre} descartado de la suscripción (no se cobran $20 MXN)`, "info");
+        showToast(`Cuenta de ${a.nombre} desactivada (no se cobrarán $20 MXN)`, "info");
       } else {
         const maxAlu = getMaxAlumnos();
         const activeCount = getActiveAlumnosCount();
         if (activeCount >= maxAlu) {
-          showToast(`Cupo de suscripción lleno (${maxAlu} alumnos). Aumenta tu cupo en Configuración para incluir a ${a.nombre}.`, "error");
+          showToast(`Cupo de suscripción lleno (${maxAlu} alumnos). Aumenta tu cupo en Configuración para activar a ${a.nombre}.`, "error");
           return;
         }
         a.suscripcion = 'activa';
-        showToast(`${a.nombre} incluido en la suscripción ($20 MXN/mes)`, "success");
+        showToast(`Cuenta de ${a.nombre} activada e incluida en la suscripción ($20 MXN/mes)`, "success");
       }
 
       updateTeacherViews();
+    }
+
+    function eliminarAlumnosDesactivados() {
+      const noPagados = alumnosState.filter(a => (a.suscripcion || 'activa') === 'cancelada');
+      if (noPagados.length === 0) {
+        showToast("No hay alumnos desactivados o sin pago para quitar.", "info");
+        return;
+      }
+
+      if (!confirm(`¿Deseas quitar y dar de baja definitivamente a los ${noPagados.length} alumnos que no han pagado?\n\nEsta acción eliminará sus registros locales.`)) {
+        return;
+      }
+
+      const noPagadosUuids = noPagados.map(a => a.uuid);
+      alumnosState = alumnosState.filter(a => !noPagadosUuids.includes(a.uuid));
+      reportesState = reportesState.filter(r => !noPagadosUuids.includes(r.alumnoUuid));
+      mensajesState = mensajesState.filter(m => !noPagadosUuids.includes(m.alumnoUuid));
+
+      updateTeacherViews();
+      renderParentDemoChips();
+      showToast(`${noPagados.length} alumno(s) sin pago eliminados del sistema`, "success");
     }
 
     function renderAlumnosTable(filtered = null) {
@@ -2090,7 +2141,7 @@
       }
 
       if (data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8"><div class="flex flex-col items-center justify-center gap-2 text-slate-400"><i data-lucide="users" class="w-8 h-8 text-slate-300"></i><p class="text-sm font-semibold text-slate-500">No hay alumnos registrados</p><p class="text-[11px]">Inscribe a tu primer alumno usando el formulario.</p></div></td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8"><div class="flex flex-col items-center justify-center gap-2 text-slate-400"><i data-lucide="users" class="w-8 h-8 text-slate-300"></i><p class="text-sm font-semibold text-slate-500">No hay alumnos en esta vista</p><p class="text-[11px]">Inscribe un nuevo alumno o cambia el filtro de estado.</p></div></td></tr>`;
         return;
       }
 
@@ -2099,18 +2150,18 @@
         let subBadge = '';
         if (sub !== 'cancelada') {
           subBadge = `
-            <button onclick="toggleAlumnoSuscripcion('${a.uuid}')" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700/70 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 dark:hover:bg-rose-950/40 dark:hover:text-rose-400 flex items-center gap-1.5 transition-all cursor-pointer group" title="Click para descartar de la suscripción (no pagar)">
+            <button onclick="toggleAlumnoSuscripcion('${a.uuid}')" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700/70 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 dark:hover:bg-rose-950/40 dark:hover:text-rose-400 flex items-center gap-1.5 transition-all cursor-pointer group" title="Click para desactivar cuenta y no pagar por este alumno">
               <span class="w-2 h-2 rounded-full bg-emerald-500 group-hover:bg-rose-500 transition-colors"></span>
               <span class="group-hover:hidden">🟢 Paga $20/mes</span>
-              <span class="hidden group-hover:inline">⚪ Descartar ($0)</span>
+              <span class="hidden group-hover:inline">🚫 Desactivar</span>
             </button>
           `;
         } else {
           subBadge = `
-            <button onclick="toggleAlumnoSuscripcion('${a.uuid}')" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-400 flex items-center gap-1.5 transition-all cursor-pointer group" title="Click para activar e incluir en suscripción ($20 MXN/mes)">
+            <button onclick="toggleAlumnoSuscripcion('${a.uuid}')" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-400 flex items-center gap-1.5 transition-all cursor-pointer group" title="Click para reactivar cuenta e incluir en suscripción ($20 MXN/mes)">
               <span class="w-2 h-2 rounded-full bg-slate-400 group-hover:bg-emerald-500 transition-colors"></span>
-              <span class="group-hover:hidden">⚪ Descartado ($0)</span>
-              <span class="hidden group-hover:inline">🟢 Pagar $20/mes</span>
+              <span class="group-hover:hidden">🔴 Desactivado ($0)</span>
+              <span class="hidden group-hover:inline">⚡ Reactivar ($20)</span>
             </button>
           `;
         }
@@ -2144,7 +2195,7 @@
               <button onclick="openEditModal('${a.uuid}')" title="Editar" class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:text-brand-400 rounded-lg cursor-pointer">
                 <i data-lucide="edit-2" class="w-4 h-4"></i>
               </button>
-              <button onclick="deleteAlumno('${a.uuid}')" title="Eliminar" class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-rose-600 rounded-lg cursor-pointer">
+              <button onclick="deleteAlumno('${a.uuid}')" title="Eliminar Alumno" class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-rose-600 rounded-lg cursor-pointer">
                 <i data-lucide="trash-2" class="w-4 h-4"></i>
               </button>
             </td>
@@ -2155,14 +2206,26 @@
 
     function filterAlumnosTable() {
       const q = document.getElementById('search-alumnos-input')?.value.toLowerCase().trim() || '';
-      if (!q) { renderAlumnosTable(); return; }
-      const res = alumnosState.filter(a => 
-        a.nombre.toLowerCase().includes(q) || 
-        a.tutor.toLowerCase().includes(q) || 
-        a.telefono.toLowerCase().includes(q) || 
-        a.uuid.toLowerCase().includes(q) ||
-        (a.suscripcion || '').toLowerCase().includes(q)
-      );
+      let res = [...alumnosState];
+
+      // Filtro por Estado de Suscripción
+      if (currentAlumnosStatusFilter === 'activos' || currentAlumnosStatusFilter === 'activa') {
+        res = res.filter(a => (a.suscripcion || 'activa') !== 'cancelada');
+      } else if (currentAlumnosStatusFilter === 'desactivados' || currentAlumnosStatusFilter === 'desactivada') {
+        res = res.filter(a => (a.suscripcion || 'activa') === 'cancelada');
+      }
+
+      // Filtro por Búsqueda de Texto
+      if (q) {
+        res = res.filter(a => 
+          a.nombre.toLowerCase().includes(q) || 
+          a.tutor.toLowerCase().includes(q) || 
+          a.telefono.toLowerCase().includes(q) || 
+          a.uuid.toLowerCase().includes(q) ||
+          (a.suscripcion || '').toLowerCase().includes(q)
+        );
+      }
+
       renderAlumnosTable(res);
       lucide.createIcons();
     }

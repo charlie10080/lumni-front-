@@ -745,12 +745,34 @@
 
             <!-- Tabla Alumnos -->
             <div class="lg:col-span-7 space-y-4">
-              <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-3.5 shadow-xs flex items-center justify-between gap-3">
-                <div class="relative flex-1">
-                  <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                  <input type="text" id="search-alumnos-input" oninput="filterAlumnosTable()" placeholder="Buscar alumno..." class="w-full pl-9 pr-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+              <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-3.5 shadow-xs space-y-3">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div class="relative flex-1">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="search-alumnos-input" oninput="filterAlumnosTable()" placeholder="Buscar alumno..." class="w-full pl-9 pr-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                  </div>
+                  <span id="tabla-total-badge" class="text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-xl shrink-0">0 Alumnos</span>
                 </div>
-                <span id="tabla-total-badge" class="text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-xl shrink-0">0 Alumnos</span>
+
+                <!-- Filtros de Estado de Suscripción y Botón de Quitar No Pagados -->
+                <div class="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-100 dark:border-slate-800">
+                  <div class="flex items-center gap-1.5">
+                    <button type="button" onclick="setAlumnosFilter('todos')" id="filter-alu-todos" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-brand-600 text-white transition-all cursor-pointer">
+                      Todos
+                    </button>
+                    <button type="button" onclick="setAlumnosFilter('activos')" id="filter-alu-activos" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-all cursor-pointer">
+                      🟢 Pagados / Activos
+                    </button>
+                    <button type="button" onclick="setAlumnosFilter('desactivados')" id="filter-alu-desactivados" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-all cursor-pointer">
+                      🔴 Desactivados / Sin Pago
+                    </button>
+                  </div>
+
+                  <button type="button" onclick="eliminarAlumnosDesactivados()" class="px-2.5 py-1 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 text-rose-700 dark:text-rose-400 rounded-lg text-xs font-bold transition-all border border-rose-200 dark:border-rose-800/60 flex items-center gap-1 cursor-pointer" title="Eliminar definitivamente a los alumnos que no han pagado">
+                    <i data-lucide="user-x" class="w-3.5 h-3.5"></i>
+                    <span>Quitar No Pagados</span>
+                  </button>
+                </div>
               </div>
 
               <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-xs overflow-hidden">
@@ -764,7 +786,7 @@
                         <th class="px-4 py-3 cursor-pointer select-none" onclick="sortAlumnos('tutor')">
                           <div class="flex items-center gap-1">Tutor / Teléfono <span id="sort-icon-tutor"><i data-lucide="chevrons-up-down" class="w-3 h-3 text-slate-400"></i></span></div>
                         </th>
-                        <th class="px-4 py-3">Suscripción / Pago</th>
+                        <th class="px-4 py-3">Estado de Cuenta</th>
                         <th class="px-4 py-3">Documentos</th>
                         <th class="px-4 py-3 text-right">Acciones</th>
                       </tr>
