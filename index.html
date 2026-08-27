@@ -467,7 +467,7 @@
 
         <div class="flex items-center justify-between pt-1">
           <div class="flex items-center gap-2.5 min-w-0">
-            <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center shadow-xs shrink-0">
+            <div id="sidebar-avatar-container" class="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center shadow-xs shrink-0 overflow-hidden">
               <span id="sidebar-avatar">C</span>
             </div>
             <div class="min-w-0">
@@ -1094,6 +1094,37 @@
               <i data-lucide="settings" class="w-4 h-4 text-brand-600 dark:text-brand-400"></i>
               <span>Configuración del Perfil y Escuela</span>
             </h3>
+
+            <!-- Foto de Perfil del Maestro con Subida y Previsualización -->
+            <div class="flex flex-col sm:flex-row items-center gap-4 p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700/80 mb-5">
+              <div class="relative group shrink-0">
+                <div id="config-avatar-preview" class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 text-white font-black text-2xl flex items-center justify-center shadow-md overflow-hidden border-2 border-white dark:border-slate-800">
+                  <span>C</span>
+                </div>
+                <label for="teacher-photo-input" class="absolute inset-0 bg-black/50 text-white rounded-2xl opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-[10px] font-bold cursor-pointer transition-opacity backdrop-blur-2xs">
+                  <i data-lucide="camera" class="w-5 h-5 mb-0.5"></i>
+                  <span>Cambiar</span>
+                </label>
+              </div>
+
+              <div class="space-y-2 text-center sm:text-left flex-1">
+                <div>
+                  <h4 class="text-xs font-bold text-slate-900 dark:text-slate-100">Foto de Perfil del Docente</h4>
+                  <p class="text-[11px] text-slate-500 dark:text-slate-400">Personaliza tu foto de perfil visible en el panel, barra lateral y reportes.</p>
+                </div>
+                <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                  <label class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer">
+                    <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                    <span>Subir Foto</span>
+                    <input type="file" id="teacher-photo-input" accept="image/*" onchange="handleTeacherPhotoUpload(event)" class="hidden" />
+                  </label>
+                  <button type="button" onclick="handleRemoveTeacherPhoto()" id="btn-remove-teacher-photo" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-700 hover:bg-rose-100 hover:text-rose-700 dark:hover:bg-rose-950/50 dark:hover:text-rose-400 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer hidden">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    <span>Quitar Foto</span>
+                  </button>
+                </div>
+              </div>
+            </div>
 
             <form onsubmit="handleSaveConfiguracion(event)" class="space-y-4">
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">

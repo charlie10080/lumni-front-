@@ -1184,12 +1184,91 @@
       showToast("Configuración guardada correctamente", "success");
     }
 
+    function handleTeacherPhotoUpload(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        showToast("Por favor selecciona un archivo de imagen válido", "error");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const MAX_SIZE = 256;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_SIZE) {
+              height = Math.round((height * MAX_SIZE) / width);
+              width = MAX_SIZE;
+            }
+          } else {
+            if (height > MAX_SIZE) {
+              width = Math.round((width * MAX_SIZE) / height);
+              height = MAX_SIZE;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const optimizedBase64 = canvas.toDataURL('image/jpeg', 0.85);
+          maestroState.foto = optimizedBase64;
+          saveState();
+          updateTeacherViews();
+          showToast("Foto de perfil actualizada correctamente", "success");
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function handleRemoveTeacherPhoto() {
+      if (!maestroState.foto) return;
+      delete maestroState.foto;
+      saveState();
+      updateTeacherViews();
+      showToast("Foto de perfil eliminada. Se usará tu inicial.", "info");
+    }
+
     function updateTeacherViews() {
       document.getElementById('banner-teacher-name').textContent = maestroState.nombre;
       document.getElementById('banner-group-badge').textContent = maestroState.grupo;
       document.getElementById('sidebar-teacher-name').textContent = maestroState.nombre.split(' ')[0] + ' ' + (maestroState.nombre.split(' ')[1] || '');
       document.getElementById('sidebar-group-badge').textContent = maestroState.grupo;
-      document.getElementById('sidebar-avatar').textContent = maestroState.nombre.charAt(0).toUpperCase();
+
+      const initial = (maestroState.nombre || 'Carlos').trim().charAt(0).toUpperCase() || 'C';
+      
+      const sidebarAvatarContainer = document.getElementById('sidebar-avatar-container');
+      if (sidebarAvatarContainer) {
+        if (maestroState.foto) {
+          sidebarAvatarContainer.innerHTML = `<img src="${maestroState.foto}" alt="Avatar" class="w-full h-full object-cover rounded-xl" />`;
+        } else {
+          sidebarAvatarContainer.innerHTML = `<span id="sidebar-avatar">${initial}</span>`;
+        }
+      } else {
+        const sidebarAvatar = document.getElementById('sidebar-avatar');
+        if (sidebarAvatar) sidebarAvatar.textContent = initial;
+      }
+
+      const configAvatarPreview = document.getElementById('config-avatar-preview');
+      const btnRemovePhoto = document.getElementById('btn-remove-teacher-photo');
+      if (configAvatarPreview) {
+        if (maestroState.foto) {
+          configAvatarPreview.innerHTML = `<img src="${maestroState.foto}" alt="Foto Perfil" class="w-full h-full object-cover rounded-2xl" />`;
+          if (btnRemovePhoto) btnRemovePhoto.classList.remove('hidden');
+        } else {
+          configAvatarPreview.innerHTML = `<span>${initial}</span>`;
+          if (btnRemovePhoto) btnRemovePhoto.classList.add('hidden');
+        }
+      }
 
       const configNombre = document.getElementById('config_nombre');
       if(configNombre) configNombre.value = maestroState.nombre;
