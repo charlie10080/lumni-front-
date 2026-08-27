@@ -1110,12 +1110,12 @@
             </form>
           </div>
 
-          <!-- Tarjeta de Plan y Cupos Contratados -->
-          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 sm:p-6 shadow-xs max-w-2xl space-y-4">
+          <!-- Tarjeta de Suscripción Variable Docente ($20 MXN por Alumno) -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 sm:p-6 shadow-xs max-w-2xl space-y-5">
             <div class="flex items-center justify-between">
               <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <i data-lucide="credit-card" class="w-4 h-4 text-brand-600 dark:text-brand-400"></i>
-                <span>Plan de Suscripción & Cupo de Alumnos</span>
+                <span>Suscripción Docente Variable ($20 MXN / Alumno)</span>
               </h3>
               <span id="plan-cupo-badge" class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-brand-50 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 border border-brand-200">
                 30 Alumnos
@@ -1123,37 +1123,74 @@
             </div>
 
             <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-              Define la cantidad de alumnos permitidos en tu suscripción. Si un alumno no está pagando o no asiste, puedes cancelar o pausar su suscripción individual en la lista de alumnos para liberar ese cupo para otro alumno.
+              Tu suscripción mensual se adapta exactamente a los alumnos que decidan pagar ($20 pesos mexicanos al mes por alumno). Si un alumno no desea pagar, puedes <strong>descartarlo con un click</strong> en la lista de alumnos para no incluirlo en el cobro.
             </p>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
-                <span class="text-[10px] text-slate-400 uppercase font-bold block">Cupo Contratado</span>
-                <strong id="plan-cupo-total" class="text-lg font-extrabold text-slate-900 dark:text-slate-100">30</strong>
-                <span class="text-[10px] text-slate-500 block">Límite permitido</span>
-              </div>
-              <div class="p-3 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl border border-emerald-100 dark:border-emerald-800/60">
-                <span class="text-[10px] text-emerald-700 dark:text-emerald-300 uppercase font-bold block">Suscripciones Activas</span>
-                <strong id="plan-activos-count" class="text-lg font-extrabold text-emerald-900 dark:text-emerald-200">3</strong>
-                <span class="text-[10px] text-emerald-600 dark:text-emerald-400 block">Ocupando cupo</span>
-              </div>
-              <div class="p-3 bg-brand-50 dark:bg-brand-950/40 rounded-xl border border-brand-100 dark:border-brand-800/60">
-                <span class="text-[10px] text-brand-700 dark:text-brand-300 uppercase font-bold block">Cupos Libres</span>
-                <strong id="plan-libres-count" class="text-lg font-extrabold text-brand-900 dark:text-brand-200">27</strong>
-                <span class="text-[10px] text-brand-600 dark:text-brand-400 block">Disponibles</span>
-              </div>
-            </div>
+            <div class="bg-gradient-to-br from-brand-50/60 via-slate-50/40 to-indigo-50/40 dark:from-slate-800 dark:via-slate-900 dark:to-slate-800/90 rounded-2xl p-4 sm:p-5 border border-brand-200/70 dark:border-brand-700/60 shadow-xs space-y-4">
+              
+              <!-- Encabezado con precio en vivo y numerador con botones +/- -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700/80 pb-4">
+                <div>
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400">Costo de tu Suscripción</span>
+                  <div class="text-xl font-extrabold text-slate-900 dark:text-slate-100 flex items-baseline gap-1.5">
+                    <span id="sub-total-precio" class="text-2xl sm:text-3xl font-black text-brand-600 dark:text-brand-400">$600 MXN</span>
+                    <span class="text-xs font-semibold text-slate-500">/ mes</span>
+                  </div>
+                  <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">($20.00 MXN por alumno que paga)</span>
+                </div>
 
-            <!-- Accesos rápidos para ajustar cupo -->
-            <div class="pt-2">
-              <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 block mb-2">Ajuste rápido de cupo contratado:</span>
-              <div class="flex flex-wrap gap-2">
-                <button type="button" onclick="setQuickMaxAlumnos(10)" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-brand-50 dark:hover:bg-brand-900/40 hover:text-brand-600 rounded-lg text-xs font-bold transition-all border border-slate-200 dark:border-slate-700 cursor-pointer">10 Alumnos</button>
-                <button type="button" onclick="setQuickMaxAlumnos(20)" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-brand-50 dark:hover:bg-brand-900/40 hover:text-brand-600 rounded-lg text-xs font-bold transition-all border border-slate-200 dark:border-slate-700 cursor-pointer">20 Alumnos</button>
-                <button type="button" onclick="setQuickMaxAlumnos(25)" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-brand-50 dark:hover:bg-brand-900/40 hover:text-brand-600 rounded-lg text-xs font-bold transition-all border border-slate-200 dark:border-slate-700 cursor-pointer">25 Alumnos</button>
-                <button type="button" onclick="setQuickMaxAlumnos(30)" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-brand-50 dark:hover:bg-brand-900/40 hover:text-brand-600 rounded-lg text-xs font-bold transition-all border border-slate-200 dark:border-slate-700 cursor-pointer">30 Alumnos</button>
-                <button type="button" onclick="setQuickMaxAlumnos(50)" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-brand-50 dark:hover:bg-brand-900/40 hover:text-brand-600 rounded-lg text-xs font-bold transition-all border border-slate-200 dark:border-slate-700 cursor-pointer">50 Alumnos</button>
+                <!-- Numerador Stepper y Input Directo -->
+                <div class="flex items-center gap-1.5 bg-white dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs self-start sm:self-auto">
+                  <button type="button" onclick="adjustSubscriptionCount(-1)" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-brand-100 hover:text-brand-700 dark:hover:bg-brand-900/50 text-slate-700 dark:text-slate-200 font-extrabold text-base flex items-center justify-center transition-all cursor-pointer" title="Restar 1 alumno">
+                    −
+                  </button>
+                  <div class="flex items-center px-1">
+                    <input type="number" id="sub-number-input" min="1" max="100" value="30" oninput="handleSubscriptionNumberInput(this.value)" class="w-12 text-center font-extrabold text-base bg-transparent text-slate-900 dark:text-slate-100 focus:outline-none" />
+                    <span class="text-xs font-bold text-slate-400 pr-1">alumnos</span>
+                  </div>
+                  <button type="button" onclick="adjustSubscriptionCount(1)" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-brand-100 hover:text-brand-700 dark:hover:bg-brand-900/50 text-slate-700 dark:text-slate-200 font-extrabold text-base flex items-center justify-center transition-all cursor-pointer" title="Sumar 1 alumno">
+                    +
+                  </button>
+                </div>
               </div>
+
+              <!-- Barra Deslizable (Slider de Precisión) -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
+                  <span>Desliza para elegir el número exacto de cupos a pagar:</span>
+                  <span id="sub-slider-badge" class="px-2.5 py-0.5 rounded-lg bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-300 font-bold text-xs">30 alumnos</span>
+                </div>
+                
+                <input type="range" id="sub-range-slider" min="1" max="60" value="30" step="1" oninput="handleSubscriptionSlider(this.value)" class="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-600 focus:outline-none" />
+
+                <div class="flex justify-between text-[10px] font-bold text-slate-400">
+                  <span>1 ($20)</span>
+                  <span>15 ($300)</span>
+                  <span>30 ($600)</span>
+                  <span>45 ($900)</span>
+                  <span>60 ($1,200)</span>
+                </div>
+              </div>
+
+              <!-- Resumen del Estado de Pagos Actual -->
+              <div class="grid grid-cols-3 gap-2.5 pt-1 text-center">
+                <div class="bg-white/90 dark:bg-slate-800/90 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <span class="text-[10px] text-slate-400 uppercase font-bold block">Cupo a Pagar</span>
+                  <strong id="plan-cupo-total" class="text-sm sm:text-base font-extrabold text-brand-600 dark:text-brand-400">30</strong>
+                  <span class="text-[9px] text-slate-400 block">Suscripción</span>
+                </div>
+                <div class="bg-emerald-50/90 dark:bg-emerald-950/40 p-2.5 rounded-xl border border-emerald-200 dark:border-emerald-800/60">
+                  <span class="text-[10px] text-emerald-700 dark:text-emerald-300 uppercase font-bold block">Alumnos que Pagan</span>
+                  <strong id="plan-activos-count" class="text-sm sm:text-base font-extrabold text-emerald-700 dark:text-emerald-300">3</strong>
+                  <span class="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold block" id="sub-stat-activos-pesos">$60 MXN/mes</span>
+                </div>
+                <div class="bg-slate-100/90 dark:bg-slate-800 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <span class="text-[10px] text-slate-500 uppercase font-bold block">Descartados (Sin Pago)</span>
+                  <strong id="sub-stat-descartados" class="text-sm sm:text-base font-extrabold text-slate-600 dark:text-slate-300">0</strong>
+                  <span class="text-[9px] text-slate-400 block">$0 MXN (Sin cobro)</span>
+                </div>
+              </div>
+
             </div>
           </div>
 
@@ -1642,13 +1679,12 @@
         </div>
 
         <div>
-          <label for="edit-alumno-suscripcion" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Estado de Pago / Suscripción</label>
+          <label for="edit-alumno-suscripcion" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Estado en la Suscripción</label>
           <select id="edit-alumno-suscripcion" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600">
-            <option value="activa">🟢 Suscripción Activa (Al día • Ocupa 1 cupo)</option>
-            <option value="pausada">🟡 Suscripción Pausada (Pago Pendiente • Ocupa 1 cupo)</option>
-            <option value="cancelada">🔴 Suscripción Cancelada (Sin Pago • Libera cupo)</option>
+            <option value="activa">🟢 Incluido en Suscripción (Paga $20 MXN/mes)</option>
+            <option value="cancelada">⚪ Descartado de la Suscripción (No Paga • $0 MXN)</option>
           </select>
-          <span class="text-[10px] text-slate-400 mt-1 block">Los alumnos cancelados liberan el cupo para registrar a otros.</span>
+          <span class="text-[10px] text-slate-400 mt-1 block">Los alumnos descartados no se cobran en tu mensualidad.</span>
         </div>
 
         <div class="pt-2 flex items-center justify-end gap-2">

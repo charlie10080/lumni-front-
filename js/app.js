@@ -15,7 +15,9 @@
     let gradesSortCol = '';
     let gradesSortDir = 'asc';
 
-    // Datos del Maestro & Suscripción Escolar
+    // Datos del Maestro & Suscripción Escolar Variable ($20 MXN por Alumno)
+    const PRECIO_POR_ALUMNO = 20;
+
     let maestroState = JSON.parse(localStorage.getItem('lumni_maestro')) || {
       nombre: 'Prof. Carlos Mendoza Morales',
       correo: 'carlos.mendoza@colegio.edu.mx',
@@ -34,13 +36,52 @@
       return alumnosState.filter(a => (a.suscripcion || 'activa') !== 'cancelada').length;
     }
 
+    function handleSubscriptionSlider(val) {
+      const num = parseInt(val, 10) || 1;
+      maestroState.maxAlumnos = num;
+      const numInput = document.getElementById('sub-number-input');
+      if (numInput) numInput.value = num;
+      const configMax = document.getElementById('config_max_alumnos');
+      if (configMax) configMax.value = num;
+      updateTeacherViews();
+    }
+
+    function handleSubscriptionNumberInput(val) {
+      let num = parseInt(val, 10);
+      if (isNaN(num) || num < 1) num = 1;
+      if (num > 200) num = 200;
+      maestroState.maxAlumnos = num;
+      const slider = document.getElementById('sub-range-slider');
+      if (slider) slider.value = Math.min(num, 60);
+      const configMax = document.getElementById('config_max_alumnos');
+      if (configMax) configMax.value = num;
+      updateTeacherViews();
+    }
+
+    function adjustSubscriptionCount(delta) {
+      let current = getMaxAlumnos();
+      let next = Math.max(current + delta, 1);
+      maestroState.maxAlumnos = next;
+      const slider = document.getElementById('sub-range-slider');
+      if (slider) slider.value = Math.min(next, 60);
+      const numInput = document.getElementById('sub-number-input');
+      if (numInput) numInput.value = next;
+      const configMax = document.getElementById('config_max_alumnos');
+      if (configMax) configMax.value = next;
+      updateTeacherViews();
+    }
+
     function setQuickMaxAlumnos(val) {
       const maxInput = document.getElementById('config_max_alumnos');
       if (maxInput) maxInput.value = val;
+      const numInput = document.getElementById('sub-number-input');
+      if (numInput) numInput.value = val;
+      const slider = document.getElementById('sub-range-slider');
+      if (slider) slider.value = Math.min(val, 60);
       maestroState.maxAlumnos = val;
       saveState();
       updateTeacherViews();
-      showToast(`Cupo actualizado a ${val} alumnos`, "success");
+      showToast(`Cupo de suscripción ajustado a ${val} alumnos ($${val * PRECIO_POR_ALUMNO} MXN/mes)`, "success");
     }
 
     // Plantilla de Materias Dinámicas
@@ -1159,8 +1200,22 @@
       const configMaxInput = document.getElementById('config_max_alumnos');
       if (configMaxInput) configMaxInput.value = maxAlumnos;
 
+      const subNumberInput = document.getElementById('sub-number-input');
+      if (subNumberInput) subNumberInput.value = maxAlumnos;
+
+      const subRangeSlider = document.getElementById('sub-range-slider');
+      if (subRangeSlider) subRangeSlider.value = Math.min(maxAlumnos, 60);
+
+      const subSliderBadge = document.getElementById('sub-slider-badge');
+      if (subSliderBadge) subSliderBadge.textContent = `${maxAlumnos} alumnos`;
+
+      const totalPrecioMensual = maxAlumnos * PRECIO_POR_ALUMNO;
+      const subTotalPrecio = document.getElementById('sub-total-precio');
+      if (subTotalPrecio) subTotalPrecio.textContent = `$${totalPrecioMensual.toLocaleString('es-MX')} MXN`;
+
       const activeCount = getActiveAlumnosCount();
       const totalEnrolled = alumnosState.length;
+      const descartadosCount = Math.max(totalEnrolled - activeCount, 0);
       const percent = Math.min(Math.round((activeCount / maxAlumnos) * 100), 100);
       const disponibles = Math.max(maxAlumnos - activeCount, 0);
 
@@ -1175,22 +1230,24 @@
       const cupoMaxTab = document.getElementById('cupo-max-tab');
       if (cupoMaxTab) cupoMaxTab.textContent = maxAlumnos;
 
-      document.getElementById('tabla-total-badge').textContent = `${totalEnrolled} Alumnos (${activeCount} Activos)`;
+      document.getElementById('tabla-total-badge').textContent = `${totalEnrolled} Alumnos (${activeCount} que pagan • $${activeCount * PRECIO_POR_ALUMNO} MXN)`;
       document.getElementById('sidebar-capacidad-txt').textContent = `${activeCount} / ${maxAlumnos}`;
 
       // Actualizar tarjeta de plan en Configuración
       const planCupoBadge = document.getElementById('plan-cupo-badge');
-      if (planCupoBadge) planCupoBadge.textContent = `${maxAlumnos} Alumnos`;
+      if (planCupoBadge) planCupoBadge.textContent = `${maxAlumnos} Alumnos ($${totalPrecioMensual} MXN)`;
       const planCupoTotal = document.getElementById('plan-cupo-total');
       if (planCupoTotal) planCupoTotal.textContent = maxAlumnos;
       const planActivosCount = document.getElementById('plan-activos-count');
       if (planActivosCount) planActivosCount.textContent = activeCount;
-      const planLibresCount = document.getElementById('plan-libres-count');
-      if (planLibresCount) planLibresCount.textContent = disponibles;
+      const subStatActivosPesos = document.getElementById('sub-stat-activos-pesos');
+      if (subStatActivosPesos) subStatActivosPesos.textContent = `$${activeCount * PRECIO_POR_ALUMNO} MXN/mes`;
+      const subStatDescartados = document.getElementById('sub-stat-descartados');
+      if (subStatDescartados) subStatDescartados.textContent = descartadosCount;
 
       // Footer
       const footerNum = document.getElementById('footer-capacidad-num');
-      if (footerNum) footerNum.textContent = `${maxAlumnos} Alumnos`;
+      if (footerNum) footerNum.textContent = `${maxAlumnos} Alumnos ($${totalPrecioMensual} MXN/mes)`;
 
       const progressBar = document.getElementById('dash-progress-bar');
       progressBar.style.width = `${percent}%`;
@@ -2001,34 +2058,18 @@
       if (!a) return;
       const current = a.suscripcion || 'activa';
 
-      if (current === 'activa') {
-        const opt = confirm(`¿Deseas gestionar la suscripción de ${a.nombre}?\n\n• Haz click en ACEPTAR para CANCELAR la suscripción (liberar 1 cupo para otro alumno).\n• Haz click en CANCELAR para marcar como PAGO PENDIENTE (manteniendo cupo temporalmente).`);
-        if (opt) {
-          a.suscripcion = 'cancelada';
-          showToast(`Suscripción de ${a.nombre} cancelada. 1 cupo liberado.`, "info");
-        } else {
-          a.suscripcion = 'pausada';
-          showToast(`Estado de ${a.nombre} cambiado a Pago Pendiente.`, "info");
-        }
-      } else if (current === 'pausada') {
-        const opt = confirm(`El alumno ${a.nombre} tiene pago pendiente.\n\n• Haz click en ACEPTAR para REACTIVAR suscripción como AL DÍA.\n• Haz click en CANCELAR para CANCELAR definitivamente y liberar cupo.`);
-        if (opt) {
-          a.suscripcion = 'activa';
-          showToast(`Suscripción de ${a.nombre} al día.`, "success");
-        } else {
-          a.suscripcion = 'cancelada';
-          showToast(`Suscripción de ${a.nombre} cancelada. 1 cupo liberado.`, "info");
-        }
+      if (current !== 'cancelada') {
+        a.suscripcion = 'cancelada';
+        showToast(`${a.nombre} descartado de la suscripción (no se cobran $20 MXN)`, "info");
       } else {
-        // Reactivar desde cancelada
         const maxAlu = getMaxAlumnos();
         const activeCount = getActiveAlumnosCount();
         if (activeCount >= maxAlu) {
-          showToast(`No puedes reactivar a ${a.nombre}: límite de ${maxAlu} cupos alcanzado. Amplía tu cupo en Configuración.`, "error");
+          showToast(`Cupo de suscripción lleno (${maxAlu} alumnos). Aumenta tu cupo en Configuración para incluir a ${a.nombre}.`, "error");
           return;
         }
         a.suscripcion = 'activa';
-        showToast(`Suscripción de ${a.nombre} reactivada (1 cupo asignado)`, "success");
+        showToast(`${a.nombre} incluido en la suscripción ($20 MXN/mes)`, "success");
       }
 
       updateTeacherViews();
@@ -2056,25 +2097,20 @@
       tbody.innerHTML = data.map(a => {
         const sub = a.suscripcion || 'activa';
         let subBadge = '';
-        if (sub === 'activa') {
+        if (sub !== 'cancelada') {
           subBadge = `
-            <button onclick="toggleAlumnoSuscripcion('${a.uuid}')" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700/60 hover:bg-emerald-100 flex items-center gap-1.5 transition-all cursor-pointer" title="Click para gestionar suscripción / pago">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              <span>Al día (Ocupa Cupo)</span>
-            </button>
-          `;
-        } else if (sub === 'pausada') {
-          subBadge = `
-            <button onclick="toggleAlumnoSuscripcion('${a.uuid}')" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-700/60 hover:bg-amber-100 flex items-center gap-1.5 transition-all cursor-pointer" title="Click para gestionar suscripción / pago">
-              <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-              <span>Pago Pendiente</span>
+            <button onclick="toggleAlumnoSuscripcion('${a.uuid}')" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700/70 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 dark:hover:bg-rose-950/40 dark:hover:text-rose-400 flex items-center gap-1.5 transition-all cursor-pointer group" title="Click para descartar de la suscripción (no pagar)">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 group-hover:bg-rose-500 transition-colors"></span>
+              <span class="group-hover:hidden">🟢 Paga $20/mes</span>
+              <span class="hidden group-hover:inline">⚪ Descartar ($0)</span>
             </button>
           `;
         } else {
           subBadge = `
-            <button onclick="toggleAlumnoSuscripcion('${a.uuid}')" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 dark:bg-rose-900/40 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60 hover:bg-rose-100 flex items-center gap-1.5 transition-all cursor-pointer" title="Click para reactivar suscripción">
-              <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-              <span>Cancelada (Cupo Libre)</span>
+            <button onclick="toggleAlumnoSuscripcion('${a.uuid}')" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-400 flex items-center gap-1.5 transition-all cursor-pointer group" title="Click para activar e incluir en suscripción ($20 MXN/mes)">
+              <span class="w-2 h-2 rounded-full bg-slate-400 group-hover:bg-emerald-500 transition-colors"></span>
+              <span class="group-hover:hidden">⚪ Descartado ($0)</span>
+              <span class="hidden group-hover:inline">🟢 Pagar $20/mes</span>
             </button>
           `;
         }
