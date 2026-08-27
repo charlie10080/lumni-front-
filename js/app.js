@@ -1850,14 +1850,6 @@
       lucide.createIcons();
     }
 
-    function openParentBoletaModal() {
-      if (!currentParentStudent) {
-        showToast("No hay alumno seleccionado", "error");
-        return;
-      }
-      openBoletaModal(currentParentStudent.uuid);
-    }
-
     function closeBoletaModal() {
       document.getElementById('modal-boleta').classList.add('hidden');
     }
