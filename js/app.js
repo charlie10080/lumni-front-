@@ -1,7 +1,6 @@
     // ==========================================================
     // 1. ESTADO GLOBAL & PERSISTENCIA
     // ==========================================================
-    const MAX_ALUMNOS = 50;
     let isCameraActive = false;
     let html5QrScannerInstance = null;
     let isParentCameraActive = false;
@@ -16,14 +15,33 @@
     let gradesSortCol = '';
     let gradesSortDir = 'asc';
 
-    // Datos del Maestro
+    // Datos del Maestro & Suscripción Escolar
     let maestroState = JSON.parse(localStorage.getItem('lumni_maestro')) || {
       nombre: 'Prof. Carlos Mendoza Morales',
       correo: 'carlos.mendoza@colegio.edu.mx',
       grupo: '3er Grado Grupo B',
       colegio: 'Lumni',
-      ciclo: '2026-2027'
+      ciclo: '2026-2027',
+      maxAlumnos: 30
     };
+    if (!maestroState.maxAlumnos) maestroState.maxAlumnos = 30;
+
+    function getMaxAlumnos() {
+      return parseInt(maestroState.maxAlumnos, 10) || 30;
+    }
+
+    function getActiveAlumnosCount() {
+      return alumnosState.filter(a => (a.suscripcion || 'activa') !== 'cancelada').length;
+    }
+
+    function setQuickMaxAlumnos(val) {
+      const maxInput = document.getElementById('config_max_alumnos');
+      if (maxInput) maxInput.value = val;
+      maestroState.maxAlumnos = val;
+      saveState();
+      updateTeacherViews();
+      showToast(`Cupo actualizado a ${val} alumnos`, "success");
+    }
 
     // Plantilla de Materias Dinámicas
     let materiasState = JSON.parse(localStorage.getItem('lumni_materias')) || [
@@ -33,13 +51,14 @@
       'Historia'
     ];
 
-    // Alumnos Registrados
+    // Alumnos Registrados con Estado de Suscripción / Pago
     let alumnosState = JSON.parse(localStorage.getItem('lumni_alumnos')) || [
       {
         uuid: 'alu-9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d',
         nombre: 'Sofía Martínez Ruiz',
         tutor: 'Carmen Ruiz García',
         telefono: '+52 55 9876 5432',
+        suscripcion: 'activa',
         asistenciaHoy: 'presente',
         horaAsistencia: '08:02 AM',
         asistenciasTotales: { presentes: 22, retardos: 1, faltas: 0 },
@@ -50,6 +69,7 @@
         nombre: 'Mateo Hernández Vega',
         tutor: 'Roberto Hernández',
         telefono: '+52 55 4321 8765',
+        suscripcion: 'activa',
         asistenciaHoy: 'presente',
         horaAsistencia: '08:15 AM',
         asistenciasTotales: { presentes: 20, retardos: 2, faltas: 1 },
@@ -60,12 +80,17 @@
         nombre: 'Valentina López Cruz',
         tutor: 'Laura Cruz Mendoza',
         telefono: '+52 55 6789 0123',
+        suscripcion: 'activa',
         asistenciaHoy: 'pendiente',
         horaAsistencia: '--:--',
         asistenciasTotales: { presentes: 19, retardos: 0, faltas: 2 },
         calificaciones: { 'Español': 9.2, 'Matemáticas': 9.0, 'Ciencias Naturales': 9.5, 'Historia': 9.0 }
       }
     ];
+
+    alumnosState.forEach(a => {
+      if (!a.suscripcion) a.suscripcion = 'activa';
+    });
 
     // Proyectos Escolares
     let proyectosState = JSON.parse(localStorage.getItem('lumni_proyectos')) || [
@@ -1100,6 +1125,14 @@
       maestroState.colegio = document.getElementById('config_colegio').value.trim();
       maestroState.ciclo = document.getElementById('config_ciclo').value.trim();
 
+      const maxInput = document.getElementById('config_max_alumnos');
+      if (maxInput) {
+        const val = parseInt(maxInput.value, 10);
+        if (!isNaN(val) && val > 0) {
+          maestroState.maxAlumnos = val;
+        }
+      }
+
       updateTeacherViews();
       showToast("Configuración guardada correctamente", "success");
     }
@@ -1122,16 +1155,42 @@
       const configCiclo = document.getElementById('config_ciclo');
       if(configCiclo) configCiclo.value = maestroState.ciclo || '2026-2027';
 
-      const count = alumnosState.length;
-      const percent = Math.min(Math.round((count / MAX_ALUMNOS) * 100), 100);
-      const disponibles = Math.max(MAX_ALUMNOS - count, 0);
+      const maxAlumnos = getMaxAlumnos();
+      const configMaxInput = document.getElementById('config_max_alumnos');
+      if (configMaxInput) configMaxInput.value = maxAlumnos;
 
-      document.getElementById('dash-count-current').textContent = count;
+      const activeCount = getActiveAlumnosCount();
+      const totalEnrolled = alumnosState.length;
+      const percent = Math.min(Math.round((activeCount / maxAlumnos) * 100), 100);
+      const disponibles = Math.max(maxAlumnos - activeCount, 0);
+
+      document.getElementById('dash-count-current').textContent = activeCount;
+      const dashCountMax = document.getElementById('dash-count-max');
+      if (dashCountMax) dashCountMax.textContent = maxAlumnos;
       document.getElementById('dash-limit-percent').textContent = `${percent}%`;
       document.getElementById('dash-disponibles-txt').textContent = disponibles;
-      document.getElementById('cupo-disponible-tab').textContent = disponibles;
-      document.getElementById('tabla-total-badge').textContent = `${count} Alumnos`;
-      document.getElementById('sidebar-capacidad-txt').textContent = `${count} / ${MAX_ALUMNOS}`;
+
+      const cupoDispTab = document.getElementById('cupo-disponible-tab');
+      if (cupoDispTab) cupoDispTab.textContent = disponibles;
+      const cupoMaxTab = document.getElementById('cupo-max-tab');
+      if (cupoMaxTab) cupoMaxTab.textContent = maxAlumnos;
+
+      document.getElementById('tabla-total-badge').textContent = `${totalEnrolled} Alumnos (${activeCount} Activos)`;
+      document.getElementById('sidebar-capacidad-txt').textContent = `${activeCount} / ${maxAlumnos}`;
+
+      // Actualizar tarjeta de plan en Configuración
+      const planCupoBadge = document.getElementById('plan-cupo-badge');
+      if (planCupoBadge) planCupoBadge.textContent = `${maxAlumnos} Alumnos`;
+      const planCupoTotal = document.getElementById('plan-cupo-total');
+      if (planCupoTotal) planCupoTotal.textContent = maxAlumnos;
+      const planActivosCount = document.getElementById('plan-activos-count');
+      if (planActivosCount) planActivosCount.textContent = activeCount;
+      const planLibresCount = document.getElementById('plan-libres-count');
+      if (planLibresCount) planLibresCount.textContent = disponibles;
+
+      // Footer
+      const footerNum = document.getElementById('footer-capacidad-num');
+      if (footerNum) footerNum.textContent = `${maxAlumnos} Alumnos`;
 
       const progressBar = document.getElementById('dash-progress-bar');
       progressBar.style.width = `${percent}%`;
@@ -1143,9 +1202,9 @@
       if (sidebarBar) sidebarBar.style.width = `${percent}%`;
 
       const presentes = alumnosState.filter(a => a.asistenciaHoy === 'presente').length;
-      const rate = count > 0 ? Math.round((presentes / count) * 100) : 0;
+      const rate = totalEnrolled > 0 ? Math.round((presentes / totalEnrolled) * 100) : 0;
       document.getElementById('dash-asistencia-rate').textContent = `${rate}%`;
-      document.getElementById('dash-asistencia-count').textContent = `${presentes} de ${count}`;
+      document.getElementById('dash-asistencia-count').textContent = `${presentes} de ${totalEnrolled}`;
 
       document.getElementById('dash-actividades-count').textContent = proyectosState.length + tareasState.length;
       document.getElementById('reportes-count-badge').textContent = `${reportesState.length} Reportes`;
@@ -1879,8 +1938,11 @@
     // ==========================================================
     function handleAlumnoSubmit(e) {
       e.preventDefault();
-      if (alumnosState.length >= MAX_ALUMNOS) {
-        showToast("Límite de 50 alumnos alcanzado.", "error");
+      const maxAlu = getMaxAlumnos();
+      const activeCount = getActiveAlumnosCount();
+
+      if (activeCount >= maxAlu) {
+        showToast(`Límite de suscripción alcanzado (${activeCount}/${maxAlu} cupos ocupados). Amplía tu plan en Configuración o cancela a un alumno inactivo.`, "error");
         return;
       }
 
@@ -1890,6 +1952,7 @@
         nombre: document.getElementById('alumno_nombre').value.trim(),
         tutor: document.getElementById('alumno_tutor').value.trim(),
         telefono: document.getElementById('alumno_telefono').value.trim(),
+        suscripcion: 'activa',
         asistenciaHoy: 'pendiente',
         horaAsistencia: '--:--',
         asistenciasTotales: { presentes: 1, retardos: 0, faltas: 0 },
@@ -1902,7 +1965,7 @@
       updateTeacherViews();
       renderParentDemoChips();
       form.reset();
-      showToast("Alumno registrado y credencial generada", "success");
+      showToast("Alumno registrado con suscripción activa asignada", "success");
       openQrModal(nuevoAlumno.uuid);
     }
 
@@ -1933,6 +1996,44 @@
       lucide.createIcons();
     }
 
+    function toggleAlumnoSuscripcion(uuid) {
+      const a = alumnosState.find(x => x.uuid === uuid);
+      if (!a) return;
+      const current = a.suscripcion || 'activa';
+
+      if (current === 'activa') {
+        const opt = confirm(`¿Deseas gestionar la suscripción de ${a.nombre}?\n\n• Haz click en ACEPTAR para CANCELAR la suscripción (liberar 1 cupo para otro alumno).\n• Haz click en CANCELAR para marcar como PAGO PENDIENTE (manteniendo cupo temporalmente).`);
+        if (opt) {
+          a.suscripcion = 'cancelada';
+          showToast(`Suscripción de ${a.nombre} cancelada. 1 cupo liberado.`, "info");
+        } else {
+          a.suscripcion = 'pausada';
+          showToast(`Estado de ${a.nombre} cambiado a Pago Pendiente.`, "info");
+        }
+      } else if (current === 'pausada') {
+        const opt = confirm(`El alumno ${a.nombre} tiene pago pendiente.\n\n• Haz click en ACEPTAR para REACTIVAR suscripción como AL DÍA.\n• Haz click en CANCELAR para CANCELAR definitivamente y liberar cupo.`);
+        if (opt) {
+          a.suscripcion = 'activa';
+          showToast(`Suscripción de ${a.nombre} al día.`, "success");
+        } else {
+          a.suscripcion = 'cancelada';
+          showToast(`Suscripción de ${a.nombre} cancelada. 1 cupo liberado.`, "info");
+        }
+      } else {
+        // Reactivar desde cancelada
+        const maxAlu = getMaxAlumnos();
+        const activeCount = getActiveAlumnosCount();
+        if (activeCount >= maxAlu) {
+          showToast(`No puedes reactivar a ${a.nombre}: límite de ${maxAlu} cupos alcanzado. Amplía tu cupo en Configuración.`, "error");
+          return;
+        }
+        a.suscripcion = 'activa';
+        showToast(`Suscripción de ${a.nombre} reactivada (1 cupo asignado)`, "success");
+      }
+
+      updateTeacherViews();
+    }
+
     function renderAlumnosTable(filtered = null) {
       const tbody = document.getElementById('alumnos-table-body');
       let data = filtered || [...alumnosState];
@@ -1948,42 +2049,72 @@
       }
 
       if (data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8"><div class="flex flex-col items-center justify-center gap-2 text-slate-400"><i data-lucide="users" class="w-8 h-8 text-slate-300"></i><p class="text-sm font-semibold text-slate-500">No hay alumnos registrados</p><p class="text-[11px]">Inscribe a tu primer alumno usando el formulario.</p></div></td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8"><div class="flex flex-col items-center justify-center gap-2 text-slate-400"><i data-lucide="users" class="w-8 h-8 text-slate-300"></i><p class="text-sm font-semibold text-slate-500">No hay alumnos registrados</p><p class="text-[11px]">Inscribe a tu primer alumno usando el formulario.</p></div></td></tr>`;
         return;
       }
 
-      tbody.innerHTML = data.map(a => `
-        <tr class="hover:bg-slate-50 dark:bg-slate-800 transition-colors block md:table-row border-b md:border-none border-slate-200 dark:border-slate-700/60 pb-3 md:pb-0 mb-3 md:mb-0">
-          <td class="px-4 py-3 block md:table-cell">
-            <div class="font-bold text-slate-900 dark:text-slate-100">${a.nombre}</div>
-            <div class="text-[10px] text-slate-400 font-mono">${a.uuid.substring(0, 13)}...</div>
-          </td>
-          <td class="px-4 py-3 block md:table-cell">
-            <div class="font-medium text-slate-800 dark:text-slate-200">${a.tutor}</div>
-            <div class="text-[11px] text-slate-400">${a.telefono}</div>
-          </td>
-          <td class="px-4 py-3 block md:table-cell">
-            <div class="flex items-center gap-1.5">
-              <button onclick="openQrModal('${a.uuid}')" class="px-2.5 py-1 bg-brand-50 dark:bg-brand-900/40 hover:bg-brand-100 text-brand-700 dark:text-brand-300 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1 cursor-pointer">
-                <i data-lucide="qr-code" class="w-3.5 h-3.5"></i>
-                <span>Credencial</span>
-              </button>
-              <button onclick="openBoletaModal('${a.uuid}')" class="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/40 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1 cursor-pointer">
-                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
-                <span>Boleta</span>
-              </button>
-            </div>
-          </td>
-          <td class="px-4 py-3 text-right space-x-1 block md:table-cell">
-            <button onclick="openEditModal('${a.uuid}')" title="Editar" class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:text-brand-400 rounded-lg cursor-pointer">
-              <i data-lucide="edit-2" class="w-4 h-4"></i>
+      tbody.innerHTML = data.map(a => {
+        const sub = a.suscripcion || 'activa';
+        let subBadge = '';
+        if (sub === 'activa') {
+          subBadge = `
+            <button onclick="toggleAlumnoSuscripcion('${a.uuid}')" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700/60 hover:bg-emerald-100 flex items-center gap-1.5 transition-all cursor-pointer" title="Click para gestionar suscripción / pago">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              <span>Al día (Ocupa Cupo)</span>
             </button>
-            <button onclick="deleteAlumno('${a.uuid}')" title="Eliminar" class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-rose-600 rounded-lg cursor-pointer">
-              <i data-lucide="trash-2" class="w-4 h-4"></i>
+          `;
+        } else if (sub === 'pausada') {
+          subBadge = `
+            <button onclick="toggleAlumnoSuscripcion('${a.uuid}')" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-700/60 hover:bg-amber-100 flex items-center gap-1.5 transition-all cursor-pointer" title="Click para gestionar suscripción / pago">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+              <span>Pago Pendiente</span>
             </button>
-          </td>
-        </tr>
-      `).join('');
+          `;
+        } else {
+          subBadge = `
+            <button onclick="toggleAlumnoSuscripcion('${a.uuid}')" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 dark:bg-rose-900/40 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60 hover:bg-rose-100 flex items-center gap-1.5 transition-all cursor-pointer" title="Click para reactivar suscripción">
+              <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+              <span>Cancelada (Cupo Libre)</span>
+            </button>
+          `;
+        }
+
+        return `
+          <tr class="hover:bg-slate-50 dark:bg-slate-800 transition-colors block md:table-row border-b md:border-none border-slate-200 dark:border-slate-700/60 pb-3 md:pb-0 mb-3 md:mb-0">
+            <td class="px-4 py-3 block md:table-cell">
+              <div class="font-bold text-slate-900 dark:text-slate-100">${a.nombre}</div>
+              <div class="text-[10px] text-slate-400 font-mono">${a.uuid.substring(0, 13)}...</div>
+            </td>
+            <td class="px-4 py-3 block md:table-cell">
+              <div class="font-medium text-slate-800 dark:text-slate-200">${a.tutor}</div>
+              <div class="text-[11px] text-slate-400">${a.telefono}</div>
+            </td>
+            <td class="px-4 py-3 block md:table-cell">
+              ${subBadge}
+            </td>
+            <td class="px-4 py-3 block md:table-cell">
+              <div class="flex items-center gap-1.5">
+                <button onclick="openQrModal('${a.uuid}')" class="px-2.5 py-1 bg-brand-50 dark:bg-brand-900/40 hover:bg-brand-100 text-brand-700 dark:text-brand-300 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1 cursor-pointer">
+                  <i data-lucide="qr-code" class="w-3.5 h-3.5"></i>
+                  <span>Credencial</span>
+                </button>
+                <button onclick="openBoletaModal('${a.uuid}')" class="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/40 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1 cursor-pointer">
+                  <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                  <span>Boleta</span>
+                </button>
+              </div>
+            </td>
+            <td class="px-4 py-3 text-right space-x-1 block md:table-cell">
+              <button onclick="openEditModal('${a.uuid}')" title="Editar" class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:text-brand-400 rounded-lg cursor-pointer">
+                <i data-lucide="edit-2" class="w-4 h-4"></i>
+              </button>
+              <button onclick="deleteAlumno('${a.uuid}')" title="Eliminar" class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-rose-600 rounded-lg cursor-pointer">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
 
     function filterAlumnosTable() {
@@ -1993,7 +2124,8 @@
         a.nombre.toLowerCase().includes(q) || 
         a.tutor.toLowerCase().includes(q) || 
         a.telefono.toLowerCase().includes(q) || 
-        a.uuid.toLowerCase().includes(q)
+        a.uuid.toLowerCase().includes(q) ||
+        (a.suscripcion || '').toLowerCase().includes(q)
       );
       renderAlumnosTable(res);
       lucide.createIcons();
@@ -2002,7 +2134,9 @@
     function deleteAlumno(uuid) {
       const a = alumnosState.find(x => x.uuid === uuid);
       if (!a) return;
-      if (!confirm(`¿Eliminar a ${a.nombre}? Se liberará 1 cupo de los 50 disponibles.`)) return;
+      const isPaid = (a.suscripcion || 'activa') !== 'cancelada';
+      const msgExtra = isPaid ? "Se liberará 1 cupo de suscripción contratado." : "";
+      if (!confirm(`¿Eliminar a ${a.nombre}? ${msgExtra}`)) return;
 
       alumnosState = alumnosState.filter(x => x.uuid !== uuid);
       reportesState = reportesState.filter(r => r.alumnoUuid !== uuid);
@@ -2019,6 +2153,9 @@
       document.getElementById('edit-alumno-nombre').value = a.nombre;
       document.getElementById('edit-alumno-tutor').value = a.tutor;
       document.getElementById('edit-alumno-tel').value = a.telefono;
+      const subSelect = document.getElementById('edit-alumno-suscripcion');
+      if (subSelect) subSelect.value = a.suscripcion || 'activa';
+
       document.getElementById('modal-edit-alumno').classList.remove('hidden');
       lucide.createIcons();
     }
@@ -2033,13 +2170,27 @@
       const a = alumnosState.find(x => x.uuid === uuid);
       if (!a) return;
 
+      const subSelect = document.getElementById('edit-alumno-suscripcion');
+      const newSub = subSelect ? subSelect.value : (a.suscripcion || 'activa');
+
+      // Si pasa de cancelada a activa/pausada, validar cupo disponible
+      if ((a.suscripcion === 'cancelada') && (newSub !== 'cancelada')) {
+        const maxAlu = getMaxAlumnos();
+        const activeCount = getActiveAlumnosCount();
+        if (activeCount >= maxAlu) {
+          showToast(`No puedes activar a ${a.nombre}: límite de ${maxAlu} cupos alcanzado. Amplía tu plan en Configuración.`, "error");
+          return;
+        }
+      }
+
       a.nombre = document.getElementById('edit-alumno-nombre').value.trim();
       a.tutor = document.getElementById('edit-alumno-tutor').value.trim();
       a.telefono = document.getElementById('edit-alumno-tel').value.trim();
+      a.suscripcion = newSub;
 
       closeEditModal();
       updateTeacherViews();
-      showToast("Datos actualizados", "success");
+      showToast("Datos y suscripción del alumno actualizados", "success");
     }
 
     function openQrModal(uuid) {
