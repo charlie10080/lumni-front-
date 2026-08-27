@@ -344,6 +344,24 @@
     }
 
     // ==========================================================
+    // UTILIDADES ASINCRONAS
+    // ==========================================================
+    async function withLoading(btn, asyncFn) {
+      const originalHtml = btn.innerHTML;
+      const originalDisabled = btn.disabled;
+      try {
+        btn.innerHTML = '<span class="flex items-center justify-center gap-2"><i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Cargando...</span>';
+        btn.disabled = true;
+        if (window.lucide) lucide.createIcons();
+        await asyncFn();
+      } finally {
+        btn.innerHTML = originalHtml;
+        btn.disabled = originalDisabled;
+        if (window.lucide) lucide.createIcons();
+      }
+    }
+
+    // ==========================================================
     // 3. FLUJO MAESTRO: LOGIN/REGISTRO & DASHBOARD
     // ==========================================================
     function toggleTeacherAuthMode(mode) {
@@ -384,21 +402,39 @@
     function handleTeacherRegisterSubmit(e) {
       e.preventDefault();
       const btn = e.target.querySelector('button[type="submit"]');
-      const originalHtml = btn.innerHTML;
-      btn.innerHTML = '<span>Cargando...</span>';
-      btn.disabled = true;
 
-      maestroState.nombre = document.getElementById('reg_nombre').value.trim();
-      maestroState.correo = document.getElementById('reg_correo').value.trim();
-      maestroState.grupo = document.getElementById('reg_grupo').value.trim();
-      saveState();
+      const payload = {
+        nombre: document.getElementById('reg_nombre').value.trim(),
+        correo: document.getElementById('reg_correo').value.trim(),
+        grupo: document.getElementById('reg_grupo').value.trim()
+      };
 
-      setTimeout(() => {
-        btn.innerHTML = originalHtml;
-        btn.disabled = false;
-        openTeacherDashboard();
-        showToast(`¡Registro completado! Bienvenido(a), ${maestroState.nombre}`, "success");
-      }, 500);
+      withLoading(btn, async () => {
+        try {
+          const res = await fetch('http://localhost:3000/api/maestros/registro', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.error || 'Error al registrar maestro');
+          }
+
+          const data = await res.json();
+          maestroState.nombre = payload.nombre;
+          maestroState.correo = payload.correo;
+          maestroState.grupo = payload.grupo;
+          // Optionally save data from backend response if needed
+          saveState();
+
+          openTeacherDashboard();
+          showToast(`¡Registro completado! Bienvenido(a), ${maestroState.nombre}`, "success");
+        } catch (err) {
+          showToast(err.message, "error");
+        }
+      });
     }
 
     function openTeacherDashboard() {
@@ -2072,35 +2108,55 @@
     // ==========================================================
     function handleAlumnoSubmit(e) {
       e.preventDefault();
-      const maxAlu = getMaxAlumnos();
-      const activeCount = getActiveAlumnosCount();
-
-      if (activeCount >= maxAlu) {
-        showToast(`Límite de suscripción alcanzado (${activeCount}/${maxAlu} cupos ocupados). Amplía tu plan en Configuración o cancela a un alumno inactivo.`, "error");
-        return;
-      }
 
       const form = e.target;
-      const nuevoAlumno = {
-        uuid: 'alu-' + crypto.randomUUID(),
+      const btn = form.querySelector('button[type="submit"]');
+
+      const payload = {
         nombre: document.getElementById('alumno_nombre').value.trim(),
         tutor: document.getElementById('alumno_tutor').value.trim(),
-        telefono: document.getElementById('alumno_telefono').value.trim(),
-        suscripcion: 'activa',
-        asistenciaHoy: 'pendiente',
-        horaAsistencia: '--:--',
-        asistenciasTotales: { presentes: 1, retardos: 0, faltas: 0 },
-        calificaciones: {}
+        telefono: document.getElementById('alumno_telefono').value.trim()
       };
 
-      materiasState.forEach(m => nuevoAlumno.calificaciones[m] = 9.0);
+      withLoading(btn, async () => {
+        try {
+          const res = await fetch('http://localhost:3000/api/alumnos/registro', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
 
-      alumnosState.unshift(nuevoAlumno);
-      updateTeacherViews();
-      renderParentDemoChips();
-      form.reset();
-      showToast("Alumno registrado con suscripción activa asignada", "success");
-      openQrModal(nuevoAlumno.uuid);
+          if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.error || 'Error al registrar alumno');
+          }
+
+          const data = await res.json();
+
+          const nuevoAlumno = {
+            uuid: data.alumno?.uuid || ('alu-' + crypto.randomUUID()),
+            nombre: payload.nombre,
+            tutor: payload.tutor,
+            telefono: payload.telefono,
+            suscripcion: 'activa',
+            asistenciaHoy: 'pendiente',
+            horaAsistencia: '--:--',
+            asistenciasTotales: { presentes: 1, retardos: 0, faltas: 0 },
+            calificaciones: {}
+          };
+
+          materiasState.forEach(m => nuevoAlumno.calificaciones[m] = 9.0);
+
+          alumnosState.unshift(nuevoAlumno);
+          updateTeacherViews();
+          renderParentDemoChips();
+          form.reset();
+          showToast("Alumno registrado con suscripción activa asignada", "success");
+          openQrModal(nuevoAlumno.uuid);
+        } catch (err) {
+          showToast(err.message, "error");
+        }
+      });
     }
 
     function sortAlumnos(col) {
