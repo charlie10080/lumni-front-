@@ -46,6 +46,9 @@
   <!-- HTML5-QRCode Scanner Library CDN -->
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
+  <!-- SheetJS (XLSX) CDN for Excel Import/Export -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
   <link rel="stylesheet" href="css/styles.css">
 </head>
 
@@ -265,11 +268,34 @@
           </div>
         </div>
 
-        <div>
-          <label for="reg_grupo" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Grado y Grupo Asignado *</label>
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><i data-lucide="book" class="w-4 h-4"></i></div>
-            <input type="text" id="reg_grupo" required placeholder="Ej. 3er Grado Grupo B" class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="reg_grado_sel" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Grado Escolar *</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><i data-lucide="graduation-cap" class="w-4 h-4"></i></div>
+              <select id="reg_grado_sel" required class="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 cursor-pointer">
+                <option value="1er Grado">1° Grado (1ro)</option>
+                <option value="2do Grado">2° Grado (2do)</option>
+                <option value="3er Grado" selected>3° Grado (3ro)</option>
+                <option value="4to Grado">4° Grado (4to)</option>
+                <option value="5to Grado">5° Grado (5to)</option>
+                <option value="6to Grado">6° Grado (6to)</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label for="reg_grupo_sel" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Grupo *</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><i data-lucide="users" class="w-4 h-4"></i></div>
+              <select id="reg_grupo_sel" required class="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 cursor-pointer">
+                <option value="Grupo A">Grupo A</option>
+                <option value="Grupo B" selected>Grupo B</option>
+                <option value="Grupo C">Grupo C</option>
+                <option value="Grupo D">Grupo D</option>
+                <option value="Grupo E">Grupo E</option>
+                <option value="Grupo F">Grupo F</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -281,9 +307,23 @@
           </div>
         </div>
 
+        <!-- Tarifa de Suscripción Docente -->
+        <div class="p-3 bg-brand-50/80 dark:bg-brand-900/30 rounded-2xl border border-brand-200/80 dark:border-brand-700/60 space-y-1 text-left">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold text-brand-900 dark:text-brand-200 flex items-center gap-1.5">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-brand-600 dark:text-brand-400"></i>
+              <span>Suscripción Docente Lumni</span>
+            </span>
+            <span class="text-xs font-extrabold text-brand-700 dark:text-brand-300">$250 MXN inicial</span>
+          </div>
+          <p class="text-[10.5px] text-slate-600 dark:text-slate-300 leading-tight">
+            Inscripción y 1er mes por <strong>$250 MXN</strong>. A partir del 2do mes, tu mensualidad será de solo <strong>$50 MXN/mes</strong>. Alumnos 100% gratis.
+          </p>
+        </div>
+
         <button type="submit" class="w-full py-3 px-4 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-brand-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer">
           <i data-lucide="user-plus" class="w-4 h-4"></i>
-          <span>Registrar y Abrir Dashboard</span>
+          <span>Registrar y Activar Cuenta ($250 MXN)</span>
         </button>
       </form>
 
@@ -305,7 +345,7 @@
           <i data-lucide="shield-check" class="w-6 h-6"></i>
         </div>
         <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Portal de Familias</h2>
-        <p class="text-xs text-slate-500 dark:text-slate-400">Ingresa el Código ID o escanea el código QR de la credencial con la cámara trasera.</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Ingresa la <strong>CURP oficial</strong> de tu hijo/a o escanea el código QR de su credencial escolar.</p>
       </div>
 
       <!-- Botón Destacado para Escanear Código QR -->
@@ -315,25 +355,26 @@
           class="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-brand-600 hover:from-indigo-700 hover:to-brand-700 text-white rounded-2xl text-xs sm:text-sm font-bold shadow-md shadow-indigo-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
         >
           <i data-lucide="camera" class="w-5 h-5 text-amber-300"></i>
-          <span>📷 Escanear código QR</span>
+          <span>📷 Escanear credencial QR</span>
         </button>
 
         <div class="flex items-center gap-2 my-2">
           <div class="flex-1 border-t border-slate-200 dark:border-slate-700"></div>
-          <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">o ingresar por código</span>
+          <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">o ingresar con la CURP</span>
           <div class="flex-1 border-t border-slate-200 dark:border-slate-700"></div>
         </div>
 
         <div>
-          <label for="padre_search_input" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Código ID / UUID del Alumno</label>
+          <label for="padre_search_input" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">CURP del Alumno / Código ID</label>
           <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><i data-lucide="qr-code" class="w-4 h-4"></i></div>
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 font-mono text-xs font-bold">🆔</div>
             <input 
               type="text" 
               id="padre_search_input" 
-              placeholder="Ej. alu-9b1d... o pega el código" 
+              placeholder="Ej. MARS170514MDFRR01 o pega la CURP" 
+              oninput="this.value = this.value.toUpperCase().trim()"
               onkeydown="if(event.key === 'Enter') handleParentSearchSubmit()"
-              class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600"
+              class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-mono uppercase tracking-wider font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600"
             />
           </div>
         </div>
@@ -452,14 +493,15 @@
 
       <!-- Pie del Sidebar: Capacidad y Perfil Rápido -->
       <div class="p-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 space-y-3 shrink-0">
-        <div class="bg-white dark:bg-slate-900 p-3 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-2xs space-y-1.5">
+        <div class="bg-white dark:bg-slate-900 p-3 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-2xs space-y-1">
           <div class="flex items-center justify-between text-[11px] font-bold">
-            <span class="text-slate-500 dark:text-slate-400">Capacidad</span>
-            <span id="sidebar-capacidad-txt" class="text-brand-700 dark:text-brand-300">3 / 50</span>
+            <span class="text-slate-500 dark:text-slate-400">Plan Docente</span>
+            <span id="sidebar-capacidad-txt" class="text-emerald-700 dark:text-emerald-400 font-extrabold">$50 MXN/mes</span>
           </div>
-          <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
-            <div id="sidebar-progress-bar" class="h-full bg-brand-500 rounded-full transition-all duration-300" style="width: 6%;"></div>
-          </div>
+          <p class="text-[10px] text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-semibold">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Membresía Activa</span>
+          </p>
         </div>
 
         <div class="flex items-center justify-between pt-1">
@@ -562,28 +604,18 @@
           <!-- 4 Tarjetas Métricas Minimalistas -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
             
-            <!-- Capacidad -->
+            <!-- Alumnos Registrados -->
             <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-700/80 shadow-xs">
               <div class="flex items-center justify-between mb-3">
-                <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Capacidad Alumnos</span>
+                <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Alumnos en Grupo</span>
                 <div class="w-8 h-8 rounded-xl bg-brand-50 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 flex items-center justify-center"><i data-lucide="users" class="w-4 h-4"></i></div>
               </div>
-              <div class="space-y-2">
-                <div class="flex items-baseline justify-between">
-                  <div class="flex items-baseline gap-1">
-                    <span id="dash-count-current" class="text-2xl font-extrabold text-slate-900 dark:text-slate-100">0</span>
-                    <span class="text-slate-400 text-sm font-medium">/</span>
-                    <span id="dash-count-max" class="text-sm font-semibold text-slate-500 dark:text-slate-400">50</span>
-                  </div>
-                  <span id="dash-limit-percent" class="text-xs font-bold text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-900/40 px-2 py-0.5 rounded-md border border-brand-100">0%</span>
+              <div class="space-y-1">
+                <div class="flex items-baseline gap-2">
+                  <span id="dash-count-current" class="text-2xl font-extrabold text-slate-900 dark:text-slate-100">0</span>
+                  <span class="text-xs font-semibold text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-900/40 px-2 py-0.5 rounded-full border border-brand-100">Inscritos</span>
                 </div>
-                <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
-                  <div id="dash-progress-bar" class="h-full rounded-full bg-gradient-to-r from-brand-500 to-indigo-600 transition-all duration-500" style="width: 0%;"></div>
-                </div>
-                <p class="text-[11px] text-slate-400 flex items-center justify-between pt-0.5">
-                  <span>Disponibles: <strong id="dash-disponibles-txt" class="text-slate-700 dark:text-slate-300">50</strong></span>
-                  <span class="text-brand-600 dark:text-brand-400 font-semibold">Límite 50</span>
-                </p>
+                <p class="text-[11px] text-slate-400">Alumnos ilimitados sin costo extra</p>
               </div>
             </div>
 
@@ -694,15 +726,14 @@
               <p class="text-xs text-slate-500 dark:text-slate-400">Inscribe, edita y da de baja alumnos. Emite credenciales digitales de acceso.</p>
             </div>
             <div class="flex items-center gap-2 self-start sm:self-auto">
-              <button onclick="exportAlumnosCSV()" class="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/40 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-400 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5">
+              <button onclick="exportAlumnosCSV()" class="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/40 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-400 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
                 <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                <span>Exportar CSV</span>
+                <span>Exportar Alumnos</span>
               </button>
               <span class="text-xs font-semibold px-3 py-1.5 bg-brand-50 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 rounded-xl border border-brand-200 flex items-center gap-1">
-                <span>Cupos:</span>
-                <strong id="cupo-disponible-tab" class="text-brand-800 dark:text-brand-200">0</strong>
-                <span>libres de</span>
-                <strong id="cupo-max-tab" class="text-brand-800 dark:text-brand-200">30</strong>
+                <i data-lucide="users" class="w-3.5 h-3.5 text-brand-600 dark:text-brand-400"></i>
+                <strong id="cupo-max-tab" class="text-brand-800 dark:text-brand-200">0</strong>
+                <span>Alumnos Registrados</span>
               </span>
             </div>
           </div>
@@ -716,25 +747,72 @@
                   <span>Inscribir Alumno</span>
                 </h3>
 
-                <form id="form-alumno" onsubmit="handleAlumnoSubmit(event)" class="space-y-3.5">
+                <form id="form-alumno" onsubmit="handleAlumnoSubmit(event)" class="space-y-3">
                   <div>
-                    <label for="alumno_nombre" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Nombre Completo *</label>
-                    <input type="text" id="alumno_nombre" required placeholder="Ej. Sofía Martínez Ruiz" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                    <label for="alumno_nombres" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Nombre(s) *</label>
+                    <input type="text" id="alumno_nombres" required placeholder="Ej. Sofía" oninput="autoGenerateCurpPreview()" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                      <label for="alumno_paterno" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Primer Apellido *</label>
+                      <input type="text" id="alumno_paterno" required placeholder="Ej. Martínez" oninput="autoGenerateCurpPreview()" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                    </div>
+                    <div>
+                      <label for="alumno_materno" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Segundo Apellido</label>
+                      <input type="text" id="alumno_materno" placeholder="Ej. Ruiz" oninput="autoGenerateCurpPreview()" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                      <label for="alumno_fecha_nac" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Fecha Nacimiento *</label>
+                      <input type="date" id="alumno_fecha_nac" required onchange="autoGenerateCurpPreview()" class="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                    </div>
+                    <div>
+                      <label for="alumno_sexo" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Sexo *</label>
+                      <select id="alumno_sexo" required onchange="autoGenerateCurpPreview()" class="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 cursor-pointer">
+                        <option value="M">Mujer (Femenino)</option>
+                        <option value="H">Hombre (Masculino)</option>
+                      </select>
+                    </div>
                   </div>
 
                   <div>
-                    <label for="alumno_tutor" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Nombre del Tutor *</label>
-                    <input type="text" id="alumno_tutor" required placeholder="Ej. Carmen Ruiz García" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                    <div class="flex items-center justify-between mb-1">
+                      <label for="alumno_curp" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">CURP / Clave (Hasta Género: 11 caracteres) *</label>
+                      <button type="button" onclick="sugerirCURPForm(false)" class="text-[10px] font-bold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-0.5 cursor-pointer">
+                        <span>🪄 Sugerir</span>
+                      </button>
+                    </div>
+                    <div class="relative">
+                      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 font-mono text-xs font-bold">🆔</div>
+                      <input 
+                        type="text" 
+                        id="alumno_curp" 
+                        required 
+                        maxlength="11" 
+                        placeholder="Ej. MARS170514M" 
+                        oninput="this.value = this.value.toUpperCase().trim()"
+                        class="w-full pl-8 pr-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-mono uppercase tracking-wider font-bold focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" 
+                      />
+                    </div>
+                    <span class="text-[10px] text-slate-400 mt-0.5 block">11 caracteres (Iniciales + Fecha de Nacimiento + Género).</span>
+                  </div>
+
+                  <div>
+                    <label for="alumno_tutor" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Nombre del Tutor(a) *</label>
+                    <input type="text" id="alumno_tutor" required placeholder="Ej. Carmen Ruiz García" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
                   </div>
 
                   <div>
                     <label for="alumno_telefono" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Teléfono WhatsApp *</label>
-                    <input type="tel" id="alumno_telefono" required placeholder="Ej. +52 55 9876 5432" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                    <input type="tel" id="alumno_telefono" required placeholder="Ej. +52 55 9876 5432" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
                   </div>
 
-                  <button type="submit" class="w-full py-2.5 px-4 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                  <button type="submit" class="w-full py-2.5 px-4 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer mt-2">
                     <i data-lucide="user-plus" class="w-4 h-4"></i>
-                    <span>Registrar y Asignar Cupo Activo</span>
+                    <span>Inscribir Alumno al Grupo</span>
                   </button>
                 </form>
               </div>
@@ -746,29 +824,9 @@
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div class="relative flex-1">
                     <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="text" id="search-alumnos-input" oninput="filterAlumnosTable()" placeholder="Buscar alumno..." class="w-full pl-9 pr-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                    <input type="text" id="search-alumnos-input" oninput="filterAlumnosTable()" placeholder="Buscar por CURP, nombre o tutor..." class="w-full pl-9 pr-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
                   </div>
                   <span id="tabla-total-badge" class="text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-xl shrink-0">0 Alumnos</span>
-                </div>
-
-                <!-- Filtros de Estado de Suscripción y Botón de Quitar No Pagados -->
-                <div class="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-100 dark:border-slate-800">
-                  <div class="flex items-center gap-1.5">
-                    <button type="button" onclick="setAlumnosFilter('todos')" id="filter-alu-todos" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-brand-600 text-white transition-all cursor-pointer">
-                      Todos
-                    </button>
-                    <button type="button" onclick="setAlumnosFilter('activos')" id="filter-alu-activos" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-all cursor-pointer">
-                      🟢 Pagados / Activos
-                    </button>
-                    <button type="button" onclick="setAlumnosFilter('desactivados')" id="filter-alu-desactivados" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-all cursor-pointer">
-                      🔴 Desactivados / Sin Pago
-                    </button>
-                  </div>
-
-                  <button type="button" onclick="eliminarAlumnosDesactivados()" class="px-2.5 py-1 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 text-rose-700 dark:text-rose-400 rounded-lg text-xs font-bold transition-all border border-rose-200 dark:border-rose-800/60 flex items-center gap-1 cursor-pointer" title="Eliminar definitivamente a los alumnos que no han pagado">
-                    <i data-lucide="user-x" class="w-3.5 h-3.5"></i>
-                    <span>Quitar No Pagados</span>
-                  </button>
                 </div>
               </div>
 
@@ -778,12 +836,12 @@
                     <thead class="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 uppercase font-bold border-b border-slate-200 dark:border-slate-700/60">
                       <tr>
                         <th class="px-4 py-3 cursor-pointer select-none" onclick="sortAlumnos('nombre')">
-                          <div class="flex items-center gap-1">Alumno <span id="sort-icon-nombre"><i data-lucide="chevrons-up-down" class="w-3 h-3 text-slate-400"></i></span></div>
+                          <div class="flex items-center gap-1">Alumno & CURP <span id="sort-icon-nombre"><i data-lucide="chevrons-up-down" class="w-3 h-3 text-slate-400"></i></span></div>
                         </th>
                         <th class="px-4 py-3 cursor-pointer select-none" onclick="sortAlumnos('tutor')">
                           <div class="flex items-center gap-1">Tutor / Teléfono <span id="sort-icon-tutor"><i data-lucide="chevrons-up-down" class="w-3 h-3 text-slate-400"></i></span></div>
                         </th>
-                        <th class="px-4 py-3">Estado de Cuenta</th>
+                        <th class="px-4 py-3">Estatus</th>
                         <th class="px-4 py-3">Documentos</th>
                         <th class="px-4 py-3 text-right">Acciones</th>
                       </tr>
@@ -911,21 +969,33 @@
           </div>
         </div>
 
-        <!-- SUB-VISTA: REPORTE DE EVALUACIÓN (CALIFICACIONES SIN DECIMALES) -->
+        <!-- SUB-VISTA: REPORTE DE EVALUACIÓN (MATERIAS ENTERAS • PROMEDIO DECIMAL) -->
         <div id="m-view-calificaciones" class="space-y-6 hidden animate-in fade-in duration-150">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200 dark:border-slate-700/80 pb-4">
             <div>
               <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Reporte de Evaluación</h2>
-              <p class="text-xs text-slate-500 dark:text-slate-400">Configura la plantilla de materias y asienta las calificaciones oficiales (promedio entero sin decimales).</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Configura materias, asienta calificaciones oficiales (enteros) e importa listas masivas desde Excel.</p>
             </div>
             <div class="flex flex-wrap items-center gap-2">
-              <button onclick="exportCalificacionesCSV()" class="px-3 py-2 bg-emerald-50 dark:bg-emerald-900/40 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-400 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5">
+              <button onclick="downloadExcelTemplate('xlsx')" class="px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border border-slate-200 dark:border-slate-700 cursor-pointer" title="Descargar plantilla Excel (.xlsx)">
+                <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
+                <span>Plantilla .xlsx</span>
+              </button>
+              <button onclick="downloadExcelTemplate('csv')" class="px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border border-slate-200 dark:border-slate-700 cursor-pointer" title="Descargar plantilla formato .csv">
+                <i data-lucide="download" class="w-3.5 h-3.5 text-teal-600"></i>
+                <span>Plantilla .csv</span>
+              </button>
+              <button onclick="openImportExcelModal()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm cursor-pointer" title="Importar archivo Excel (.xlsx / .csv) con calificaciones">
+                <i data-lucide="upload" class="w-3.5 h-3.5 text-white"></i>
+                <span>📥 Importar Excel</span>
+              </button>
+              <button onclick="exportCalificacionesCSV()" class="px-3 py-2 bg-emerald-50 dark:bg-emerald-900/40 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-400 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
                 <i data-lucide="download" class="w-3.5 h-3.5"></i>
                 <span>Exportar CSV</span>
               </button>
-              <button onclick="openMateriasModal()" class="px-3.5 py-2 bg-indigo-50 dark:bg-indigo-900/40 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 border border-indigo-200 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer">
+              <button onclick="openMateriasModal()" class="px-3.5 py-2 bg-indigo-50 dark:bg-indigo-900/40 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer">
                 <i data-lucide="settings" class="w-4 h-4 text-indigo-600 dark:text-indigo-400"></i>
-                <span>⚙️ Configurar Materias</span>
+                <span>⚙️ Materias</span>
               </button>
               <button onclick="saveAllGrades()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer">
                 <i data-lucide="save" class="w-4 h-4"></i>
@@ -939,7 +1009,7 @@
               <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider shrink-0">Materias Evaluadas:</span>
               <div id="active-materias-badges" class="flex flex-wrap gap-1.5"></div>
             </div>
-            <span class="text-[11px] font-semibold text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-900/40 px-2.5 py-1 rounded-lg border border-brand-100">Escala de 5 a 10 (Promedio Entero)</span>
+            <span class="text-[11px] font-semibold text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-900/40 px-2.5 py-1 rounded-lg border border-brand-100">Materias: Números Enteros • Promedio con Decimales</span>
           </div>
 
           <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-xs overflow-hidden">
@@ -1133,9 +1203,29 @@
                   <label for="config_correo" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Correo Electrónico *</label>
                   <input type="email" id="config_correo" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
                 </div>
-                <div>
-                  <label for="config_grupo" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Grado y Grupo *</label>
-                  <input type="text" id="config_grupo" required class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label for="config_grado_sel" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Grado *</label>
+                    <select id="config_grado_sel" required class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 cursor-pointer">
+                      <option value="1er Grado">1° Grado (1ro)</option>
+                      <option value="2do Grado">2° Grado (2do)</option>
+                      <option value="3er Grado">3° Grado (3ro)</option>
+                      <option value="4to Grado">4° Grado (4to)</option>
+                      <option value="5to Grado">5° Grado (5to)</option>
+                      <option value="6to Grado">6° Grado (6to)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="config_grupo_sel" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Grupo *</label>
+                    <select id="config_grupo_sel" required class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 cursor-pointer">
+                      <option value="Grupo A">Grupo A</option>
+                      <option value="Grupo B">Grupo B</option>
+                      <option value="Grupo C">Grupo C</option>
+                      <option value="Grupo D">Grupo D</option>
+                      <option value="Grupo E">Grupo E</option>
+                      <option value="Grupo F">Grupo F</option>
+                    </select>
+                  </div>
                 </div>
                 <div>
                   <label for="config_colegio" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Nombre de la Escuela</label>
@@ -1160,84 +1250,82 @@
             </form>
           </div>
 
-          <!-- Tarjeta de Suscripción Variable Docente ($20 MXN por Alumno) -->
+          <!-- Tarjeta de Suscripción Docente ($250 MXN inicial / $50 MXN al mes) -->
           <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 sm:p-6 shadow-xs max-w-2xl space-y-5">
             <div class="flex items-center justify-between">
               <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <i data-lucide="credit-card" class="w-4 h-4 text-brand-600 dark:text-brand-400"></i>
-                <span>Suscripción Docente Variable ($20 MXN / Alumno)</span>
+                <span>Suscripción Docente Lumni Pro</span>
               </h3>
-              <span id="plan-cupo-badge" class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-brand-50 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 border border-brand-200">
-                30 Alumnos
+              <span id="sub-docente-badge" class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200">
+                🟢 Membresía Activa
               </span>
             </div>
 
             <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-              Tu suscripción mensual se adapta exactamente a los alumnos que decidan pagar ($20 pesos mexicanos al mes por alumno). Si un alumno no desea pagar, puedes <strong>descartarlo con un click</strong> en la lista de alumnos para no incluirlo en el cobro.
+              Plan profesional todo incluido para el maestro. Tu suscripción cuenta con una <strong>cuota inicial de $250 MXN</strong> (primer mes de activación) y una mensualidad recurrente de solo <strong>$50 MXN al mes</strong> a partir del segundo mes. <strong>Los alumnos no pagan nada.</strong>
             </p>
 
             <div class="bg-gradient-to-br from-brand-50/60 via-slate-50/40 to-indigo-50/40 dark:from-slate-800 dark:via-slate-900 dark:to-slate-800/90 rounded-2xl p-4 sm:p-5 border border-brand-200/70 dark:border-brand-700/60 shadow-xs space-y-4">
               
-              <!-- Encabezado con precio en vivo y numerador con botones +/- -->
+              <!-- Encabezado con precio de renovación mensual -->
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700/80 pb-4">
                 <div>
-                  <span class="text-[10px] font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400">Costo de tu Suscripción</span>
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400">Tarifa Mensual Recurrente</span>
                   <div class="text-xl font-extrabold text-slate-900 dark:text-slate-100 flex items-baseline gap-1.5">
-                    <span id="sub-total-precio" class="text-2xl sm:text-3xl font-black text-brand-600 dark:text-brand-400">$600 MXN</span>
+                    <span class="text-2xl sm:text-3xl font-black text-brand-600 dark:text-brand-400">$50 MXN</span>
                     <span class="text-xs font-semibold text-slate-500">/ mes</span>
                   </div>
-                  <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">($20.00 MXN por alumno que paga)</span>
+                  <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Pago inicial de inscripción: $250 MXN (1er mes)</span>
                 </div>
 
-                <!-- Numerador Stepper y Input Directo -->
-                <div class="flex items-center gap-1.5 bg-white dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs self-start sm:self-auto">
-                  <button type="button" onclick="adjustSubscriptionCount(-1)" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-brand-100 hover:text-brand-700 dark:hover:bg-brand-900/50 text-slate-700 dark:text-slate-200 font-extrabold text-base flex items-center justify-center transition-all cursor-pointer" title="Restar 1 alumno">
-                    −
+                <div class="flex flex-col items-end gap-1.5 self-start sm:self-auto">
+                  <button type="button" onclick="renovarSuscripcionDocente()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer">
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                    <span>Renovar / Pagar Mes ($50)</span>
                   </button>
-                  <div class="flex items-center px-1">
-                    <input type="number" id="sub-number-input" min="1" max="100" value="30" oninput="handleSubscriptionNumberInput(this.value)" class="w-12 text-center font-extrabold text-base bg-transparent text-slate-900 dark:text-slate-100 focus:outline-none" />
-                    <span class="text-xs font-bold text-slate-400 pr-1">alumnos</span>
-                  </div>
-                  <button type="button" onclick="adjustSubscriptionCount(1)" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-brand-100 hover:text-brand-700 dark:hover:bg-brand-900/50 text-slate-700 dark:text-slate-200 font-extrabold text-base flex items-center justify-center transition-all cursor-pointer" title="Sumar 1 alumno">
-                    +
-                  </button>
+                  <span class="text-[10px] text-slate-400">Próximo cobro: <strong id="sub-proximo-cobro" class="text-slate-700 dark:text-slate-300">01 de Octubre</strong></span>
                 </div>
               </div>
 
-              <!-- Barra Deslizable (Slider de Precisión) -->
-              <div class="space-y-2">
-                <div class="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
-                  <span>Desliza para elegir el número exacto de cupos a pagar:</span>
-                  <span id="sub-slider-badge" class="px-2.5 py-0.5 rounded-lg bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-300 font-bold text-xs">30 alumnos</span>
-                </div>
-                
-                <input type="range" id="sub-range-slider" min="1" max="60" value="30" step="1" oninput="handleSubscriptionSlider(this.value)" class="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-600 focus:outline-none" />
-
-                <div class="flex justify-between text-[10px] font-bold text-slate-400">
-                  <span>1 ($20)</span>
-                  <span>15 ($300)</span>
-                  <span>30 ($600)</span>
-                  <span>45 ($900)</span>
-                  <span>60 ($1,200)</span>
-                </div>
-              </div>
-
-              <!-- Resumen del Estado de Pagos Actual -->
+              <!-- Resumen del Estado de Suscripción Docente -->
               <div class="grid grid-cols-3 gap-2.5 pt-1 text-center">
                 <div class="bg-white/90 dark:bg-slate-800/90 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
-                  <span class="text-[10px] text-slate-400 uppercase font-bold block">Cupo a Pagar</span>
-                  <strong id="plan-cupo-total" class="text-sm sm:text-base font-extrabold text-brand-600 dark:text-brand-400">30</strong>
-                  <span class="text-[9px] text-slate-400 block">Suscripción</span>
+                  <span class="text-[10px] text-slate-400 uppercase font-bold block">Pago Inicial</span>
+                  <strong class="text-sm sm:text-base font-extrabold text-brand-600 dark:text-brand-400">$250 MXN</strong>
+                  <span class="text-[9px] text-slate-400 block">Inscripción / 1er Mes</span>
                 </div>
                 <div class="bg-emerald-50/90 dark:bg-emerald-950/40 p-2.5 rounded-xl border border-emerald-200 dark:border-emerald-800/60">
-                  <span class="text-[10px] text-emerald-700 dark:text-emerald-300 uppercase font-bold block">Alumnos que Pagan</span>
-                  <strong id="plan-activos-count" class="text-sm sm:text-base font-extrabold text-emerald-700 dark:text-emerald-300">3</strong>
-                  <span class="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold block" id="sub-stat-activos-pesos">$60 MXN/mes</span>
+                  <span class="text-[10px] text-emerald-700 dark:text-emerald-300 uppercase font-bold block">Mensualidad</span>
+                  <strong class="text-sm sm:text-base font-extrabold text-emerald-700 dark:text-emerald-300">$50 MXN</strong>
+                  <span class="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold block">Meses posteriores</span>
                 </div>
-                <div class="bg-slate-100/90 dark:bg-slate-800 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
-                  <span class="text-[10px] text-slate-500 uppercase font-bold block">Descartados (Sin Pago)</span>
-                  <strong id="sub-stat-descartados" class="text-sm sm:text-base font-extrabold text-slate-600 dark:text-slate-300">0</strong>
-                  <span class="text-[9px] text-slate-400 block">$0 MXN (Sin cobro)</span>
+                <div class="bg-indigo-50/90 dark:bg-indigo-950/40 p-2.5 rounded-xl border border-indigo-200 dark:border-indigo-800/60">
+                  <span class="text-[10px] text-indigo-700 dark:text-indigo-300 uppercase font-bold block">Alumnos</span>
+                  <strong id="config-alumnos-total" class="text-sm sm:text-base font-extrabold text-indigo-700 dark:text-indigo-300">0</strong>
+                  <span class="text-[9px] text-indigo-600 dark:text-indigo-400 block font-bold">100% Gratis</span>
+                </div>
+              </div>
+
+              <!-- Beneficios incluidos -->
+              <div class="pt-2 border-t border-slate-200 dark:border-slate-700/60">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-600 dark:text-slate-300">
+                  <div class="flex items-center gap-1.5">
+                    <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>
+                    <span>Pase de lista con QR y manual</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>
+                    <span>Boletas de evaluación e importación Excel</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>
+                    <span>Proyectos, tareas y rúbricas</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>
+                    <span>Chat y avisos directos con padres</span>
+                  </div>
                 </div>
               </div>
 
@@ -1363,9 +1451,10 @@
           <span id="p-avatar">S</span>
         </div>
         <div>
-          <div class="flex items-center gap-2">
+          <div class="flex flex-wrap items-center gap-2">
             <h1 id="p-nombre" class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Sofía Martínez Ruiz</h1>
             <span class="px-2 py-0.5 text-[10px] font-bold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-200 rounded-full border border-emerald-200 dark:border-emerald-700">Activo</span>
+            <span id="p-curp-badge" class="px-2 py-0.5 text-[10px] font-bold font-mono bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 rounded-full border border-indigo-200 dark:border-indigo-800/60">CURP: MARS170514MDFRR01</span>
           </div>
           <p id="p-grupo-tutor" class="text-xs text-slate-500 dark:text-slate-200 mt-0.5">3er Grado Grupo B • Tutor: Carmen Ruiz García</p>
           <p id="p-profesor" class="text-[11px] text-brand-600 dark:text-brand-300 font-bold mt-0.5">Docente Titular: Prof. Carlos Mendoza</p>
@@ -1663,7 +1752,7 @@
 
         <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 inline-block shadow-inner mx-auto">
           <div id="modal-qrcode-target" class="w-[150px] h-[150px] flex items-center justify-center mx-auto"></div>
-          <span class="text-[10px] font-mono text-slate-400 block mt-2">CÓDIGO QR DE ASISTENCIA</span>
+          <span class="text-[10px] font-mono text-slate-400 block mt-2">CÓDIGO QR DE ASISTENCIA & ACCESO</span>
         </div>
 
         <div>
@@ -1672,20 +1761,28 @@
           <p id="qr-modal-student-tutor" class="text-xs text-slate-500 dark:text-slate-400 mt-1">Tutor: Carmen Ruiz García</p>
         </div>
 
-        <div class="bg-slate-100 dark:bg-slate-800 py-1.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700 font-mono text-[11px] text-slate-700 dark:text-slate-300 flex items-center justify-between">
+        <div class="bg-indigo-50 dark:bg-indigo-950/60 py-2 px-3.5 rounded-2xl border border-indigo-200 dark:border-indigo-800/60 font-mono text-xs text-indigo-950 dark:text-indigo-200 flex items-center justify-between shadow-2xs">
+          <span class="font-sans font-bold text-[11px] text-slate-500 dark:text-slate-400">CURP / Clave:</span>
+          <span id="qr-modal-curp-txt" class="font-extrabold text-indigo-700 dark:text-indigo-300 tracking-wider">MARS170514M</span>
+        </div>
+
+        <div class="text-[10.5px] font-mono text-slate-400 dark:text-slate-500 flex items-center justify-between px-1">
           <span>Código ID:</span>
-          <span id="qr-modal-uuid-txt" class="font-bold text-brand-700 dark:text-brand-300">alu-12345...</span>
+          <span id="qr-modal-uuid-txt" class="truncate max-w-[180px]">alu-12345...</span>
         </div>
       </div>
 
       <div class="bg-slate-50 dark:bg-slate-800 px-6 py-3.5 border-t border-slate-100 dark:border-slate-700 flex items-center justify-end gap-2">
-        <button onclick="window.print()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all">
+        <button onclick="window.print()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer">
           <i data-lucide="printer" class="w-4 h-4"></i>
           <span>Imprimir</span>
         </button>
-        <button onclick="copyModalUuid()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all">
+        <button onclick="copyModalCurp()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer">
           <i data-lucide="copy" class="w-4 h-4"></i>
-          <span>Copiar ID</span>
+          <span>Copiar CURP</span>
+        </button>
+        <button onclick="copyModalUuid()" class="px-3 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold flex items-center gap-1 transition-all cursor-pointer" title="Copiar UUID técnico">
+          <span>ID</span>
         </button>
       </div>
 
@@ -1694,7 +1791,7 @@
 
   <!-- MODAL: EDITAR ALUMNO -->
   <div id="modal-edit-alumno" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
-    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-700">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-700">
       
       <div class="bg-slate-900 px-6 py-4 text-white flex items-center justify-between">
         <div class="flex items-center gap-2">
@@ -1706,31 +1803,65 @@
         </button>
       </div>
 
-      <form id="form-edit-alumno" onsubmit="handleSaveEditAlumno(event)" class="p-6 space-y-4 text-left">
+      <form id="form-edit-alumno" onsubmit="handleSaveEditAlumno(event)" class="p-6 space-y-3.5 text-left max-h-[85vh] overflow-y-auto">
         <input type="hidden" id="edit-alumno-uuid" />
 
         <div>
-          <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Nombre Completo</label>
-          <input type="text" id="edit-alumno-nombre" required class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+          <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Nombre(s) *</label>
+          <input type="text" id="edit-alumno-nombres" required oninput="autoGenerateCurpEditPreview()" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Primer Apellido *</label>
+            <input type="text" id="edit-alumno-paterno" required oninput="autoGenerateCurpEditPreview()" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Segundo Apellido</label>
+            <input type="text" id="edit-alumno-materno" oninput="autoGenerateCurpEditPreview()" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Fecha Nacimiento *</label>
+            <input type="date" id="edit-alumno-fecha-nac" required onchange="autoGenerateCurpEditPreview()" class="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Sexo *</label>
+            <select id="edit-alumno-sexo" required onchange="autoGenerateCurpEditPreview()" class="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 cursor-pointer">
+              <option value="M">Mujer (Femenino)</option>
+              <option value="H">Hombre (Masculino)</option>
+            </select>
+          </div>
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Nombre del Tutor</label>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">CURP / Clave (Hasta Género: 11 caracteres) *</label>
+            <button type="button" onclick="sugerirCURPForm(true)" class="text-[10px] font-bold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-0.5 cursor-pointer">
+              <span>🪄 Sugerir</span>
+            </button>
+          </div>
+          <input 
+            type="text" 
+            id="edit-alumno-curp" 
+            required 
+            maxlength="11" 
+            placeholder="Ej. MARS170514M"
+            oninput="this.value = this.value.toUpperCase().trim()"
+            class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-mono uppercase tracking-wider font-bold focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" 
+          />
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Nombre del Tutor *</label>
           <input type="text" id="edit-alumno-tutor" required class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Teléfono</label>
+          <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Teléfono WhatsApp *</label>
           <input type="tel" id="edit-alumno-tel" required class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600" />
-        </div>
-
-        <div>
-          <label for="edit-alumno-suscripcion" class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Estado en la Suscripción</label>
-          <select id="edit-alumno-suscripcion" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600">
-            <option value="activa">🟢 Incluido en Suscripción (Paga $20 MXN/mes)</option>
-            <option value="cancelada">⚪ Descartado de la Suscripción (No Paga • $0 MXN)</option>
-          </select>
-          <span class="text-[10px] text-slate-400 mt-1 block">Los alumnos descartados no se cobran en tu mensualidad.</span>
         </div>
 
         <div class="pt-2 flex items-center justify-end gap-2">
@@ -1739,7 +1870,7 @@
           </button>
           <button type="submit" class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs">
             <i data-lucide="check" class="w-4 h-4"></i>
-            <span>Guardar</span>
+            <span>Guardar Cambios</span>
           </button>
         </div>
       </form>
@@ -1769,22 +1900,22 @@
 
         <div>
           <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Campos Formativos Articulados *</label>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs">
-            <label class="flex items-center gap-2 cursor-pointer">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-slate-50 dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs">
+            <label class="flex items-center gap-2.5 p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 hover:border-brand-500 transition-all cursor-pointer shadow-2xs">
               <input type="checkbox" name="proj_campo" value="Lenguajes" class="rounded text-brand-600 dark:text-brand-400 focus:ring-brand-500" checked />
               <span class="font-semibold text-slate-800 dark:text-slate-200">🗣️ Lenguajes</span>
             </label>
-            <label class="flex items-center gap-2 cursor-pointer">
+            <label class="flex items-center gap-2.5 p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 hover:border-brand-500 transition-all cursor-pointer shadow-2xs">
               <input type="checkbox" name="proj_campo" value="Saberes y Pensamiento Científico" class="rounded text-brand-600 dark:text-brand-400 focus:ring-brand-500" checked />
-              <span class="font-semibold text-slate-800 dark:text-slate-200">🔬 Saberes y Pensamiento</span>
+              <span class="font-semibold text-slate-800 dark:text-slate-200">🔬 Saberes y Pensamiento Científico</span>
             </label>
-            <label class="flex items-center gap-2 cursor-pointer">
+            <label class="flex items-center gap-2.5 p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 hover:border-brand-500 transition-all cursor-pointer shadow-2xs">
               <input type="checkbox" name="proj_campo" value="Ética, Naturaleza y Sociedades" class="rounded text-brand-600 dark:text-brand-400 focus:ring-brand-500" />
-              <span class="font-semibold text-slate-800 dark:text-slate-200">🌍 Ética y Sociedades</span>
+              <span class="font-semibold text-slate-800 dark:text-slate-200">🌍 Ética, Naturaleza y Sociedades</span>
             </label>
-            <label class="flex items-center gap-2 cursor-pointer">
+            <label class="flex items-center gap-2.5 p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 hover:border-brand-500 transition-all cursor-pointer shadow-2xs">
               <input type="checkbox" name="proj_campo" value="De lo Humano y lo Comunitario" class="rounded text-brand-600 dark:text-brand-400 focus:ring-brand-500" />
-              <span class="font-semibold text-slate-800 dark:text-slate-200">🤝 De lo Humano y Comunitario</span>
+              <span class="font-semibold text-slate-800 dark:text-slate-200">🤝 De lo Humano y lo Comunitario</span>
             </label>
           </div>
         </div>
@@ -1841,22 +1972,22 @@
 
         <div>
           <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Campos Formativos Articulados *</label>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs">
-            <label class="flex items-center gap-2 cursor-pointer">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-slate-50 dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs">
+            <label class="flex items-center gap-2.5 p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 hover:border-indigo-500 transition-all cursor-pointer shadow-2xs">
               <input type="checkbox" name="tarea_campo" value="Lenguajes" class="rounded text-indigo-600 dark:text-indigo-400 focus:ring-indigo-500" checked />
               <span class="font-semibold text-slate-800 dark:text-slate-200">🗣️ Lenguajes</span>
             </label>
-            <label class="flex items-center gap-2 cursor-pointer">
+            <label class="flex items-center gap-2.5 p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 hover:border-indigo-500 transition-all cursor-pointer shadow-2xs">
               <input type="checkbox" name="tarea_campo" value="Saberes y Pensamiento Científico" class="rounded text-indigo-600 dark:text-indigo-400 focus:ring-indigo-500" checked />
-              <span class="font-semibold text-slate-800 dark:text-slate-200">🔬 Saberes y Pensamiento</span>
+              <span class="font-semibold text-slate-800 dark:text-slate-200">🔬 Saberes y Pensamiento Científico</span>
             </label>
-            <label class="flex items-center gap-2 cursor-pointer">
+            <label class="flex items-center gap-2.5 p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 hover:border-indigo-500 transition-all cursor-pointer shadow-2xs">
               <input type="checkbox" name="tarea_campo" value="Ética, Naturaleza y Sociedades" class="rounded text-indigo-600 dark:text-indigo-400 focus:ring-indigo-500" />
-              <span class="font-semibold text-slate-800 dark:text-slate-200">🌍 Ética y Sociedades</span>
+              <span class="font-semibold text-slate-800 dark:text-slate-200">🌍 Ética, Naturaleza y Sociedades</span>
             </label>
-            <label class="flex items-center gap-2 cursor-pointer">
+            <label class="flex items-center gap-2.5 p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 hover:border-indigo-500 transition-all cursor-pointer shadow-2xs">
               <input type="checkbox" name="tarea_campo" value="De lo Humano y lo Comunitario" class="rounded text-indigo-600 dark:text-indigo-400 focus:ring-indigo-500" />
-              <span class="font-semibold text-slate-800 dark:text-slate-200">🤝 De lo Humano y Comunitario</span>
+              <span class="font-semibold text-slate-800 dark:text-slate-200">🤝 De lo Humano y lo Comunitario</span>
             </label>
           </div>
         </div>
@@ -2078,6 +2209,132 @@
     </div>
   </div>
 
+  <!-- ============================================================ -->
+  <!-- MODAL: IMPORTAR CALIFICACIONES DESDE EXCEL / CSV            -->
+  <!-- ============================================================ -->
+  <div id="modal-import-excel" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 hidden overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-700/80 my-8 max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-150">
+      
+      <!-- Encabezado Modal -->
+      <div class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 px-6 py-4 text-white flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center text-white border border-white/20">
+            <i data-lucide="file-spreadsheet" class="w-5 h-5 text-emerald-200"></i>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-base tracking-wide">Importar Calificaciones desde Excel / CSV</h3>
+            <p class="text-xs text-emerald-100/90">Sube una lista de alumnos con sus calificaciones para capturarlas automáticamente.</p>
+          </div>
+        </div>
+        <button onclick="closeImportExcelModal()" class="text-white/80 hover:text-white p-1 rounded-lg cursor-pointer" aria-label="Cerrar modal">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Contenido Scrollable -->
+      <div class="p-6 space-y-5 overflow-y-auto flex-1 text-slate-800 dark:text-slate-200 text-xs">
+        
+        <!-- Zona de Carga / Dropzone -->
+        <div 
+          id="excel-dropzone"
+          onclick="document.getElementById('excel-file-input').click()"
+          ondragover="event.preventDefault(); this.classList.add('border-emerald-500', 'bg-emerald-50/50', 'dark:bg-emerald-950/30')"
+          ondragleave="this.classList.remove('border-emerald-500', 'bg-emerald-50/50', 'dark:bg-emerald-950/30')"
+          ondrop="handleExcelDrop(event)"
+          class="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-3xl p-6 sm:p-8 text-center cursor-pointer hover:border-emerald-500 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/20 transition-all space-y-3 group"
+        >
+          <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" onchange="handleExcelFileSelect(event)" class="hidden" />
+          
+          <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+            <i data-lucide="upload-cloud" class="w-7 h-7"></i>
+          </div>
+
+          <div class="space-y-1">
+            <p class="text-sm font-bold text-slate-800 dark:text-slate-100">
+              Arrastra tu archivo Excel aquí o <span class="text-emerald-600 dark:text-emerald-400 underline">haz clic para examinar</span>
+            </p>
+            <p class="text-[11px] text-slate-400">Formatos compatibles: .xlsx, .xls o .csv (Las notas se capturan como números enteros)</p>
+          </div>
+
+          <div class="pt-2 flex flex-wrap items-center justify-center gap-2">
+            <button 
+              type="button" 
+              onclick="event.stopPropagation(); downloadExcelTemplate('xlsx');"
+              class="px-3.5 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 shadow-2xs flex items-center gap-1.5 cursor-pointer"
+            >
+              <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-emerald-600"></i>
+              <span>Descargar Plantilla Excel (.xlsx)</span>
+            </button>
+            <button 
+              type="button" 
+              onclick="event.stopPropagation(); downloadExcelTemplate('csv');"
+              class="px-3.5 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 shadow-2xs flex items-center gap-1.5 cursor-pointer"
+            >
+              <i data-lucide="download" class="w-3.5 h-3.5 text-teal-600"></i>
+              <span>Descargar Plantilla (.csv)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Previsualización de Datos Detectados (Oculto hasta que se cargue un archivo) -->
+        <div id="excel-preview-container" class="space-y-4 hidden animate-in fade-in duration-200">
+          
+          <div class="flex flex-wrap items-center justify-between gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span id="excel-file-name-badge" class="font-bold text-xs text-slate-900 dark:text-slate-100">archivo.xlsx</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <span id="excel-stat-total" class="px-2.5 py-0.5 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold text-[11px]">0 Alumnos</span>
+              <span id="excel-stat-materias" class="px-2.5 py-0.5 rounded-lg bg-brand-100 dark:bg-brand-950/60 text-brand-800 dark:text-brand-300 font-bold text-[11px]">0 Materias</span>
+            </div>
+          </div>
+
+          <!-- Opciones de Importación -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-50/70 dark:bg-slate-800/60 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 text-[11px]">
+            <label class="flex items-center gap-2 cursor-pointer font-medium text-slate-700 dark:text-slate-300">
+              <input type="checkbox" id="excel-opt-auto-register" checked class="rounded text-emerald-600 focus:ring-emerald-500" />
+              <span>Inscribir automáticamente nuevos alumnos</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer font-medium text-slate-700 dark:text-slate-300">
+              <input type="checkbox" id="excel-opt-auto-materias" checked class="rounded text-emerald-600 focus:ring-emerald-500" />
+              <span>Agregar materias nuevas detectadas en el Excel</span>
+            </label>
+          </div>
+
+          <!-- Tabla de Previsualización -->
+          <div class="border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-2xs">
+            <div class="overflow-x-auto max-h-60">
+              <table class="w-full text-left text-xs min-w-[500px]">
+                <thead id="excel-preview-thead" class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 uppercase font-bold sticky top-0 border-b border-slate-200 dark:border-slate-700"></thead>
+                <tbody id="excel-preview-tbody" class="divide-y divide-slate-100 dark:divide-slate-700 text-slate-700 dark:text-slate-300"></tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Pie del Modal -->
+      <div class="bg-slate-50 dark:bg-slate-800 px-6 py-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between gap-3 shrink-0">
+        <button type="button" onclick="closeImportExcelModal()" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-all cursor-pointer">
+          Cancelar
+        </button>
+        <button 
+          id="btn-apply-excel"
+          disabled
+          onclick="applyExcelGradesImport()" 
+          class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md transition-all cursor-pointer"
+        >
+          <i data-lucide="check-circle" class="w-4 h-4"></i>
+          <span>Aplicar y Capturar Calificaciones</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <!-- Footer en Vistas Sin Sidebar -->
   <footer id="global-footer" class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700/80 py-4 mt-auto">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 dark:text-slate-400 gap-2">
@@ -2086,7 +2343,7 @@
         <span>• Plataforma Escolar Inteligente</span>
       </div>
       <div class="flex items-center gap-4">
-        <span>Cupo Contratado: <strong id="footer-capacidad-num" class="text-brand-600 dark:text-brand-400">30 Alumnos</strong></span>
+        <span>Plan Docente: <strong class="text-brand-600 dark:text-brand-400">$50 MXN/mes</strong> • Alumnos Ilimitados</span>
       </div>
     </div>
   </footer>

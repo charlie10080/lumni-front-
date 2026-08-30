@@ -15,8 +15,9 @@
     let gradesSortCol = '';
     let gradesSortDir = 'asc';
 
-    // Datos del Maestro & Suscripción Escolar Variable ($20 MXN por Alumno)
-    const PRECIO_POR_ALUMNO = 20;
+    // Datos del Maestro & Suscripción Docente ($250 MXN inicial / $50 MXN al mes)
+    const SUSCRIPCION_INICIAL = 250;
+    const SUSCRIPCION_MENSUAL = 50;
 
     let maestroState = JSON.parse(localStorage.getItem('lumni_maestro')) || {
       nombre: 'Prof. Carlos Mendoza Morales',
@@ -24,64 +25,37 @@
       grupo: '3er Grado Grupo B',
       colegio: 'Lumni',
       ciclo: '2026-2027',
-      maxAlumnos: 30
+      maxAlumnos: 50,
+      suscripcion: {
+        estado: 'activa',
+        plan: 'Docente Pro',
+        pagoInicial: 250,
+        mensualidad: 50,
+        fechaInicio: '2026-08-01',
+        proximoPago: '01 de Octubre 2026',
+        ultimoPagoMonto: 250,
+        mesesActivo: 1
+      }
     };
-    if (!maestroState.maxAlumnos) maestroState.maxAlumnos = 30;
+    if (!maestroState.suscripcion) {
+      maestroState.suscripcion = {
+        estado: 'activa',
+        plan: 'Docente Pro',
+        pagoInicial: 250,
+        mensualidad: 50,
+        fechaInicio: '2026-08-01',
+        proximoPago: '01 de Octubre 2026',
+        ultimoPagoMonto: 250,
+        mesesActivo: 1
+      };
+    }
 
     function getMaxAlumnos() {
-      return parseInt(maestroState.maxAlumnos, 10) || 30;
+      return parseInt(maestroState.maxAlumnos, 10) || 50;
     }
 
     function getActiveAlumnosCount() {
-      return alumnosState.filter(a => (a.suscripcion || 'activa') !== 'cancelada').length;
-    }
-
-    function handleSubscriptionSlider(val) {
-      const num = parseInt(val, 10) || 1;
-      maestroState.maxAlumnos = num;
-      const numInput = document.getElementById('sub-number-input');
-      if (numInput) numInput.value = num;
-      const configMax = document.getElementById('config_max_alumnos');
-      if (configMax) configMax.value = num;
-      updateTeacherViews();
-    }
-
-    function handleSubscriptionNumberInput(val) {
-      let num = parseInt(val, 10);
-      if (isNaN(num) || num < 1) num = 1;
-      if (num > 200) num = 200;
-      maestroState.maxAlumnos = num;
-      const slider = document.getElementById('sub-range-slider');
-      if (slider) slider.value = Math.min(num, 60);
-      const configMax = document.getElementById('config_max_alumnos');
-      if (configMax) configMax.value = num;
-      updateTeacherViews();
-    }
-
-    function adjustSubscriptionCount(delta) {
-      let current = getMaxAlumnos();
-      let next = Math.max(current + delta, 1);
-      maestroState.maxAlumnos = next;
-      const slider = document.getElementById('sub-range-slider');
-      if (slider) slider.value = Math.min(next, 60);
-      const numInput = document.getElementById('sub-number-input');
-      if (numInput) numInput.value = next;
-      const configMax = document.getElementById('config_max_alumnos');
-      if (configMax) configMax.value = next;
-      updateTeacherViews();
-    }
-
-    function setQuickMaxAlumnos(val) {
-      const maxInput = document.getElementById('config_max_alumnos');
-      if (maxInput) maxInput.value = val;
-      const numInput = document.getElementById('sub-number-input');
-      if (numInput) numInput.value = val;
-      const slider = document.getElementById('sub-range-slider');
-      if (slider) slider.value = Math.min(val, 60);
-      maestroState.maxAlumnos = val;
-      saveState();
-      updateTeacherViews();
-      showToast(`Cupo de suscripción ajustado a ${val} alumnos ($${val * PRECIO_POR_ALUMNO} MXN/mes)`, "success");
+      return alumnosState.length;
     }
 
     // Plantilla de Materias Dinámicas
@@ -92,45 +66,82 @@
       'Historia'
     ];
 
-    // Alumnos Registrados con Estado de Suscripción / Pago
+    // Alumnos Registrados con Registro Completo y CURP (Hasta el Género: 11 caracteres)
     let alumnosState = JSON.parse(localStorage.getItem('lumni_alumnos')) || [
       {
         uuid: 'alu-9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d',
+        nombres: 'Sofía',
+        primerApellido: 'Martínez',
+        segundoApellido: 'Ruiz',
         nombre: 'Sofía Martínez Ruiz',
+        fechaNacimiento: '2017-05-14',
+        sexo: 'M',
+        curp: 'MARS170514M',
         tutor: 'Carmen Ruiz García',
         telefono: '+52 55 9876 5432',
         suscripcion: 'activa',
         asistenciaHoy: 'presente',
         horaAsistencia: '08:02 AM',
         asistenciasTotales: { presentes: 22, retardos: 1, faltas: 0 },
-        calificaciones: { 'Español': 9.5, 'Matemáticas': 9.0, 'Ciencias Naturales': 10.0, 'Historia': 9.5 }
+        calificaciones: { 'Español': 10, 'Matemáticas': 9, 'Ciencias Naturales': 10, 'Historia': 10 }
       },
       {
         uuid: 'alu-1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d',
+        nombres: 'Mateo',
+        primerApellido: 'Hernández',
+        segundoApellido: 'Vega',
         nombre: 'Mateo Hernández Vega',
+        fechaNacimiento: '2017-08-20',
+        sexo: 'H',
+        curp: 'HEVM170820H',
         tutor: 'Roberto Hernández',
         telefono: '+52 55 4321 8765',
         suscripcion: 'activa',
         asistenciaHoy: 'presente',
         horaAsistencia: '08:15 AM',
         asistenciasTotales: { presentes: 20, retardos: 2, faltas: 1 },
-        calificaciones: { 'Español': 8.8, 'Matemáticas': 8.5, 'Ciencias Naturales': 9.0, 'Historia': 8.5 }
+        calificaciones: { 'Español': 9, 'Matemáticas': 8, 'Ciencias Naturales': 9, 'Historia': 8 }
       },
       {
         uuid: 'alu-5f6e7d8c-9b0a-1a2b-3c4d-5e6f7a8b9c0d',
+        nombres: 'Valentina',
+        primerApellido: 'López',
+        segundoApellido: 'Cruz',
         nombre: 'Valentina López Cruz',
+        fechaNacimiento: '2017-11-03',
+        sexo: 'M',
+        curp: 'LOCV171103M',
         tutor: 'Laura Cruz Mendoza',
         telefono: '+52 55 6789 0123',
         suscripcion: 'activa',
         asistenciaHoy: 'pendiente',
         horaAsistencia: '--:--',
         asistenciasTotales: { presentes: 19, retardos: 0, faltas: 2 },
-        calificaciones: { 'Español': 9.2, 'Matemáticas': 9.0, 'Ciencias Naturales': 9.5, 'Historia': 9.0 }
+        calificaciones: { 'Español': 9, 'Matemáticas': 9, 'Ciencias Naturales': 10, 'Historia': 9 }
       }
     ];
 
     alumnosState.forEach(a => {
       if (!a.suscripcion) a.suscripcion = 'activa';
+      if (!a.curp) {
+        a.curp = a.uuid ? a.uuid.substring(0, 11).toUpperCase() : 'CURP' + Date.now();
+      }
+      if (a.curp && a.curp.length > 11) {
+        // Recortar a 11 caracteres si tenía CURP completa previa
+        a.curp = a.curp.substring(0, 11);
+      }
+      if (!a.nombres && a.nombre) {
+        const parts = a.nombre.split(' ');
+        a.nombres = parts[0] || 'Alumno';
+        a.primerApellido = parts[1] || '';
+        a.segundoApellido = parts.slice(2).join(' ') || '';
+      }
+      // Asegurar enteros en materias existentes
+      if (a.calificaciones) {
+        Object.keys(a.calificaciones).forEach(k => {
+          a.calificaciones[k] = Math.round(parseFloat(a.calificaciones[k]) || 9);
+        });
+      }
     });
 
     // Proyectos Escolares
@@ -399,15 +410,43 @@
       }, 500);
     }
 
+    function parseGradoYGrupo(fullString) {
+      const str = (fullString || '3er Grado Grupo B').trim();
+      let grado = '3er Grado';
+      let grupo = 'Grupo B';
+
+      if (str.includes('1er') || str.includes('1°') || str.startsWith('1')) grado = '1er Grado';
+      else if (str.includes('2do') || str.includes('2°') || str.startsWith('2')) grado = '2do Grado';
+      else if (str.includes('3er') || str.includes('3°') || str.startsWith('3')) grado = '3er Grado';
+      else if (str.includes('4to') || str.includes('4°') || str.startsWith('4')) grado = '4to Grado';
+      else if (str.includes('5to') || str.includes('5°') || str.startsWith('5')) grado = '5to Grado';
+      else if (str.includes('6to') || str.includes('6°') || str.startsWith('6')) grado = '6to Grado';
+
+      if (str.includes('Grupo A') || str.endsWith(' A') || str.endsWith('A')) grupo = 'Grupo A';
+      else if (str.includes('Grupo B') || str.endsWith(' B') || str.endsWith('B')) grupo = 'Grupo B';
+      else if (str.includes('Grupo C') || str.endsWith(' C') || str.endsWith('C')) grupo = 'Grupo C';
+      else if (str.includes('Grupo D') || str.endsWith(' D') || str.endsWith('D')) grupo = 'Grupo D';
+      else if (str.includes('Grupo E') || str.endsWith(' E') || str.endsWith('E')) grupo = 'Grupo E';
+      else if (str.includes('Grupo F') || str.endsWith(' F') || str.endsWith('F')) grupo = 'Grupo F';
+
+      return { grado, grupo };
+    }
+
     function handleTeacherRegisterSubmit(e) {
       e.preventDefault();
       const btn = e.target.querySelector('button[type="submit"]');
+
+      const gradoSel = document.getElementById('reg_grado_sel');
+      const grupoSel = document.getElementById('reg_grupo_sel');
+      const grupoFormateado = (gradoSel && grupoSel) 
+        ? `${gradoSel.value} ${grupoSel.value}` 
+        : (document.getElementById('reg_grupo')?.value?.trim() || '3er Grado Grupo B');
 
       const payload = {
         nombre: document.getElementById('reg_nombre').value.trim(),
         email: document.getElementById('reg_correo').value.trim(),
         password: document.getElementById('reg_password').value.trim(),
-        grupo: document.getElementById('reg_grupo').value.trim(),
+        grupo: grupoFormateado,
         telefono: "No especificado",
         plan: "Individual"
       };
@@ -432,13 +471,19 @@
           maestroState.nombre = payload.nombre;
           maestroState.correo = payload.email;
           maestroState.grupo = payload.grupo;
-          // Optionally save data from backend response if needed
           saveState();
 
           openTeacherDashboard();
           showToast(`¡Registro completado! Bienvenido(a), ${maestroState.nombre}`, "success");
         } catch (err) {
-          showToast(err.message, "error");
+          // Si el backend no está disponible, registrar en modo local
+          maestroState.nombre = payload.nombre;
+          maestroState.correo = payload.email;
+          maestroState.grupo = payload.grupo;
+          saveState();
+
+          openTeacherDashboard();
+          showToast(`¡Registro completado! Bienvenido(a), ${maestroState.nombre}`, "success");
         }
       });
     }
@@ -507,30 +552,135 @@
     }
 
     // ==========================================================
-    // 4. FLUJO PADRE: ACCESO QR & VISTA INDEPENDIENTE
+    // 4. FLUJO PADRE: ACCESO POR CURP / QR & VISTA INDEPENDIENTE
     // ==========================================================
-    function handleParentSearchSubmit() {
-      const input = document.getElementById('padre_search_input');
-      const val = input.value.trim();
-      if (!val) {
-        showToast("Por favor ingresa el Código ID del alumno.", "error");
-        return;
+    function generateSuggestedCURP(nombres, primerApellido, segundoApellido, fechaNac, sexo) {
+      const pNom = (nombres || '').trim().toUpperCase();
+      const pPat = (primerApellido || '').trim().toUpperCase();
+      const pMat = (segundoApellido || '').trim().toUpperCase();
+      const s = (sexo || 'M').toUpperCase().startsWith('H') ? 'H' : 'M';
+
+      if (!pNom || !pPat || !fechaNac) {
+        return '';
       }
-      openParentPortalByUuid(val);
+
+      // 1. Letra inicial del primer apellido
+      const c1 = pPat.charAt(0) || 'X';
+
+      // 2. Primera vocal interna del primer apellido
+      let c2 = 'X';
+      for (let i = 1; i < pPat.length; i++) {
+        if ('AEIOUÁÉÍÓÚ'.includes(pPat.charAt(i))) {
+          const v = pPat.charAt(i);
+          c2 = v === 'Á' ? 'A' : (v === 'É' ? 'E' : (v === 'Í' ? 'I' : (v === 'Ó' ? 'O' : (v === 'Ú' ? 'U' : v))));
+          break;
+        }
+      }
+
+      // 3. Letra inicial del segundo apellido (o X si no tiene)
+      const c3 = pMat.length > 0 ? pMat.charAt(0) : 'X';
+
+      // 4. Letra inicial del primer nombre (filtrando Jose/Maria si hay segundo nombre)
+      const nameParts = pNom.split(/\s+/);
+      let mainName = nameParts[0];
+      if (nameParts.length > 1 && (mainName === 'JOSE' || mainName === 'JOSÉ' || mainName === 'MARIA' || mainName === 'MARÍA')) {
+        mainName = nameParts[1];
+      }
+      const c4 = mainName.charAt(0) || 'X';
+
+      // 5. Fecha de nacimiento AAMMDD (6 dígitos)
+      const dateParts = fechaNac.split('-'); // YYYY-MM-DD
+      let year = '00', month = '01', day = '01';
+      if (dateParts.length === 3) {
+        year = dateParts[0].slice(-2);
+        month = dateParts[1].padStart(2, '0');
+        day = dateParts[2].padStart(2, '0');
+      }
+      const c5_10 = `${year}${month}${day}`;
+
+      // 6. Sexo (H o M) -> Llega exactamente hasta el género (11 caracteres)
+      const c11 = s;
+
+      return `${c1}${c2}${c3}${c4}${c5_10}${c11}`.toUpperCase();
     }
 
-    function openParentPortalByUuid(uuidQuery) {
-      const q = uuidQuery.toLowerCase().trim();
-      const alumno = alumnosState.find(a => a.uuid.toLowerCase() === q || a.uuid.toLowerCase().includes(q));
+    function autoGenerateCurpPreview() {
+      const nombres = document.getElementById('alumno_nombres')?.value;
+      const paterno = document.getElementById('alumno_paterno')?.value;
+      const materno = document.getElementById('alumno_materno')?.value;
+      const fecha = document.getElementById('alumno_fecha_nac')?.value;
+      const sexo = document.getElementById('alumno_sexo')?.value;
+      const curpInput = document.getElementById('alumno_curp');
 
-      if (!alumno) {
-        showToast("Código ID no válido. Verifica la credencial del alumno.", "error");
+      if (curpInput && (!curpInput.value || curpInput.dataset.autoGenerated === 'true')) {
+        const suggested = generateSuggestedCURP(nombres, paterno, materno, fecha, sexo);
+        if (suggested && suggested.length === 11) {
+          curpInput.value = suggested;
+          curpInput.dataset.autoGenerated = 'true';
+        }
+      }
+    }
+
+    function autoGenerateCurpEditPreview() {
+      const nombres = document.getElementById('edit-alumno-nombres')?.value;
+      const paterno = document.getElementById('edit-alumno-paterno')?.value;
+      const materno = document.getElementById('edit-alumno-materno')?.value;
+      const fecha = document.getElementById('edit-alumno-fecha-nac')?.value;
+      const sexo = document.getElementById('edit-alumno-sexo')?.value;
+      const curpInput = document.getElementById('edit-alumno-curp');
+
+      if (curpInput && (!curpInput.value || curpInput.dataset.autoGenerated === 'true')) {
+        const suggested = generateSuggestedCURP(nombres, paterno, materno, fecha, sexo);
+        if (suggested && suggested.length === 11) {
+          curpInput.value = suggested;
+          curpInput.dataset.autoGenerated = 'true';
+        }
+      }
+    }
+
+    function sugerirCURPForm(isEdit = false) {
+      const prefix = isEdit ? 'edit-alumno-' : 'alumno_';
+      const nombres = document.getElementById(prefix + (isEdit ? 'nombres' : 'nombres'))?.value;
+      const paterno = document.getElementById(prefix + (isEdit ? 'paterno' : 'paterno'))?.value;
+      const materno = document.getElementById(prefix + (isEdit ? 'materno' : 'materno'))?.value;
+      const fecha = document.getElementById(prefix + (isEdit ? 'fecha-nac' : 'fecha_nac'))?.value;
+      const sexo = document.getElementById(prefix + (isEdit ? 'sexo' : 'sexo'))?.value;
+      const curpInput = document.getElementById(prefix + (isEdit ? 'curp' : 'curp'));
+
+      if (!nombres || !paterno || !fecha) {
+        showToast("Ingresa nombre, apellido paterno y fecha de nacimiento primero.", "info");
         return;
       }
 
-      if ((alumno.suscripcion || 'activa') === 'cancelada') {
-        playScanChime('warning');
-        alert(`⚠️ Cuenta Desactivada / Sin Pago\n\nEl acceso al portal escolar para ${alumno.nombre} se encuentra temporalmente desactivado por falta de pago de suscripción escolar ($20 MXN/mes).\n\nComunícate con el docente (${maestroState.nombre}) para reactivar el servicio.`);
+      const suggested = generateSuggestedCURP(nombres, paterno, materno, fecha, sexo);
+      if (suggested) {
+        curpInput.value = suggested;
+        curpInput.dataset.autoGenerated = 'true';
+        showToast("CURP sugerida generada", "success");
+      }
+    }
+
+    function handleParentSearchSubmit() {
+      const input = document.getElementById('padre_search_input');
+      const val = input?.value.trim();
+      if (!val) {
+        showToast("Por favor ingresa la CURP oficial o Código ID del alumno.", "error");
+        return;
+      }
+      openParentPortalByQuery(val);
+    }
+
+    function openParentPortalByQuery(query) {
+      const q = (query || '').toLowerCase().trim();
+      const alumno = alumnosState.find(a => {
+        const curpMatch = a.curp && a.curp.toLowerCase().trim() === q;
+        const uuidMatch = a.uuid && (a.uuid.toLowerCase() === q || a.uuid.toLowerCase().includes(q));
+        const nombreMatch = a.nombre && a.nombre.toLowerCase().trim() === q;
+        return curpMatch || uuidMatch || nombreMatch;
+      });
+
+      if (!alumno) {
+        showToast("No se encontró ningún alumno con esa CURP o Código. Verifica los datos.", "error");
         return;
       }
 
@@ -543,10 +693,20 @@
       showToast(`Reporte de Evaluación de ${alumno.nombre} cargado`, "success");
     }
 
+    function openParentPortalByUuid(uuidQuery) {
+      openParentPortalByQuery(uuidQuery);
+    }
+
     function renderParentPortal(alumno) {
       // 1. Datos del Alumno
       document.getElementById('p-avatar').textContent = alumno.nombre.charAt(0).toUpperCase();
       document.getElementById('p-nombre').textContent = alumno.nombre;
+      
+      const curpBadge = document.getElementById('p-curp-badge');
+      if (curpBadge) {
+        curpBadge.textContent = `CURP: ${alumno.curp || 'SIN-CURP'}`;
+      }
+
       document.getElementById('p-grupo-tutor').textContent = `${maestroState.grupo} • Tutor: ${alumno.tutor}`;
       document.getElementById('p-profesor').textContent = `Docente Titular: ${maestroState.nombre}`;
       document.getElementById('p_msg_tutor_name').value = alumno.tutor;
@@ -562,13 +722,14 @@
       document.getElementById('p-asist-rate-badge').textContent = `${rate}%`;
       document.getElementById('p-asist-hoy-badge').textContent = alumno.asistenciaHoy === 'presente' ? `Presente (${alumno.horaAsistencia})` : (alumno.asistenciaHoy === 'retardo' ? 'Retardo' : 'Pendiente / Falta');
 
-      // 3. Reporte de Evaluación (Redondeado Sin Decimales con Math.round)
+      // 3. Reporte de Evaluación (Materias Enteras • Promedio con Decimales)
       const matContainer = document.getElementById('p-materias-list');
       let sum = 0, count = 0;
 
       matContainer.innerHTML = materiasState.map(m => {
-        const cal = (alumno.calificaciones && alumno.calificaciones[m] !== undefined) ? alumno.calificaciones[m] : 9.0;
-        sum += parseFloat(cal);
+        const rawCal = (alumno.calificaciones && alumno.calificaciones[m] !== undefined) ? alumno.calificaciones[m] : 9;
+        const cal = Math.round(parseFloat(rawCal) || 0);
+        sum += cal;
         count++;
         return `
           <div class="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
@@ -580,8 +741,8 @@
         `;
       }).join('');
 
-      const avgRounded = count > 0 ? Math.round(sum / count) : 10;
-      document.getElementById('p-promedio-general').textContent = `Promedio General: ${avgRounded}`;
+      const avgDecimal = count > 0 ? (sum / count).toFixed(1) : '10.0';
+      document.getElementById('p-promedio-general').textContent = `Promedio General: ${avgDecimal}`;
 
       // 4. Proyectos Escolares
       const projContainer = document.getElementById('p-proyectos-list');
@@ -716,8 +877,8 @@
       const container = document.getElementById('parent-auth-demo-chips');
       if (!container) return;
       container.innerHTML = alumnosState.slice(0, 3).map(a => `
-        <button onclick="openParentPortalByUuid('${a.uuid}')" class="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/40 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 rounded-lg font-bold text-[11px] transition-all cursor-pointer">
-          ${a.nombre.split(' ')[0]} (${a.uuid.substring(0, 8)}...)
+        <button onclick="openParentPortalByQuery('${a.curp || a.uuid}')" class="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/40 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 rounded-lg font-bold text-[11px] transition-all cursor-pointer">
+          ${a.nombres || a.nombre.split(' ')[0]} (CURP: ${(a.curp || a.uuid).substring(0, 10)}...)
         </button>
       `).join('');
     }
@@ -815,11 +976,16 @@
       input.value = '';
     }
 
-    function handleAttendanceScan(scannedUuid) {
-      const a = alumnosState.find(x => x.uuid.toLowerCase() === scannedUuid.toLowerCase() || x.uuid.includes(scannedUuid));
+    function handleAttendanceScan(scannedCode) {
+      const q = (scannedCode || '').toLowerCase().trim();
+      const a = alumnosState.find(x => 
+        (x.curp && x.curp.toLowerCase().trim() === q) ||
+        (x.uuid && x.uuid.toLowerCase() === q) || 
+        (x.uuid && x.uuid.toLowerCase().includes(q))
+      );
       if (!a) {
         playScanChime('error');
-        showToast("Código QR no reconocido en el grupo.", "error");
+        showToast("Código QR / CURP no reconocido en el grupo.", "error");
         return;
       }
 
@@ -1210,7 +1376,16 @@
       e.preventDefault();
       maestroState.nombre = document.getElementById('config_nombre').value.trim();
       maestroState.correo = document.getElementById('config_correo').value.trim();
-      maestroState.grupo = document.getElementById('config_grupo').value.trim();
+      
+      const gradoConfig = document.getElementById('config_grado_sel')?.value;
+      const grupoConfig = document.getElementById('config_grupo_sel')?.value;
+      if (gradoConfig && grupoConfig) {
+        maestroState.grupo = `${gradoConfig} ${grupoConfig}`;
+      } else {
+        const configGrupo = document.getElementById('config_grupo');
+        if (configGrupo) maestroState.grupo = configGrupo.value.trim();
+      }
+
       maestroState.colegio = document.getElementById('config_colegio').value.trim();
       maestroState.ciclo = document.getElementById('config_ciclo').value.trim();
 
@@ -1316,6 +1491,13 @@
       if(configNombre) configNombre.value = maestroState.nombre;
       const configCorreo = document.getElementById('config_correo');
       if(configCorreo) configCorreo.value = maestroState.correo;
+
+      const { grado: currentGrado, grupo: currentGrupo } = parseGradoYGrupo(maestroState.grupo);
+      const configGradoSel = document.getElementById('config_grado_sel');
+      if (configGradoSel) configGradoSel.value = currentGrado;
+      const configGrupoSel = document.getElementById('config_grupo_sel');
+      if (configGrupoSel) configGrupoSel.value = currentGrupo;
+
       const configGrupo = document.getElementById('config_grupo');
       if(configGrupo) configGrupo.value = maestroState.grupo;
       const configColegio = document.getElementById('config_colegio');
@@ -1327,63 +1509,29 @@
       const configMaxInput = document.getElementById('config_max_alumnos');
       if (configMaxInput) configMaxInput.value = maxAlumnos;
 
-      const subNumberInput = document.getElementById('sub-number-input');
-      if (subNumberInput) subNumberInput.value = maxAlumnos;
-
-      const subRangeSlider = document.getElementById('sub-range-slider');
-      if (subRangeSlider) subRangeSlider.value = Math.min(maxAlumnos, 60);
-
-      const subSliderBadge = document.getElementById('sub-slider-badge');
-      if (subSliderBadge) subSliderBadge.textContent = `${maxAlumnos} alumnos`;
-
-      const totalPrecioMensual = maxAlumnos * PRECIO_POR_ALUMNO;
-      const subTotalPrecio = document.getElementById('sub-total-precio');
-      if (subTotalPrecio) subTotalPrecio.textContent = `$${totalPrecioMensual.toLocaleString('es-MX')} MXN`;
-
-      const activeCount = getActiveAlumnosCount();
       const totalEnrolled = alumnosState.length;
-      const descartadosCount = Math.max(totalEnrolled - activeCount, 0);
-      const percent = Math.min(Math.round((activeCount / maxAlumnos) * 100), 100);
-      const disponibles = Math.max(maxAlumnos - activeCount, 0);
 
-      document.getElementById('dash-count-current').textContent = activeCount;
-      const dashCountMax = document.getElementById('dash-count-max');
-      if (dashCountMax) dashCountMax.textContent = maxAlumnos;
-      document.getElementById('dash-limit-percent').textContent = `${percent}%`;
-      document.getElementById('dash-disponibles-txt').textContent = disponibles;
+      // Dashboard
+      const dashCountCurrent = document.getElementById('dash-count-current');
+      if (dashCountCurrent) dashCountCurrent.textContent = totalEnrolled;
 
-      const cupoDispTab = document.getElementById('cupo-disponible-tab');
-      if (cupoDispTab) cupoDispTab.textContent = disponibles;
+      // Alumnos Tab
       const cupoMaxTab = document.getElementById('cupo-max-tab');
-      if (cupoMaxTab) cupoMaxTab.textContent = maxAlumnos;
+      if (cupoMaxTab) cupoMaxTab.textContent = totalEnrolled;
 
-      document.getElementById('tabla-total-badge').textContent = `${totalEnrolled} Alumnos (${activeCount} que pagan • $${activeCount * PRECIO_POR_ALUMNO} MXN)`;
-      document.getElementById('sidebar-capacidad-txt').textContent = `${activeCount} / ${maxAlumnos}`;
+      const tablaTotalBadge = document.getElementById('tabla-total-badge');
+      if (tablaTotalBadge) tablaTotalBadge.textContent = `${totalEnrolled} Alumnos Registrados`;
 
-      // Actualizar tarjeta de plan en Configuración
-      const planCupoBadge = document.getElementById('plan-cupo-badge');
-      if (planCupoBadge) planCupoBadge.textContent = `${maxAlumnos} Alumnos ($${totalPrecioMensual} MXN)`;
-      const planCupoTotal = document.getElementById('plan-cupo-total');
-      if (planCupoTotal) planCupoTotal.textContent = maxAlumnos;
-      const planActivosCount = document.getElementById('plan-activos-count');
-      if (planActivosCount) planActivosCount.textContent = activeCount;
-      const subStatActivosPesos = document.getElementById('sub-stat-activos-pesos');
-      if (subStatActivosPesos) subStatActivosPesos.textContent = `$${activeCount * PRECIO_POR_ALUMNO} MXN/mes`;
-      const subStatDescartados = document.getElementById('sub-stat-descartados');
-      if (subStatDescartados) subStatDescartados.textContent = descartadosCount;
+      // Sidebar Plan Docente
+      const sidebarCapacidad = document.getElementById('sidebar-capacidad-txt');
+      if (sidebarCapacidad) sidebarCapacidad.textContent = `$${SUSCRIPCION_MENSUAL} MXN/mes`;
 
-      // Footer
-      const footerNum = document.getElementById('footer-capacidad-num');
-      if (footerNum) footerNum.textContent = `${maxAlumnos} Alumnos ($${totalPrecioMensual} MXN/mes)`;
+      // Tarjeta de Suscripción en Configuración
+      const cfgAlu = document.getElementById('config-alumnos-total');
+      if (cfgAlu) cfgAlu.textContent = totalEnrolled;
 
-      const progressBar = document.getElementById('dash-progress-bar');
-      progressBar.style.width = `${percent}%`;
-      if (percent >= 90) progressBar.className = "h-full rounded-full bg-gradient-to-r from-rose-500 to-red-600 transition-all duration-500";
-      else if (percent >= 70) progressBar.className = "h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500";
-      else progressBar.className = "h-full rounded-full bg-gradient-to-r from-brand-500 to-indigo-600 transition-all duration-500";
-
-      const sidebarBar = document.getElementById('sidebar-progress-bar');
-      if (sidebarBar) sidebarBar.style.width = `${percent}%`;
+      const subProximo = document.getElementById('sub-proximo-cobro');
+      if (subProximo) subProximo.textContent = maestroState.suscripcion?.proximoPago || '01 de Octubre 2026';
 
       const presentes = alumnosState.filter(a => a.asistenciaHoy === 'presente').length;
       const rate = totalEnrolled > 0 ? Math.round((presentes / totalEnrolled) * 100) : 0;
@@ -1436,7 +1584,7 @@
       materiasState.forEach(m => {
         headersHtml += `<th class="px-3 py-3 text-center cursor-pointer select-none" onclick="sortGrades('${m}')">${m} ${getSortIcon(m)}</th>`;
       });
-      headersHtml += `<th class="px-4 py-3 text-center cursor-pointer select-none" onclick="sortGrades('promedio')">Promedio (Entero) ${getSortIcon('promedio')}</th>`;
+      headersHtml += `<th class="px-4 py-3 text-center cursor-pointer select-none" onclick="sortGrades('promedio')">Promedio General ${getSortIcon('promedio')}</th>`;
       headersHtml += `<th class="px-3 py-3 text-right">Boleta</th></tr>`;
       thead.innerHTML = headersHtml;
 
@@ -1453,13 +1601,13 @@
             valA = a.nombre.toLowerCase();
             valB = b.nombre.toLowerCase();
           } else if (gradesSortCol === 'promedio') {
-            const promA = materiasState.reduce((acc, m) => acc + (parseFloat(a.calificaciones?.[m]) || 9.0), 0) / (materiasState.length || 1);
-            const promB = materiasState.reduce((acc, m) => acc + (parseFloat(b.calificaciones?.[m]) || 9.0), 0) / (materiasState.length || 1);
-            valA = Math.round(promA);
-            valB = Math.round(promB);
+            const promA = materiasState.reduce((acc, m) => acc + (parseInt(a.calificaciones?.[m], 10) || 9), 0) / (materiasState.length || 1);
+            const promB = materiasState.reduce((acc, m) => acc + (parseInt(b.calificaciones?.[m], 10) || 9), 0) / (materiasState.length || 1);
+            valA = promA;
+            valB = promB;
           } else {
-            valA = parseFloat(a.calificaciones?.[gradesSortCol]) || 9.0;
-            valB = parseFloat(b.calificaciones?.[gradesSortCol]) || 9.0;
+            valA = parseInt(a.calificaciones?.[gradesSortCol], 10) || 9;
+            valB = parseInt(b.calificaciones?.[gradesSortCol], 10) || 9;
           }
 
           if (valA < valB) return gradesSortDir === 'asc' ? -1 : 1;
@@ -1476,29 +1624,30 @@
 
         let sum = 0, count = 0;
         materiasState.forEach(m => {
-          const val = alumno.calificaciones[m] !== undefined ? alumno.calificaciones[m] : 9.0;
-          sum += parseFloat(val) || 0;
+          const rawVal = alumno.calificaciones[m] !== undefined ? alumno.calificaciones[m] : 9;
+          const val = Math.round(parseFloat(rawVal) || 0);
+          sum += val;
           count++;
 
           rowHtml += `
             <td class="px-3 py-2 text-center">
               <input
                 type="number"
-                step="0.1"
-                min="5"
+                step="1"
+                min="0"
                 max="10"
                 value="${val}"
-                onchange="updateDynamicGrade(${aIdx}, '${m}', this.value)"
+                oninput="updateDynamicGrade(${aIdx}, '${m}', this.value)"
                 class="w-16 text-center py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold focus:bg-white dark:bg-slate-900 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600"
               />
             </td>
           `;
         });
 
-        const promRounded = count > 0 ? Math.round(sum / count) : 10;
+        const avgDecimal = count > 0 ? (sum / count).toFixed(1) : '10.0';
         rowHtml += `
-          <td class="px-4 py-3 text-center font-extrabold text-brand-600 dark:text-brand-400 text-sm" id="prom-alumno-${aIdx}">
-            ${promRounded}
+          <td class="px-4 py-3 text-center font-extrabold text-brand-600 dark:text-brand-400 text-sm font-mono" id="prom-alumno-${aIdx}">
+            ${avgDecimal}
           </td>
           <td class="px-3 py-3 text-right">
             <button onclick="openBoletaModal('${alumno.uuid}')" class="px-2 py-1 bg-brand-50 dark:bg-brand-900/40 hover:bg-brand-100 text-brand-700 dark:text-brand-300 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1 cursor-pointer">
@@ -1514,17 +1663,22 @@
 
     function updateDynamicGrade(alumnoIdx, materia, value) {
       const alumno = alumnosState[alumnoIdx];
+      if (!alumno) return;
       if (!alumno.calificaciones) alumno.calificaciones = {};
-      alumno.calificaciones[materia] = parseFloat(value) || 0;
+      let intVal = parseInt(value, 10);
+      if (isNaN(intVal)) intVal = 0;
+      if (intVal > 10) intVal = 10;
+      if (intVal < 0) intVal = 0;
+      alumno.calificaciones[materia] = intVal;
 
       let sum = 0, count = 0;
       materiasState.forEach(m => {
-        sum += parseFloat(alumno.calificaciones[m]) || 0;
+        sum += (parseInt(alumno.calificaciones[m], 10) || 0);
         count++;
       });
-      const promRounded = count > 0 ? Math.round(sum / count) : 10;
+      const avgDecimal = count > 0 ? (sum / count).toFixed(1) : '10.0';
       const el = document.getElementById(`prom-alumno-${alumnoIdx}`);
-      if (el) el.textContent = promRounded;
+      if (el) el.textContent = avgDecimal;
 
       saveState();
     }
@@ -1984,12 +2138,13 @@
       document.getElementById('boleta-teacher-name').textContent = maestroState.nombre;
       document.getElementById('boleta-signature-teacher').textContent = maestroState.nombre;
 
-      // Calificaciones por Asignatura
+      // Calificaciones por Asignatura (Enteros en Materias • Decimal en Promedio)
       const tbody = document.getElementById('boleta-grades-tbody');
       let sum = 0;
       let count = 0;
       tbody.innerHTML = materiasState.map(m => {
-        const val = student.calificaciones?.[m] !== undefined ? parseFloat(student.calificaciones[m]) : 9.0;
+        const rawVal = student.calificaciones?.[m] !== undefined ? student.calificaciones[m] : 9;
+        const val = Math.round(parseFloat(rawVal) || 0);
         sum += val;
         count++;
         let rating = 'Sobresaliente';
@@ -2000,7 +2155,7 @@
         return `
           <tr class="hover:bg-slate-50 transition-colors">
             <td class="px-4 py-2.5 font-semibold text-slate-900">${m}</td>
-            <td class="px-4 py-2.5 text-center font-mono font-bold text-slate-800">${val.toFixed(1)}</td>
+            <td class="px-4 py-2.5 text-center font-mono font-bold text-slate-800">${val}</td>
             <td class="px-4 py-2.5 text-center text-xs font-semibold ${val >= 9 ? 'text-emerald-700' : (val >= 7 ? 'text-indigo-700' : 'text-amber-700')}">${rating}</td>
           </tr>
         `;
@@ -2118,11 +2273,32 @@
       const form = e.target;
       const btn = form.querySelector('button[type="submit"]');
 
+      const nombres = document.getElementById('alumno_nombres').value.trim();
+      const paterno = document.getElementById('alumno_paterno').value.trim();
+      const materno = document.getElementById('alumno_materno')?.value.trim() || '';
+      const fechaNac = document.getElementById('alumno_fecha_nac').value;
+      const sexo = document.getElementById('alumno_sexo').value;
+      let curp = document.getElementById('alumno_curp').value.trim().toUpperCase();
+      const tutor = document.getElementById('alumno_tutor').value.trim();
+      const telefono = document.getElementById('alumno_telefono').value.trim();
+
+      const nombre_completo = `${nombres} ${paterno} ${materno}`.trim();
+
+      if (!curp) {
+        curp = generateSuggestedCURP(nombres, paterno, materno, fechaNac, sexo) || ('CURP' + Date.now());
+      }
+
       const payload = {
         id_maestro: localStorage.getItem('currentTeacherId'),
-        nombre_completo: document.getElementById('alumno_nombre').value.trim(),
-        nombre_tutor: document.getElementById('alumno_tutor').value.trim(),
-        telefono_tutor: document.getElementById('alumno_telefono').value.trim()
+        nombres: nombres,
+        primer_apellido: paterno,
+        segundo_apellido: materno,
+        nombre_completo: nombre_completo,
+        fecha_nacimiento: fechaNac,
+        sexo: sexo,
+        curp: curp,
+        nombre_tutor: tutor,
+        telefono_tutor: telefono
       };
 
       withLoading(btn, async () => {
@@ -2141,10 +2317,16 @@
           const data = await res.json();
 
           const nuevoAlumno = {
-            uuid: data.alumno?.uuid || ('alu-' + crypto.randomUUID()),
-            nombre: payload.nombre_completo,
-            tutor: payload.nombre_tutor,
-            telefono: payload.telefono_tutor,
+            uuid: data?.alumno?.uuid || ('alu-' + crypto.randomUUID()),
+            nombres: nombres,
+            primerApellido: paterno,
+            segundoApellido: materno,
+            nombre: nombre_completo,
+            fechaNacimiento: fechaNac,
+            sexo: sexo,
+            curp: curp,
+            tutor: tutor,
+            telefono: telefono,
             suscripcion: 'activa',
             asistenciaHoy: 'pendiente',
             horaAsistencia: '--:--',
@@ -2152,16 +2334,42 @@
             calificaciones: {}
           };
 
-          materiasState.forEach(m => nuevoAlumno.calificaciones[m] = 9.0);
+          materiasState.forEach(m => nuevoAlumno.calificaciones[m] = 9);
 
           alumnosState.unshift(nuevoAlumno);
           updateTeacherViews();
           renderParentDemoChips();
           form.reset();
-          showToast("Alumno registrado con suscripción activa asignada", "success");
+          showToast(`¡Alumno ${nuevoAlumno.nombre} inscrito exitosamente!`, "success");
           openQrModal(nuevoAlumno.uuid);
         } catch (err) {
-          showToast(err.message, "error");
+          // Si el backend no está disponible, registrar en modo local
+          const nuevoAlumno = {
+            uuid: 'alu-' + crypto.randomUUID(),
+            nombres: nombres,
+            primerApellido: paterno,
+            segundoApellido: materno,
+            nombre: nombre_completo,
+            fechaNacimiento: fechaNac,
+            sexo: sexo,
+            curp: curp,
+            tutor: tutor,
+            telefono: telefono,
+            suscripcion: 'activa',
+            asistenciaHoy: 'pendiente',
+            horaAsistencia: '--:--',
+            asistenciasTotales: { presentes: 1, retardos: 0, faltas: 0 },
+            calificaciones: {}
+          };
+
+          materiasState.forEach(m => nuevoAlumno.calificaciones[m] = 9);
+
+          alumnosState.unshift(nuevoAlumno);
+          updateTeacherViews();
+          renderParentDemoChips();
+          form.reset();
+          showToast(`¡Alumno ${nuevoAlumno.nombre} inscrito en tu grupo!`, "success");
+          openQrModal(nuevoAlumno.uuid);
         }
       });
     }
@@ -2193,73 +2401,6 @@
       lucide.createIcons();
     }
 
-    let currentAlumnosStatusFilter = 'todos';
-
-    function setAlumnosFilter(status) {
-      currentAlumnosStatusFilter = status;
-      ['filter-alu-todos', 'filter-alu-activos', 'filter-alu-desactivados'].forEach(id => {
-        const btn = document.getElementById(id);
-        if (!btn) return;
-        btn.className = "px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer";
-      });
-
-      const activeBtn = document.getElementById(`filter-alu-${status}`);
-      if (activeBtn) {
-        if (status === 'activa' || status === 'activos') {
-          activeBtn.className = "px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-xs transition-all cursor-pointer";
-        } else if (status === 'desactivada' || status === 'desactivados') {
-          activeBtn.className = "px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-600 text-white shadow-xs transition-all cursor-pointer";
-        } else {
-          activeBtn.className = "px-2.5 py-1 rounded-lg text-xs font-bold bg-brand-600 text-white shadow-xs transition-all cursor-pointer";
-        }
-      }
-
-      filterAlumnosTable();
-    }
-
-    function toggleAlumnoSuscripcion(uuid) {
-      const a = alumnosState.find(x => x.uuid === uuid);
-      if (!a) return;
-      const current = a.suscripcion || 'activa';
-
-      if (current !== 'cancelada') {
-        a.suscripcion = 'cancelada';
-        showToast(`Cuenta de ${a.nombre} desactivada (no se cobrarán $20 MXN)`, "info");
-      } else {
-        const maxAlu = getMaxAlumnos();
-        const activeCount = getActiveAlumnosCount();
-        if (activeCount >= maxAlu) {
-          showToast(`Cupo de suscripción lleno (${maxAlu} alumnos). Aumenta tu cupo en Configuración para activar a ${a.nombre}.`, "error");
-          return;
-        }
-        a.suscripcion = 'activa';
-        showToast(`Cuenta de ${a.nombre} activada e incluida en la suscripción ($20 MXN/mes)`, "success");
-      }
-
-      updateTeacherViews();
-    }
-
-    function eliminarAlumnosDesactivados() {
-      const noPagados = alumnosState.filter(a => (a.suscripcion || 'activa') === 'cancelada');
-      if (noPagados.length === 0) {
-        showToast("No hay alumnos desactivados o sin pago para quitar.", "info");
-        return;
-      }
-
-      if (!confirm(`¿Deseas quitar y dar de baja definitivamente a los ${noPagados.length} alumnos que no han pagado?\n\nEsta acción eliminará sus registros locales.`)) {
-        return;
-      }
-
-      const noPagadosUuids = noPagados.map(a => a.uuid);
-      alumnosState = alumnosState.filter(a => !noPagadosUuids.includes(a.uuid));
-      reportesState = reportesState.filter(r => !noPagadosUuids.includes(r.alumnoUuid));
-      mensajesState = mensajesState.filter(m => !noPagadosUuids.includes(m.alumnoUuid));
-
-      updateTeacherViews();
-      renderParentDemoChips();
-      showToast(`${noPagados.length} alumno(s) sin pago eliminados del sistema`, "success");
-    }
-
     function renderAlumnosTable(filtered = null) {
       const tbody = document.getElementById('alumnos-table-body');
       let data = filtered || [...alumnosState];
@@ -2275,88 +2416,66 @@
       }
 
       if (data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8"><div class="flex flex-col items-center justify-center gap-2 text-slate-400"><i data-lucide="users" class="w-8 h-8 text-slate-300"></i><p class="text-sm font-semibold text-slate-500">No hay alumnos en esta vista</p><p class="text-[11px]">Inscribe un nuevo alumno o cambia el filtro de estado.</p></div></td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8"><div class="flex flex-col items-center justify-center gap-2 text-slate-400"><i data-lucide="users" class="w-8 h-8 text-slate-300"></i><p class="text-sm font-semibold text-slate-500">No hay alumnos en el grupo</p><p class="text-[11px]">Inscribe un nuevo alumno o importa una lista de Excel.</p></div></td></tr>`;
         return;
       }
 
-      tbody.innerHTML = data.map(a => {
-        const sub = a.suscripcion || 'activa';
-        let subBadge = '';
-        if (sub !== 'cancelada') {
-          subBadge = `
-            <button onclick="toggleAlumnoSuscripcion('${a.uuid}')" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700/70 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 dark:hover:bg-rose-950/40 dark:hover:text-rose-400 flex items-center gap-1.5 transition-all cursor-pointer group" title="Click para desactivar cuenta y no pagar por este alumno">
-              <span class="w-2 h-2 rounded-full bg-emerald-500 group-hover:bg-rose-500 transition-colors"></span>
-              <span class="group-hover:hidden">🟢 Paga $20/mes</span>
-              <span class="hidden group-hover:inline">🚫 Desactivar</span>
-            </button>
-          `;
-        } else {
-          subBadge = `
-            <button onclick="toggleAlumnoSuscripcion('${a.uuid}')" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-400 flex items-center gap-1.5 transition-all cursor-pointer group" title="Click para reactivar cuenta e incluir en suscripción ($20 MXN/mes)">
-              <span class="w-2 h-2 rounded-full bg-slate-400 group-hover:bg-emerald-500 transition-colors"></span>
-              <span class="group-hover:hidden">🔴 Desactivado ($0)</span>
-              <span class="hidden group-hover:inline">⚡ Reactivar ($20)</span>
-            </button>
-          `;
-        }
-
-        return `
-          <tr class="hover:bg-slate-50 dark:bg-slate-800 transition-colors block md:table-row border-b md:border-none border-slate-200 dark:border-slate-700/60 pb-3 md:pb-0 mb-3 md:mb-0">
-            <td class="px-4 py-3 block md:table-cell">
-              <div class="font-bold text-slate-900 dark:text-slate-100">${a.nombre}</div>
-              <div class="text-[10px] text-slate-400 font-mono">${a.uuid.substring(0, 13)}...</div>
-            </td>
-            <td class="px-4 py-3 block md:table-cell">
-              <div class="font-medium text-slate-800 dark:text-slate-200">${a.tutor}</div>
-              <div class="text-[11px] text-slate-400">${a.telefono}</div>
-            </td>
-            <td class="px-4 py-3 block md:table-cell">
-              ${subBadge}
-            </td>
-            <td class="px-4 py-3 block md:table-cell">
-              <div class="flex items-center gap-1.5">
-                <button onclick="openQrModal('${a.uuid}')" class="px-2.5 py-1 bg-brand-50 dark:bg-brand-900/40 hover:bg-brand-100 text-brand-700 dark:text-brand-300 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1 cursor-pointer">
-                  <i data-lucide="qr-code" class="w-3.5 h-3.5"></i>
-                  <span>Credencial</span>
-                </button>
-                <button onclick="openBoletaModal('${a.uuid}')" class="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/40 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1 cursor-pointer">
-                  <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
-                  <span>Boleta</span>
-                </button>
-              </div>
-            </td>
-            <td class="px-4 py-3 text-right space-x-1 block md:table-cell">
-              <button onclick="openEditModal('${a.uuid}')" title="Editar" class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:text-brand-400 rounded-lg cursor-pointer">
-                <i data-lucide="edit-2" class="w-4 h-4"></i>
+      tbody.innerHTML = data.map(a => `
+        <tr class="hover:bg-slate-50 dark:bg-slate-800 transition-colors block md:table-row border-b md:border-none border-slate-200 dark:border-slate-700/60 pb-3 md:pb-0 mb-3 md:mb-0">
+          <td class="px-4 py-3 block md:table-cell">
+            <div class="font-bold text-slate-900 dark:text-slate-100">${a.nombre}</div>
+            <div class="flex items-center gap-1.5 mt-0.5">
+              <span class="px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-mono text-[10px] font-bold border border-indigo-200/80 dark:border-indigo-800/60 select-all" title="CURP Oficial">${a.curp || a.uuid.substring(0, 14)}</span>
+              <button onclick="navigator.clipboard.writeText('${a.curp || a.uuid}').then(() => showToast('CURP copiada al portapapeles', 'success'))" class="text-slate-400 hover:text-indigo-600 p-0.5 cursor-pointer" title="Copiar CURP">
+                <i data-lucide="copy" class="w-3 h-3"></i>
               </button>
-              <button onclick="deleteAlumno('${a.uuid}')" title="Eliminar Alumno" class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-rose-600 rounded-lg cursor-pointer">
-                <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </div>
+          </td>
+          <td class="px-4 py-3 block md:table-cell">
+            <div class="font-medium text-slate-800 dark:text-slate-200">${a.tutor}</div>
+            <div class="text-[11px] text-slate-400">${a.telefono}</div>
+          </td>
+          <td class="px-4 py-3 block md:table-cell">
+            <span class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700/70 inline-flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              <span>Activo</span>
+            </span>
+          </td>
+          <td class="px-4 py-3 block md:table-cell">
+            <div class="flex items-center gap-1.5">
+              <button onclick="openQrModal('${a.uuid}')" class="px-2.5 py-1 bg-brand-50 dark:bg-brand-900/40 hover:bg-brand-100 text-brand-700 dark:text-brand-300 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1 cursor-pointer">
+                <i data-lucide="qr-code" class="w-3.5 h-3.5"></i>
+                <span>Credencial</span>
               </button>
-            </td>
-          </tr>
-        `;
-      }).join('');
+              <button onclick="openBoletaModal('${a.uuid}')" class="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/40 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1 cursor-pointer">
+                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                <span>Boleta</span>
+              </button>
+            </div>
+          </td>
+          <td class="px-4 py-3 text-right space-x-1 block md:table-cell">
+            <button onclick="openEditModal('${a.uuid}')" title="Editar" class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:text-brand-400 rounded-lg cursor-pointer">
+              <i data-lucide="edit-2" class="w-4 h-4"></i>
+            </button>
+            <button onclick="deleteAlumno('${a.uuid}')" title="Eliminar Alumno" class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-rose-600 rounded-lg cursor-pointer">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
     }
 
     function filterAlumnosTable() {
       const q = document.getElementById('search-alumnos-input')?.value.toLowerCase().trim() || '';
       let res = [...alumnosState];
 
-      // Filtro por Estado de Suscripción
-      if (currentAlumnosStatusFilter === 'activos' || currentAlumnosStatusFilter === 'activa') {
-        res = res.filter(a => (a.suscripcion || 'activa') !== 'cancelada');
-      } else if (currentAlumnosStatusFilter === 'desactivados' || currentAlumnosStatusFilter === 'desactivada') {
-        res = res.filter(a => (a.suscripcion || 'activa') === 'cancelada');
-      }
-
-      // Filtro por Búsqueda de Texto
       if (q) {
         res = res.filter(a => 
-          a.nombre.toLowerCase().includes(q) || 
-          a.tutor.toLowerCase().includes(q) || 
-          a.telefono.toLowerCase().includes(q) || 
-          a.uuid.toLowerCase().includes(q) ||
-          (a.suscripcion || '').toLowerCase().includes(q)
+          (a.curp && a.curp.toLowerCase().includes(q)) ||
+          (a.nombre && a.nombre.toLowerCase().includes(q)) || 
+          (a.tutor && a.tutor.toLowerCase().includes(q)) || 
+          (a.telefono && a.telefono.toLowerCase().includes(q)) || 
+          (a.uuid && a.uuid.toLowerCase().includes(q))
         );
       }
 
@@ -2367,9 +2486,7 @@
     function deleteAlumno(uuid) {
       const a = alumnosState.find(x => x.uuid === uuid);
       if (!a) return;
-      const isPaid = (a.suscripcion || 'activa') !== 'cancelada';
-      const msgExtra = isPaid ? "Se liberará 1 cupo de suscripción contratado." : "";
-      if (!confirm(`¿Eliminar a ${a.nombre}? ${msgExtra}`)) return;
+      if (!confirm(`¿Eliminar a ${a.nombre} de la lista de alumnos?`)) return;
 
       alumnosState = alumnosState.filter(x => x.uuid !== uuid);
       reportesState = reportesState.filter(r => r.alumnoUuid !== uuid);
@@ -2382,12 +2499,16 @@
     function openEditModal(uuid) {
       const a = alumnosState.find(x => x.uuid === uuid);
       if (!a) return;
+
       document.getElementById('edit-alumno-uuid').value = a.uuid;
-      document.getElementById('edit-alumno-nombre').value = a.nombre;
-      document.getElementById('edit-alumno-tutor').value = a.tutor;
-      document.getElementById('edit-alumno-tel').value = a.telefono;
-      const subSelect = document.getElementById('edit-alumno-suscripcion');
-      if (subSelect) subSelect.value = a.suscripcion || 'activa';
+      document.getElementById('edit-alumno-nombres').value = a.nombres || a.nombre.split(' ')[0] || '';
+      document.getElementById('edit-alumno-paterno').value = a.primerApellido || a.nombre.split(' ')[1] || '';
+      document.getElementById('edit-alumno-materno').value = a.segundoApellido || a.nombre.split(' ').slice(2).join(' ') || '';
+      document.getElementById('edit-alumno-fecha-nac').value = a.fechaNacimiento || '2017-01-01';
+      document.getElementById('edit-alumno-sexo').value = a.sexo || 'M';
+      document.getElementById('edit-alumno-curp').value = a.curp || '';
+      document.getElementById('edit-alumno-tutor').value = a.tutor || '';
+      document.getElementById('edit-alumno-tel').value = a.telefono || '';
 
       document.getElementById('modal-edit-alumno').classList.remove('hidden');
       lucide.createIcons();
@@ -2403,27 +2524,24 @@
       const a = alumnosState.find(x => x.uuid === uuid);
       if (!a) return;
 
-      const subSelect = document.getElementById('edit-alumno-suscripcion');
-      const newSub = subSelect ? subSelect.value : (a.suscripcion || 'activa');
+      const nombres = document.getElementById('edit-alumno-nombres').value.trim();
+      const paterno = document.getElementById('edit-alumno-paterno').value.trim();
+      const materno = document.getElementById('edit-alumno-materno').value.trim();
 
-      // Si pasa de cancelada a activa/pausada, validar cupo disponible
-      if ((a.suscripcion === 'cancelada') && (newSub !== 'cancelada')) {
-        const maxAlu = getMaxAlumnos();
-        const activeCount = getActiveAlumnosCount();
-        if (activeCount >= maxAlu) {
-          showToast(`No puedes activar a ${a.nombre}: límite de ${maxAlu} cupos alcanzado. Amplía tu plan en Configuración.`, "error");
-          return;
-        }
-      }
-
-      a.nombre = document.getElementById('edit-alumno-nombre').value.trim();
+      a.nombres = nombres;
+      a.primerApellido = paterno;
+      a.segundoApellido = materno;
+      a.nombre = `${nombres} ${paterno} ${materno}`.trim();
+      a.fechaNacimiento = document.getElementById('edit-alumno-fecha-nac').value;
+      a.sexo = document.getElementById('edit-alumno-sexo').value;
+      a.curp = document.getElementById('edit-alumno-curp').value.trim().toUpperCase();
       a.tutor = document.getElementById('edit-alumno-tutor').value.trim();
       a.telefono = document.getElementById('edit-alumno-tel').value.trim();
-      a.suscripcion = newSub;
 
       closeEditModal();
       updateTeacherViews();
-      showToast("Datos y suscripción del alumno actualizados", "success");
+      renderParentDemoChips();
+      showToast("Datos del alumno actualizados", "success");
     }
 
     function openQrModal(uuid) {
@@ -2434,6 +2552,10 @@
       document.getElementById('qr-modal-student-name').textContent = a.nombre;
       document.getElementById('qr-modal-student-group').textContent = maestroState.grupo;
       document.getElementById('qr-modal-student-tutor').textContent = `Tutor: ${a.tutor}`;
+      
+      const curpTxt = document.getElementById('qr-modal-curp-txt');
+      if (curpTxt) curpTxt.textContent = a.curp || 'SIN-CURP';
+      
       document.getElementById('qr-modal-uuid-txt').textContent = a.uuid;
       document.getElementById('qr-modal-school-name').textContent = `Lumni • ${maestroState.grupo}`;
 
@@ -2441,7 +2563,7 @@
       container.innerHTML = '';
 
       new QRCode(container, {
-        text: a.uuid,
+        text: a.curp || a.uuid,
         width: 140,
         height: 140,
         colorDark: "#1e1b4b",
@@ -2455,6 +2577,13 @@
 
     function closeQrModal() {
       document.getElementById('modal-qr-credential').classList.add('hidden');
+    }
+
+    function copyModalCurp() {
+      if (!currentActiveModalUuid) return;
+      const a = alumnosState.find(x => x.uuid === currentActiveModalUuid);
+      const curp = a?.curp || currentActiveModalUuid;
+      navigator.clipboard.writeText(curp).then(() => showToast(`CURP copiada: ${curp}`, "success"));
     }
 
     function copyModalUuid() {
@@ -2583,12 +2712,12 @@
         showToast("No hay alumnos para exportar", "error");
         return;
       }
-      let csv = "UUID,Nombre,Tutor,Telefono\n";
+      let csv = "CURP,Nombre Completo,Tutor,Telefono,UUID\n";
       alumnosState.forEach(a => {
-        csv += `"${a.uuid}","${a.nombre}","${a.tutor}","${a.telefono}"\n`;
+        csv += `"${a.curp || ''}","${a.nombre}","${a.tutor}","${a.telefono}","${a.uuid}"\n`;
       });
       downloadCSV(csv, "alumnos_lumni.csv");
-      showToast("Reporte de alumnos exportado", "success");
+      showToast("Reporte de alumnos exportado con CURP", "success");
     }
 
     function exportAsistenciasCSV() {
@@ -2614,19 +2743,434 @@
       }
       let csv = "Nombre," + materiasState.map(m => `"${m}"`).join(",") + ",Promedio\n";
       alumnosState.forEach(a => {
-        let sum = 0;
+        let sum = 0, count = 0;
         let row = `"${a.nombre}",`;
         materiasState.forEach(m => {
-          const val = a.calificaciones?.[m] ?? 9.0;
-          sum += parseFloat(val);
+          const rawVal = a.calificaciones?.[m] !== undefined ? a.calificaciones[m] : 9;
+          const val = Math.round(parseFloat(rawVal) || 0);
+          sum += val;
+          count++;
           row += `${val},`;
         });
-        const prom = materiasState.length > 0 ? Math.round(sum / materiasState.length) : 10;
+        const prom = count > 0 ? (sum / count).toFixed(1) : '10.0';
         row += `${prom}\n`;
         csv += row;
       });
       downloadCSV(csv, "calificaciones_lumni.csv");
       showToast("Reporte de calificaciones exportado", "success");
+    }
+
+    // ==========================================================
+    // 11.5 IMPORTACIÓN Y PLANTILLA EXCEL (.XLSX, .XLS, .CSV)
+    // ==========================================================
+    let parsedExcelData = null;
+
+    function openImportExcelModal() {
+      parsedExcelData = null;
+      const fileInput = document.getElementById('excel-file-input');
+      if (fileInput) fileInput.value = '';
+      const previewContainer = document.getElementById('excel-preview-container');
+      if (previewContainer) previewContainer.classList.add('hidden');
+      const applyBtn = document.getElementById('btn-apply-excel');
+      if (applyBtn) applyBtn.disabled = true;
+
+      document.getElementById('modal-import-excel').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeImportExcelModal() {
+      document.getElementById('modal-import-excel').classList.add('hidden');
+      parsedExcelData = null;
+    }
+
+    function handleExcelDrop(e) {
+      e.preventDefault();
+      const dropzone = document.getElementById('excel-dropzone');
+      if (dropzone) dropzone.classList.remove('border-emerald-500', 'bg-emerald-50/50', 'dark:bg-emerald-950/30');
+
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        const file = e.dataTransfer.files[0];
+        readAndProcessExcelFile(file);
+      }
+    }
+
+    function handleExcelFileSelect(e) {
+      if (e.target.files && e.target.files.length > 0) {
+        const file = e.target.files[0];
+        readAndProcessExcelFile(file);
+      }
+    }
+
+    function readAndProcessExcelFile(file) {
+      if (!file) return;
+      const validExtensions = ['.xlsx', '.xls', '.csv'];
+      const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+      if (!validExtensions.includes(fileExt)) {
+        showToast("Por favor selecciona un archivo válido (.xlsx, .xls o .csv)", "error");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+
+          if (!jsonData || jsonData.length < 2) {
+            showToast("El archivo está vacío o no contiene suficientes filas.", "error");
+            return;
+          }
+
+          processExcelParsedRows(jsonData, file.name);
+        } catch (err) {
+          console.error("Error al procesar archivo Excel:", err);
+          showToast("Error al leer el archivo Excel. Verifica el formato.", "error");
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function processExcelParsedRows(rawRows, filename) {
+      // 1. Detectar automáticamente la fila de encabezados (por si el Excel tiene títulos arriba)
+      let headerRowIdx = -1;
+      let nameIdx = -1;
+      let headers = [];
+
+      for (let r = 0; r < Math.min(rawRows.length, 10); r++) {
+        const potentialHeaders = (rawRows[r] || []).map(h => String(h || '').trim());
+        const foundNameIdx = potentialHeaders.findIndex(h => {
+          const norm = h.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+          return norm.includes("nombre") || norm.includes("alumno") || norm.includes("estudiante") || norm.includes("estudiantes") || norm.includes("student") || norm.includes("apellidos");
+        });
+
+        if (foundNameIdx !== -1) {
+          headerRowIdx = r;
+          nameIdx = foundNameIdx;
+          headers = potentialHeaders;
+          break;
+        }
+      }
+
+      // Si no se detectó por nombre, usar la fila 0
+      if (headerRowIdx === -1) {
+        headerRowIdx = 0;
+        headers = (rawRows[0] || []).map(h => String(h || '').trim());
+        nameIdx = 0;
+      }
+      
+      // Buscar columna de Tutor (si existe)
+      let tutorIdx = headers.findIndex(h => {
+        const norm = h.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        return norm.includes("tutor") || norm.includes("padre") || norm.includes("madre") || norm.includes("familiar") || norm.includes("responsable");
+      });
+
+      // Buscar columna de Teléfono (si existe)
+      let telIdx = headers.findIndex(h => {
+        const norm = h.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        return norm.includes("telefono") || norm.includes("teléfono") || norm.includes("celular") || norm.includes("whatsapp") || norm.includes("phone") || norm.includes("contacto");
+      });
+
+      // Identificar columnas de materias (cualquier columna que no sea metadato)
+      const subjectCols = [];
+      const ignoredHeaders = [
+        "no", "no.", "n°", "#", "num", "numero", "número", "item",
+        "uuid", "id", "matricula", "matrícula", "curp", "clave",
+        "tutor", "padre", "madre", "familiar", "telefono", "teléfono", "celular", "contacto",
+        "promedio", "prom", "average", "observaciones", "asistencia", "faltas", "retardos",
+        "estatus", "estado", "grado", "grupo", "seccion", "sección", "nivel", "turno", "ciclo"
+      ];
+      
+      headers.forEach((h, idx) => {
+        if (idx === nameIdx || idx === tutorIdx || idx === telIdx) return;
+        const norm = h.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+        if (!norm) return;
+        if (ignoredHeaders.some(ign => norm === ign || norm.startsWith(ign + ' ') || norm.startsWith(ign + '.') || norm.startsWith(ign + '_'))) return;
+
+        subjectCols.push({
+          index: idx,
+          name: h
+        });
+      });
+
+      // Si no se detectaron materias pero existen materias en el sistema, intentar coincidir
+      if (subjectCols.length === 0) {
+        materiasState.forEach(m => {
+          const idx = headers.findIndex(h => h.toLowerCase().trim() === m.toLowerCase().trim());
+          if (idx !== -1) subjectCols.push({ index: idx, name: m });
+        });
+      }
+
+      // Buscar columna opcional de CURP
+      const curpIdx = headers.findIndex(h => h.includes('curp') || h.includes('clave') || h.includes('identificador'));
+
+      // Procesar filas de alumnos (a partir de la fila siguiente a los encabezados)
+      const rows = [];
+      for (let r = headerRowIdx + 1; r < rawRows.length; r++) {
+        const row = rawRows[r] || [];
+        const studentName = String(row[nameIdx] || '').trim();
+        // Ignorar filas vacías o filas de pie de página (ej. "Promedios", "Totales", etc.)
+        if (!studentName || studentName.toLowerCase().startsWith('promedio') || studentName.toLowerCase().startsWith('total') || studentName.toLowerCase().startsWith('firma')) continue;
+
+        const curpVal = curpIdx !== -1 ? String(row[curpIdx] || '').trim().toUpperCase() : '';
+        const tutorName = tutorIdx !== -1 ? String(row[tutorIdx] || '').trim() : 'Tutor';
+        const phone = telIdx !== -1 ? String(row[telIdx] || '').trim() : '+52 55 0000 0000';
+
+        const grades = {};
+        let sum = 0, count = 0;
+
+        subjectCols.forEach(sc => {
+          let rawVal = String(row[sc.index] !== undefined ? row[sc.index] : '').trim().replace(',', '.');
+          let num = parseFloat(rawVal);
+          
+          if (isNaN(num)) {
+            // Si está vacío o texto no numérico
+            num = 9;
+          }
+          // Redondear estrictamente a número entero entre 0 y 10
+          let intGrade = Math.round(num);
+          if (intGrade < 0) intGrade = 0;
+          if (intGrade > 10) intGrade = 10;
+
+          grades[sc.name] = intGrade;
+          sum += intGrade;
+          count++;
+        });
+
+        const calculatedAvg = count > 0 ? (sum / count).toFixed(1) : '10.0';
+        const existingStudent = alumnosState.find(a => 
+          (curpVal && a.curp && a.curp.toLowerCase() === curpVal.toLowerCase()) ||
+          (a.nombre.toLowerCase().trim() === studentName.toLowerCase().trim())
+        );
+
+        rows.push({
+          curp: curpVal || (existingStudent ? existingStudent.curp : ''),
+          nombre: studentName,
+          tutor: tutorName || (existingStudent ? existingStudent.tutor : 'Tutor'),
+          telefono: phone || (existingStudent ? existingStudent.telefono : '+52 55 0000 0000'),
+          calificaciones: grades,
+          promedio: calculatedAvg,
+          isNew: !existingStudent,
+          existingUuid: existingStudent ? existingStudent.uuid : null
+        });
+      }
+
+      if (rows.length === 0) {
+        showToast("No se encontraron registros de alumnos legibles en el archivo.", "error");
+        return;
+      }
+
+      parsedExcelData = {
+        filename,
+        headers,
+        subjects: subjectCols.map(s => s.name),
+        rows
+      };
+
+      renderExcelPreviewTable();
+    }
+
+    function renderExcelPreviewTable() {
+      if (!parsedExcelData) return;
+
+      const previewContainer = document.getElementById('excel-preview-container');
+      const filenameBadge = document.getElementById('excel-file-name-badge');
+      const statTotal = document.getElementById('excel-stat-total');
+      const statMaterias = document.getElementById('excel-stat-materias');
+      const thead = document.getElementById('excel-preview-thead');
+      const tbody = document.getElementById('excel-preview-tbody');
+      const applyBtn = document.getElementById('btn-apply-excel');
+
+      filenameBadge.textContent = parsedExcelData.filename;
+      statTotal.textContent = `${parsedExcelData.rows.length} Alumnos detectados`;
+      statMaterias.textContent = `${parsedExcelData.subjects.length} Materias`;
+
+      // Thead
+      let thHtml = `<tr>
+        <th class="px-3 py-2 text-left">Alumno</th>
+        <th class="px-3 py-2 text-left">Estado</th>`;
+      parsedExcelData.subjects.forEach(sub => {
+        thHtml += `<th class="px-2 py-2 text-center">${sub} (Entero)</th>`;
+      });
+      thHtml += `<th class="px-3 py-2 text-center">Promedio (Decimal)</th></tr>`;
+      thead.innerHTML = thHtml;
+
+      // Tbody
+      tbody.innerHTML = parsedExcelData.rows.map(r => {
+        let rowHtml = `<tr class="hover:bg-slate-50 dark:bg-slate-800 transition-colors">
+          <td class="px-3 py-2 font-bold text-slate-900 dark:text-slate-100">
+            <div>${r.nombre}</div>
+            ${r.curp ? `<div class="text-[10px] font-mono text-indigo-600 dark:text-indigo-400">${r.curp}</div>` : ''}
+          </td>
+          <td class="px-3 py-2">
+            ${r.isNew 
+              ? '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200">🆕 Nuevo</span>'
+              : '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200">🟢 En Lista</span>'
+            }
+          </td>`;
+
+        parsedExcelData.subjects.forEach(sub => {
+          const g = r.calificaciones[sub] !== undefined ? r.calificaciones[sub] : 9;
+          rowHtml += `<td class="px-2 py-2 text-center font-mono font-bold text-slate-800 dark:text-slate-200">${g}</td>`;
+        });
+
+        rowHtml += `<td class="px-3 py-2 text-center font-bold text-brand-600 dark:text-brand-400 font-mono">${r.promedio}</td>
+        </tr>`;
+        return rowHtml;
+      }).join('');
+
+      previewContainer.classList.remove('hidden');
+      applyBtn.disabled = false;
+      lucide.createIcons();
+    }
+
+    function applyExcelGradesImport() {
+      if (!parsedExcelData || !parsedExcelData.rows || parsedExcelData.rows.length === 0) {
+        showToast("No hay datos para importar", "error");
+        return;
+      }
+
+      const autoRegister = document.getElementById('excel-opt-auto-register')?.checked !== false;
+      const autoMaterias = document.getElementById('excel-opt-auto-materias')?.checked !== false;
+
+      // 1. Agregar materias nuevas si está habilitado
+      if (autoMaterias && parsedExcelData.subjects.length > 0) {
+        parsedExcelData.subjects.forEach(sub => {
+          if (!materiasState.includes(sub)) {
+            materiasState.push(sub);
+          }
+        });
+      }
+
+      let updatedCount = 0;
+      let newCount = 0;
+
+      // 2. Procesar filas
+      parsedExcelData.rows.forEach(row => {
+        let student = alumnosState.find(a => 
+          (row.curp && a.curp && a.curp.toLowerCase() === row.curp.toLowerCase()) ||
+          (a.nombre.toLowerCase().trim() === row.nombre.toLowerCase().trim())
+        );
+        
+        if (student) {
+          if (!student.calificaciones) student.calificaciones = {};
+          // Asignar notas de materias en números enteros
+          Object.keys(row.calificaciones).forEach(mat => {
+            student.calificaciones[mat] = Math.round(Number(row.calificaciones[mat]));
+          });
+          if (row.curp && !student.curp) student.curp = row.curp;
+          if (row.tutor && row.tutor !== 'Tutor') student.tutor = row.tutor;
+          if (row.telefono && row.telefono !== '+52 55 0000 0000') student.telefono = row.telefono;
+          updatedCount++;
+        } else if (autoRegister) {
+          const parts = row.nombre.split(' ');
+          const curpFinal = row.curp || generateSuggestedCURP(parts[0] || '', parts[1] || '', parts.slice(2).join(' ') || '', '2017-01-01', 'M') || ('CURP' + Date.now());
+
+          const newStudent = {
+            uuid: 'alu-' + crypto.randomUUID(),
+            nombres: parts[0] || 'Alumno',
+            primerApellido: parts[1] || '',
+            segundoApellido: parts.slice(2).join(' ') || '',
+            nombre: row.nombre,
+            fechaNacimiento: '2017-01-01',
+            sexo: 'M',
+            curp: curpFinal,
+            tutor: row.tutor || 'Tutor Registrado',
+            telefono: row.telefono || '+52 55 0000 0000',
+            suscripcion: 'activa',
+            asistenciaHoy: 'pendiente',
+            horaAsistencia: '--:--',
+            asistenciasTotales: { presentes: 1, retardos: 0, faltas: 0 },
+            calificaciones: {}
+          };
+          // Inicializar materias
+          materiasState.forEach(m => {
+            newStudent.calificaciones[m] = row.calificaciones[m] !== undefined ? Math.round(Number(row.calificaciones[m])) : 9;
+          });
+          alumnosState.push(newStudent);
+          newCount++;
+        }
+      });
+
+      saveState();
+      updateTeacherViews();
+      renderParentDemoChips();
+      closeImportExcelModal();
+
+      let msg = `¡Calificaciones importadas con éxito! (${updatedCount} actualizados`;
+      if (newCount > 0) msg += `, ${newCount} nuevos inscritos`;
+      msg += `)`;
+
+      showToast(msg, "success");
+    }
+
+    function downloadExcelTemplate(format = 'xlsx') {
+      try {
+        const headers = ["CURP", "Nombre Completo", "Tutor", "Teléfono", ...materiasState, "Promedio"];
+        const sampleData = [headers];
+
+        if (alumnosState.length > 0) {
+          alumnosState.forEach(a => {
+            let sum = 0, count = 0;
+            const gradesRow = materiasState.map(m => {
+              const val = a.calificaciones?.[m] !== undefined ? Math.round(parseFloat(a.calificaciones[m]) || 0) : 9;
+              sum += val;
+              count++;
+              return val;
+            });
+            const prom = count > 0 ? (sum / count).toFixed(1) : '10.0';
+            sampleData.push([(a.curp || ''), a.nombre, a.tutor, a.telefono, ...gradesRow, prom]);
+          });
+        } else {
+          sampleData.push(["MARS170514M", "Sofía Martínez Ruiz", "Carmen Ruiz García", "+52 55 9876 5432", 10, 9, 10, 10, "9.8"]);
+          sampleData.push(["HEVM170820H", "Mateo Hernández Vega", "Roberto Hernández", "+52 55 4321 8765", 9, 8, 9, 8, "8.5"]);
+        }
+
+        const cleanGroupName = (maestroState.grupo || 'grupo').replace(/[\s\/\\:]+/g, '_');
+
+        if (format === 'csv') {
+          let csvContent = "";
+          sampleData.forEach(row => {
+            csvContent += row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",") + "\n";
+          });
+          downloadCSV(csvContent, `plantilla_calificaciones_${cleanGroupName}.csv`);
+          showToast("Plantilla CSV descargada con éxito", "success");
+          return;
+        }
+
+        const ws = XLSX.utils.aoa_to_sheet(sampleData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Calificaciones");
+
+        XLSX.writeFile(wb, `plantilla_calificaciones_${cleanGroupName}.xlsx`);
+        showToast("Plantilla Excel (.xlsx) generada y descargada", "success");
+      } catch (err) {
+        console.error("Error al generar plantilla Excel:", err);
+        showToast("Error al generar plantilla Excel", "error");
+      }
+    }
+
+    function renovarSuscripcionDocente() {
+      if (!maestroState.suscripcion) {
+        maestroState.suscripcion = {
+          estado: 'activa',
+          plan: 'Docente Pro',
+          pagoInicial: 250,
+          mensualidad: 50,
+          proximoPago: '01 de Noviembre 2026',
+          ultimoPagoMonto: 50,
+          mesesActivo: 2
+        };
+      } else {
+        maestroState.suscripcion.mesesActivo = (maestroState.suscripcion.mesesActivo || 1) + 1;
+        maestroState.suscripcion.ultimoPagoMonto = 50;
+        maestroState.suscripcion.proximoPago = '01 de Noviembre 2026';
+      }
+      saveState();
+      updateTeacherViews();
+      showToast("¡Pago de mensualidad de $50 MXN procesado con éxito! Suscripción extendida por 30 días.", "success");
     }
 
     // ==========================================================
@@ -2697,7 +3241,12 @@
       document.getElementById('login_correo').value = maestroState.correo;
       document.getElementById('reg_nombre').value = maestroState.nombre;
       document.getElementById('reg_correo').value = maestroState.correo;
-      document.getElementById('reg_grupo').value = maestroState.grupo;
+
+      const { grado, grupo } = parseGradoYGrupo(maestroState.grupo);
+      const regGradoSel = document.getElementById('reg_grado_sel');
+      if (regGradoSel) regGradoSel.value = grado;
+      const regGrupoSel = document.getElementById('reg_grupo_sel');
+      if (regGrupoSel) regGrupoSel.value = grupo;
 
       renderParentDemoChips();
 
