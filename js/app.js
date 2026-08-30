@@ -1,3 +1,5 @@
+const API_BASE_URL = 'http://localhost:3000/api';
+
     // ==========================================================
     // 1. ESTADO GLOBAL & PERSISTENCIA
     // ==========================================================
@@ -67,179 +69,31 @@
     ];
 
     // Alumnos Registrados con Registro Completo y CURP (Hasta el Género: 11 caracteres)
-    let alumnosState = JSON.parse(localStorage.getItem('lumni_alumnos')) || [
-      {
-        uuid: 'alu-9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d',
-        nombres: 'Sofía',
-        primerApellido: 'Martínez',
-        segundoApellido: 'Ruiz',
-        nombre: 'Sofía Martínez Ruiz',
-        fechaNacimiento: '2017-05-14',
-        sexo: 'M',
-        curp: 'MARS170514M',
-        tutor: 'Carmen Ruiz García',
-        telefono: '+52 55 9876 5432',
-        suscripcion: 'activa',
-        asistenciaHoy: 'presente',
-        horaAsistencia: '08:02 AM',
-        asistenciasTotales: { presentes: 22, retardos: 1, faltas: 0 },
-        calificaciones: { 'Español': 10, 'Matemáticas': 9, 'Ciencias Naturales': 10, 'Historia': 10 }
-      },
-      {
-        uuid: 'alu-1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d',
-        nombres: 'Mateo',
-        primerApellido: 'Hernández',
-        segundoApellido: 'Vega',
-        nombre: 'Mateo Hernández Vega',
-        fechaNacimiento: '2017-08-20',
-        sexo: 'H',
-        curp: 'HEVM170820H',
-        tutor: 'Roberto Hernández',
-        telefono: '+52 55 4321 8765',
-        suscripcion: 'activa',
-        asistenciaHoy: 'presente',
-        horaAsistencia: '08:15 AM',
-        asistenciasTotales: { presentes: 20, retardos: 2, faltas: 1 },
-        calificaciones: { 'Español': 9, 'Matemáticas': 8, 'Ciencias Naturales': 9, 'Historia': 8 }
-      },
-      {
-        uuid: 'alu-5f6e7d8c-9b0a-1a2b-3c4d-5e6f7a8b9c0d',
-        nombres: 'Valentina',
-        primerApellido: 'López',
-        segundoApellido: 'Cruz',
-        nombre: 'Valentina López Cruz',
-        fechaNacimiento: '2017-11-03',
-        sexo: 'M',
-        curp: 'LOCV171103M',
-        tutor: 'Laura Cruz Mendoza',
-        telefono: '+52 55 6789 0123',
-        suscripcion: 'activa',
-        asistenciaHoy: 'pendiente',
-        horaAsistencia: '--:--',
-        asistenciasTotales: { presentes: 19, retardos: 0, faltas: 2 },
-        calificaciones: { 'Español': 9, 'Matemáticas': 9, 'Ciencias Naturales': 10, 'Historia': 9 }
-      }
-    ];
-
+    let alumnosState = JSON.parse(localStorage.getItem('lumni_alumnos')) || [];
+    // Limpieza de datos heredados o plantillas previas de asistencia
     alumnosState.forEach(a => {
-      if (!a.suscripcion) a.suscripcion = 'activa';
-      if (!a.curp) {
-        a.curp = a.uuid ? a.uuid.substring(0, 11).toUpperCase() : 'CURP' + Date.now();
+      if (a.asistenciasTotales && a.asistenciasTotales.presentes === 22 && a.asistenciasTotales.retardos === 1) {
+        a.asistenciasTotales = { presentes: 0, retardos: 0, faltas: 0 };
       }
-      if (a.curp && a.curp.length > 11) {
-        // Recortar a 11 caracteres si tenía CURP completa previa
-        a.curp = a.curp.substring(0, 11);
-      }
-      if (!a.nombres && a.nombre) {
-        const parts = a.nombre.split(' ');
-        a.nombres = parts[0] || 'Alumno';
-        a.primerApellido = parts[1] || '';
-        a.segundoApellido = parts.slice(2).join(' ') || '';
-      }
-      // Asegurar enteros en materias existentes
-      if (a.calificaciones) {
-        Object.keys(a.calificaciones).forEach(k => {
-          a.calificaciones[k] = Math.round(parseFloat(a.calificaciones[k]) || 9);
-        });
+      if (!a.asistenciasTotales) {
+        a.asistenciasTotales = { presentes: 0, retardos: 0, faltas: 0 };
       }
     });
 
     // Proyectos Escolares
-    let proyectosState = JSON.parse(localStorage.getItem('lumni_proyectos')) || [
-      {
-        id: 1,
-        titulo: 'Feria de Ciencias: Ecosistemas',
-        campos: ['Saberes y Pensamiento Científico', 'Lenguajes'],
-        fecha: '2026-09-15',
-        desc: 'Elaboración de maqueta interactiva y exposición oral sobre biomas.',
-        calificaciones: {
-          'alu-9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d': 10,
-          'alu-1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d': 9
-        }
-      }
-    ];
+    let proyectosState = JSON.parse(localStorage.getItem('lumni_proyectos')) || [];
 
     // Tareas Escolares
-    let tareasState = JSON.parse(localStorage.getItem('lumni_tareas')) || [
-      {
-        id: 101,
-        titulo: 'Antología de Cuentos y Poemas',
-        campos: ['Lenguajes'],
-        fecha: '2026-09-28',
-        desc: 'Redacción de textos creativos y análisis de figuras literarias.',
-        calificaciones: {
-          'alu-9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d': 10,
-          'alu-1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d': 9
-        }
-      },
-      {
-        id: 102,
-        titulo: 'Resolución de Problemas con Fracciones',
-        campos: ['Saberes y Pensamiento Científico'],
-        fecha: '2026-09-30',
-        desc: 'Páginas 45 a 48 del libro de matemáticas aplicadas.',
-        calificaciones: {
-          'alu-9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d': 9,
-          'alu-1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d': 8
-        }
-      }
-    ];
+    let tareasState = JSON.parse(localStorage.getItem('lumni_tareas')) || [];
 
     // Mensajería Asíncrona (Hilos y Mensajes)
-    let mensajesState = JSON.parse(localStorage.getItem('lumni_mensajes')) || [
-      {
-        id: 1,
-        alumnoUuid: 'alu-9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d',
-        asunto: 'Justificante de Inasistencia',
-        leidoPorMaestro: false,
-        mensajes: [
-          {
-            remitente: 'padre',
-            autor: 'Carmen Ruiz García (Tutor)',
-            texto: 'Estimado profesor Carlos, le informo que Sofía tuvo consulta médica por un cuadro gripal el día de ayer. Ya se encuentra recuperada para reintegrarse a clases.',
-            fecha: '2026-08-24 08:30 AM'
-          },
-          {
-            remitente: 'maestro',
-            autor: 'Prof. Carlos Mendoza',
-            texto: 'Hola Sra. Carmen, enterado. Ya justifiqué la falta en el sistema. Que tenga excelente día.',
-            fecha: '2026-08-24 09:15 AM'
-          }
-        ]
-      },
-      {
-        id: 2,
-        alumnoUuid: 'alu-1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d',
-        asunto: 'Duda sobre Tarea o Proyecto',
-        leidoPorMaestro: true,
-        mensajes: [
-          {
-            remitente: 'padre',
-            autor: 'Roberto Hernández (Tutor)',
-            texto: 'Profesor, ¿los materiales para la maqueta de ciencias son libres o se requiere algún formato en especial?',
-            fecha: '2026-08-23 04:20 PM'
-          },
-          {
-            remitente: 'maestro',
-            autor: 'Prof. Carlos Mendoza',
-            texto: 'Buenas tardes Sr. Roberto. Son libres, de preferencia material reciclado como cartón y plastilina.',
-            fecha: '2026-08-23 05:00 PM'
-          }
-        ]
-      }
-    ];
+    let mensajesState = JSON.parse(localStorage.getItem('lumni_mensajes')) || [];
 
     // Reportes Individuales
-    let reportesState = JSON.parse(localStorage.getItem('lumni_reportes')) || [
-      {
-        id: 201,
-        alumnoUuid: 'alu-9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d',
-        tipo: 'Felicitación',
-        titulo: 'Excelente Liderazgo en Feria de Ciencias',
-        desc: 'Sofía demostró una sobresaliente capacidad de organización y apoyo con sus compañeros.',
-        fecha: '2026-08-20'
-      }
-    ];
+    let reportesState = JSON.parse(localStorage.getItem('lumni_reportes')) || [];
+
+    // Calendario Eventos
+    let calendarioEventsState = JSON.parse(localStorage.getItem('lumni_calendario')) || [];
 
     function saveState() {
       localStorage.setItem('lumni_maestro', JSON.stringify(maestroState));
@@ -250,6 +104,7 @@
       localStorage.setItem('lumni_mensajes', JSON.stringify(mensajesState));
       localStorage.setItem('lumni_reportes', JSON.stringify(reportesState));
       localStorage.setItem('lumni_anuncios', JSON.stringify(anunciosState));
+      localStorage.setItem('lumni_calendario', JSON.stringify(calendarioEventsState));
     }
 
     // Efectos de sonido sintéticos Web Audio API (100% offline)
@@ -320,9 +175,93 @@
       if (window.lucide) lucide.createIcons();
     }
 
+    function handleLogout() {
+      localStorage.clear();
+      alumnosState = [];
+      mensajesState = [];
+      showToast("Sesión cerrada correctamente", "info");
+      window.location.reload();
+    }
+
+    async function printStudentReport(studentId) {
+      try {
+        const id = studentId || currentBoletaStudent?.id || currentBoletaStudent?.uuid;
+        if (!id) return showToast("Selecciona un alumno para imprimir", "error");
+
+        const res = await fetch(`${API_BASE_URL}/reportes/alumno/${id}`);
+        if (!res.ok) throw new Error('No se pudo obtener el reporte');
+        
+        const { alumno, calificaciones, estadisticasAsistencia } = await res.json();
+        
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>Boleta de Evaluación - ${alumno.nombre_completo || alumno.nombre}</title>
+                <style>
+                    body { font-family: system-ui, -apple-system, sans-serif; padding: 30px; color: #1e293b; }
+                    .header { text-align: center; border-bottom: 2px solid #6366f1; padding-bottom: 15px; margin-bottom: 20px; }
+                    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px; font-size: 13px; }
+                    table { width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 13px; }
+                    th, td { border: 1px solid #cbd5e1; padding: 10px; text-align: left; }
+                    th { background-color: #f1f5f9; }
+                    .stats { background-color: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 13px; }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h2>Boleta de Evaluación Individual</h2>
+                    <p>Ciclo Escolar Activo</p>
+                </div>
+                <div class="info-grid">
+                    <div><strong>Alumno:</strong> ${alumno.nombre_completo || alumno.nombre}</div>
+                    <div><strong>CURP / ID:</strong> ${alumno.curp || alumno.id}</div>
+                    <div><strong>Tutor:</strong> ${alumno.nombre_tutor || alumno.tutor || 'No registrado'}</div>
+                    <div><strong>Contacto:</strong> ${alumno.telefono_tutor || alumno.telefono || 'No registrado'}</div>
+                </div>
+                <h3>Calificaciones por Materia</h3>
+                <table>
+                    <thead>
+                        <tr><th>Materia</th><th>Periodo</th><th>Calificación</th><th>Observaciones</th></tr>
+                    </thead>
+                    <tbody>
+                        ${calificaciones && calificaciones.length ? calificaciones.map(c => `
+                            <tr>
+                                <td>${c.materia}</td>
+                                <td>${c.periodo || '1°'}</td>
+                                <td><strong>${c.calificacion}</strong></td>
+                                <td>${c.observaciones || '-'}</td>
+                            </tr>
+                        `).join('') : '<tr><td colspan="4" style="text-align:center;">Sin calificaciones registradas</td></tr>'}
+                    </tbody>
+                </table>
+                <div class="stats">
+                    <h3>Resumen de Asistencia</h3>
+                    <p>Asistencias: <strong>${estadisticasAsistencia.asistencias}</strong> | Faltas: <strong>${estadisticasAsistencia.faltas}</strong> | Retardos: <strong>${estadisticasAsistencia.retardos}</strong> | Porcentaje: <strong>${estadisticasAsistencia.porcentaje}%</strong></p>
+                </div>
+                <script>
+                    window.onload = () => { window.print(); };
+                </script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+      } catch (err) {
+        console.error('Error al generar boleta:', err);
+        showToast('Error al generar la boleta de evaluación.', 'error');
+      }
+    }
+
+    function printBoleta() {
+      if (currentBoletaStudent) {
+        printStudentReport(currentBoletaStudent.id || currentBoletaStudent.uuid);
+      } else {
+        window.print();
+      }
+    }
+
     function logout() {
-      showView('view-landing');
-      showToast("Sesión cerrada", "info");
+      handleLogout();
     }
 
     function toggleDarkMode() {
@@ -398,16 +337,58 @@
     function handleTeacherLoginSubmit(e) {
       e.preventDefault();
       const btn = e.target.querySelector('button[type="submit"]');
-      const originalHtml = btn.innerHTML;
-      btn.innerHTML = '<span>Cargando...</span>';
-      btn.disabled = true;
 
-      setTimeout(() => {
-        btn.innerHTML = originalHtml;
-        btn.disabled = false;
-        openTeacherDashboard();
-        showToast(`¡Bienvenido de nuevo, ${maestroState.nombre}!`, "success");
-      }, 500);
+      const email = document.getElementById('login_correo')?.value.trim();
+      const password = document.getElementById('login_password')?.value.trim();
+
+      if (!email || !password) {
+        showToast("Por favor completa email y contraseña", "error");
+        return;
+      }
+
+      const payload = {
+        email: email,
+        password: password
+      };
+
+      withLoading(btn, async () => {
+        try {
+          const res = await fetch(`${API_BASE_URL}/maestros/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          if (!res.ok) {
+            const errorData = await res.json().catch(() => ({}));
+            throw new Error(errorData.error || 'Error al iniciar sesión');
+          }
+
+          const data = await res.json();
+          const maestro = data.maestro || data.datos;
+
+          if (maestro && maestro.id) {
+            localStorage.setItem('currentTeacherId', maestro.id);
+            maestroState.id = maestro.id;
+          }
+
+          if (maestro) {
+            maestroState.nombre = maestro.nombre || maestroState.nombre;
+            maestroState.correo = maestro.email || maestroState.correo;
+            if (maestro.grado && maestro.grupo) {
+              maestroState.grado = maestro.grado;
+              maestroState.grupo = `${maestro.grado} ${maestro.grupo}`;
+            }
+          }
+          saveState();
+
+          openTeacherDashboard();
+          loadTeacherMessages();
+          showToast(`¡Bienvenido de nuevo, ${maestroState.nombre}!`, "success");
+        } catch (err) {
+          showToast(err.message || "Error al iniciar sesión", "error");
+        }
+      });
     }
 
     function parseGradoYGrupo(fullString) {
@@ -436,61 +417,213 @@
       e.preventDefault();
       const btn = e.target.querySelector('button[type="submit"]');
 
+      const nombre = document.getElementById('reg_nombre')?.value.trim();
+      const email = document.getElementById('reg_correo')?.value.trim();
+      const password = document.getElementById('reg_password')?.value.trim();
       const gradoSel = document.getElementById('reg_grado_sel');
       const grupoSel = document.getElementById('reg_grupo_sel');
-      const grupoFormateado = (gradoSel && grupoSel) 
-        ? `${gradoSel.value} ${grupoSel.value}` 
-        : (document.getElementById('reg_grupo')?.value?.trim() || '3er Grado Grupo B');
+      const grado = gradoSel ? gradoSel.value : '3er Grado';
+      const grupo = grupoSel ? grupoSel.value : 'Grupo B';
+
+      if (!nombre || !email || !password) {
+        showToast("Por favor completa todos los campos obligatorios", "error");
+        return;
+      }
 
       const payload = {
-        nombre: document.getElementById('reg_nombre').value.trim(),
-        email: document.getElementById('reg_correo').value.trim(),
-        password: document.getElementById('reg_password').value.trim(),
-        grupo: grupoFormateado,
-        telefono: "No especificado",
-        plan: "Individual"
+        nombre: nombre,
+        email: email,
+        password: password,
+        grado: grado,
+        grupo: grupo
       };
 
       withLoading(btn, async () => {
         try {
-          const res = await fetch('http://localhost:3000/api/maestros/registro', {
+          const res = await fetch(`${API_BASE_URL}/maestros/registro`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
           });
 
           if (!res.ok) {
-            const errorData = await res.json();
+            const errorData = await res.json().catch(() => ({}));
             throw new Error(errorData.error || 'Error al registrar maestro');
           }
 
           const data = await res.json();
-          if (data.datos && data.datos.id) {
-            localStorage.setItem('currentTeacherId', data.datos.id);
+          const maestro = data.maestro || data.datos;
+
+          if (maestro && maestro.id) {
+            localStorage.setItem('currentTeacherId', maestro.id);
+            maestroState.id = maestro.id;
           }
-          maestroState.nombre = payload.nombre;
-          maestroState.correo = payload.email;
-          maestroState.grupo = payload.grupo;
+          maestroState.nombre = maestro?.nombre || nombre;
+          maestroState.correo = maestro?.email || email;
+          maestroState.grado = maestro?.grado || grado;
+          maestroState.grupo = `${grado} ${grupo}`;
           saveState();
 
           openTeacherDashboard();
           showToast(`¡Registro completado! Bienvenido(a), ${maestroState.nombre}`, "success");
         } catch (err) {
-          // Si el backend no está disponible, registrar en modo local
-          maestroState.nombre = payload.nombre;
-          maestroState.correo = payload.email;
-          maestroState.grupo = payload.grupo;
-          saveState();
-
-          openTeacherDashboard();
-          showToast(`¡Registro completado! Bienvenido(a), ${maestroState.nombre}`, "success");
+          showToast(err.message || "Error al registrar maestro", "error");
         }
       });
+    }
+
+    
+    // ==========================================================
+    // CARGA DE ALUMNOS DEL MAESTRO DESDE BACKEND
+    // ==========================================================
+    async function loadTeacherStudents(teacherId) {
+      const id = teacherId || localStorage.getItem('currentTeacherId') || maestroState.id;
+      if (!id) return;
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/alumnos/maestro/${id}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            alumnosState = data.map(a => ({
+              id: a.id,
+              uuid: a.id || a.uuid || ('alu-' + crypto.randomUUID()),
+              id_maestro: a.id_maestro || id,
+              nombre: a.nombre_completo || a.nombre || 'Alumno',
+              nombre_completo: a.nombre_completo || a.nombre || 'Alumno',
+              nombres: a.nombres || (a.nombre_completo ? a.nombre_completo.split(' ')[0] : 'Alumno'),
+              primerApellido: a.primer_apellido || '',
+              segundoApellido: a.segundo_apellido || '',
+              fechaNacimiento: a.fecha_nacimiento || '2017-01-01',
+              sexo: a.sexo || 'M',
+              curp: a.curp || (a.id ? a.id.substring(0, 11).toUpperCase() : 'CURP'),
+              tutor: a.nombre_tutor || a.tutor || 'Tutor',
+              telefono: a.telefono_tutor || a.telefono || 'Sin teléfono',
+              suscripcion: a.suscripcion || a.estado || 'activa',
+              asistenciaHoy: a.asistencia_hoy || 'pendiente',
+              horaAsistencia: a.hora_asistencia || '--:--',
+              asistenciasTotales: a.asistencias_totales || { presentes: 0, retardos: 0, faltas: 0 },
+              calificaciones: a.calificaciones || {},
+              qr: a.qr_codigo || a.id,
+              qr_codigo: a.qr_codigo || a.id
+            }));
+
+            saveState();
+          }
+          updateTeacherViews();
+          renderParentDemoChips();
+        }
+      } catch (err) {
+        console.error("Error al cargar alumnos del servidor:", err);
+      }
+    }
+
+    // ==========================================================
+    // CARGA DE ANUNCIOS DEL MAESTRO DESDE BACKEND
+    // ==========================================================
+    async function loadTeacherAnnouncements(teacherId) {
+      const id = teacherId || localStorage.getItem('currentTeacherId') || maestroState.id;
+      if (!id) return;
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/anuncios/maestro/${id}`);
+        if (res.ok) {
+          const rawAnuncios = await res.json();
+          if (Array.isArray(rawAnuncios)) {
+            anunciosState = rawAnuncios.map((a, idx) => ({
+              id: a.id || Date.now() - (idx * 1000),
+              fecha: a.created_at ? a.created_at.split('T')[0] : (a.fecha || new Date().toISOString().split('T')[0]),
+              titulo: a.titulo || 'Comunicado Escolar',
+              categoria: a.categoria || 'General',
+              prioridad: a.prioridad || (a.titulo?.toLowerCase().includes('urgente') ? 'Alta' : 'Normal'),
+              fijado: Boolean(a.fijado),
+              autor: a.autor || maestroState.nombre || 'Docente Titular',
+              desc: a.contenido || a.desc || a.texto || '',
+              contenido: a.contenido || a.desc || a.texto || ''
+            }));
+            saveState();
+          }
+          renderTeacherAnnouncements(anunciosState);
+        }
+      } catch (err) {
+        console.error('Error al cargar anuncios del maestro:', err);
+      }
+    }
+
+    function renderTeacherAnnouncements(anuncios) {
+      renderTeacherAnunciosManagement();
+      renderTeacherAnunciosList();
+    }
+
+    async function loadTeacherTasks(teacherId) {
+      const id = teacherId || localStorage.getItem('currentTeacherId') || maestroState.id;
+      if (!id) return;
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/tareas/maestro/${id}`);
+        if (res.ok) {
+          const tareas = await res.json();
+          if (Array.isArray(tareas)) {
+            tareasState = tareas.map(t => ({
+              id: t.id,
+              titulo: t.titulo,
+              campos: t.campos_formativos || [],
+              fechaPub: t.fecha_publicacion,
+              fecha: t.fecha_entrega,
+              desc: t.instrucciones || '',
+              calificaciones: {}
+            }));
+            saveState();
+          }
+          renderTasksList(tareasState);
+        }
+      } catch (err) {
+        console.error('Error al cargar tareas:', err);
+      }
+    }
+
+    async function loadTeacherProjects(teacherId) {
+      const id = teacherId || localStorage.getItem('currentTeacherId') || maestroState.id;
+      if (!id) return;
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/proyectos/maestro/${id}`);
+        if (res.ok) {
+          const proyectos = await res.json();
+          if (Array.isArray(proyectos)) {
+            proyectosState = proyectos.map(p => ({
+              id: p.id,
+              titulo: p.titulo,
+              campos: p.campos_formativos || [],
+              fechaPub: p.fecha_publicacion,
+              fecha: p.fecha_entrega,
+              desc: p.instrucciones || '',
+              calificaciones: {}
+            }));
+            saveState();
+          }
+          renderProjectsList(proyectosState);
+        }
+      } catch (err) {
+        console.error('Error al cargar proyectos:', err);
+      }
+    }
+
+    async function loadTeacherProjectsAndTasks(teacherId) {
+      const id = teacherId || localStorage.getItem('currentTeacherId') || maestroState.id;
+      await Promise.all([loadTeacherTasks(id), loadTeacherProjects(id)]);
+      updateTeacherViews();
     }
 
     function openTeacherDashboard() {
       showView('view-portal-maestro');
       switchTeacherTab('dashboard');
+      loadTeacherProfile();
+      loadTeacherStudents();
+      loadTeacherAnnouncements();
+      loadTeacherProjectsAndTasks();
+      loadTeacherCalendar();
+      loadTeacherMessages();
       updateTeacherViews();
     }
 
@@ -675,14 +808,78 @@
       openParentPortalByQuery(val);
     }
 
-    function openParentPortalByQuery(query) {
-      const q = (query || '').toLowerCase().trim();
-      const alumno = alumnosState.find(a => {
-        const curpMatch = a.curp && a.curp.toLowerCase().trim() === q;
-        const uuidMatch = a.uuid && (a.uuid.toLowerCase() === q || a.uuid.toLowerCase().includes(q));
-        const nombreMatch = a.nombre && a.nombre.toLowerCase().trim() === q;
-        return curpMatch || uuidMatch || nombreMatch;
-      });
+    async function openParentPortalByQuery(query) {
+      if (!query || !query.trim()) {
+        showToast("Por favor ingresa la CURP oficial o Código ID del alumno.", "error");
+        return;
+      }
+
+      const rawQ = query.trim();
+      let q = rawQ.toLowerCase();
+
+      // Soporte si el QR contiene una URL con parámetros o JSON
+      if (q.includes('?')) {
+        try {
+          const urlObj = new URL(rawQ);
+          q = (urlObj.searchParams.get('curp') || urlObj.searchParams.get('id') || urlObj.searchParams.get('uuid') || urlObj.searchParams.get('qr') || q).toLowerCase().trim();
+        } catch(e) {}
+      } else if (rawQ.startsWith('{') && rawQ.endsWith('}')) {
+        try {
+          const parsed = JSON.parse(rawQ);
+          q = (parsed.curp || parsed.uuid || parsed.id || parsed.qr_codigo || q).toLowerCase().trim();
+        } catch(e) {}
+      }
+
+      let alumno = null;
+
+      // 1. Buscar en memoria local primero
+      if (alumnosState && alumnosState.length > 0) {
+        alumno = alumnosState.find(a => {
+          const curp = (a.curp || '').toLowerCase().trim();
+          const uuid = (a.uuid || '').toLowerCase().trim();
+          const id = a.id !== undefined ? String(a.id).toLowerCase().trim() : '';
+          const qr = (a.qr_codigo || a.qr || '').toLowerCase().trim();
+          const nombre = (a.nombre || a.nombre_completo || '').toLowerCase().trim();
+
+          return (curp && (curp === q || q.includes(curp) || curp.includes(q))) ||
+                 (uuid && (uuid === q || q.includes(uuid) || uuid.includes(q))) ||
+                 (id && (id === q || q.includes(id) || id.includes(q))) ||
+                 (qr && (qr === q || q.includes(qr) || qr.includes(q))) ||
+                 (nombre && (nombre === q || nombre.includes(q) || q.includes(nombre)));
+        });
+      }
+
+      // 2. Si no se encontró en memoria local, consultar la base de datos (Backend API)
+      if (!alumno) {
+        try {
+          const res = await fetch(`${API_BASE_URL}/alumnos/consulta/${encodeURIComponent(q)}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.alumno) {
+              const bAlu = data.alumno;
+              alumno = {
+                id: bAlu.id,
+                uuid: bAlu.id,
+                id_maestro: bAlu.id_maestro,
+                nombre: bAlu.nombre_completo || 'Alumno',
+                nombre_completo: bAlu.nombre_completo || 'Alumno',
+                nombres: bAlu.nombre_completo ? bAlu.nombre_completo.split(' ')[0] : 'Alumno',
+                tutor: bAlu.nombre_tutor || 'Tutor',
+                telefono: bAlu.telefono_tutor || 'Sin teléfono',
+                curp: bAlu.curp || (bAlu.id ? bAlu.id.substring(0, 11).toUpperCase() : 'CURP'),
+                qr_codigo: bAlu.qr_codigo || bAlu.id,
+                asistenciaHoy: bAlu.asistencia_hoy || 'pendiente',
+                horaAsistencia: bAlu.hora_asistencia || '--:--',
+                asistenciasTotales: bAlu.asistencias_totales || { presentes: 0, retardos: 0, faltas: 0 },
+                calificaciones: bAlu.calificaciones || {},
+                maestro: bAlu.maestro || null
+              };
+            }
+          }
+        } catch (err) {
+          console.warn("No se pudo consultar el alumno en el backend:", err);
+        }
+      }
 
       if (!alumno) {
         showToast("No se encontró ningún alumno con esa CURP o Código. Verifica los datos.", "error");
@@ -694,6 +891,7 @@
 
       currentParentStudent = alumno;
       renderParentPortal(alumno);
+      loadParentDashboard(alumno);
       showView('view-portal-padres');
       showToast(`Reporte de Evaluación de ${alumno.nombre} cargado`, "success");
     }
@@ -702,108 +900,218 @@
       openParentPortalByQuery(uuidQuery);
     }
 
+    // ==========================================================
+    // VISTA DEL PADRE / TUTOR (CARGA DE DATOS AISLADOS)
+    // ==========================================================
+    async function loadParentDashboard(alumno) {
+      if (!alumno) return;
+      const teacherId = alumno.id_maestro || alumno.maestro?.id || maestroState.id;
+      const studentId = alumno.id || alumno.uuid;
+
+      // 1. Cargar únicamente los anuncios del salón de su maestro
+      if (teacherId) {
+        try {
+          const resAnuncios = await fetch(`${API_BASE_URL}/anuncios/maestro/${teacherId}`);
+          if (resAnuncios.ok) {
+            const rawAnuncios = await resAnuncios.json();
+            if (Array.isArray(rawAnuncios)) {
+              const anunciosSalon = rawAnuncios.map((a, idx) => ({
+                id: a.id || Date.now() - (idx * 1000),
+                fecha: a.created_at ? a.created_at.split('T')[0] : (a.fecha || new Date().toISOString().split('T')[0]),
+                titulo: a.titulo || 'Comunicado Escolar',
+                categoria: a.categoria || 'General',
+                prioridad: a.prioridad || (a.titulo?.toLowerCase().includes('urgente') ? 'Alta' : 'Normal'),
+                fijado: Boolean(a.fijado),
+                autor: a.autor || alumno.maestro?.nombre || maestroState.nombre || 'Docente Titular',
+                desc: a.contenido || a.desc || a.texto || '',
+                contenido: a.contenido || a.desc || a.texto || ''
+              }));
+              renderParentAnnouncements(anunciosSalon);
+            }
+          }
+        } catch (err) {
+          console.error('Error al cargar anuncios para el tutor:', err);
+        }
+      }
+
+      // 2. Cargar únicamente los mensajes privados de este alumno
+      if (studentId) {
+        try {
+          const resMensajes = await fetch(`${API_BASE_URL}/mensajes/alumno/${studentId}`);
+          if (resMensajes.ok) {
+            const rawMensajes = await resMensajes.json();
+            if (Array.isArray(rawMensajes)) {
+              renderParentMessages(rawMensajes, alumno);
+            }
+          }
+        } catch (err) {
+          console.error('Error al cargar mensajes del alumno:', err);
+        }
+      }
+
+      // 3. Cargar calificaciones aisladas del alumno desde el backend
+      if (studentId) {
+        try {
+          const resCal = await fetch(`${API_BASE_URL}/calificaciones/alumno/${studentId}`);
+          if (resCal.ok) {
+            const rawCal = await resCal.json();
+            if (Array.isArray(rawCal) && rawCal.length > 0) {
+              if (!alumno.calificaciones) alumno.calificaciones = {};
+              rawCal.forEach(c => {
+                if (c.materia && c.calificacion !== undefined) {
+                  alumno.calificaciones[c.materia] = Math.round(parseFloat(c.calificacion) || 0);
+                }
+              });
+              renderParentPortal(alumno);
+            }
+          }
+        } catch (err) {
+          console.error('Error al cargar calificaciones del alumno:', err);
+        }
+      }
+
+      // 4. Cargar historial de asistencias aislado del alumno desde el backend
+      if (studentId) {
+        try {
+          const resAsis = await fetch(`${API_BASE_URL}/asistencias/alumno/${studentId}`);
+          if (resAsis.ok) {
+            const rawAsis = await resAsis.json();
+            if (Array.isArray(rawAsis) && rawAsis.length > 0) {
+              let pres = 0, ret = 0, falt = 0;
+              rawAsis.forEach(as => {
+                const est = (as.estado || '').toLowerCase();
+                if (est === 'asistencia' || est === 'presente') pres++;
+                else if (est === 'retardo') ret++;
+                else if (est === 'falta') falt++;
+              });
+              alumno.asistenciasTotales = { presentes: pres, retardos: ret, faltas: falt };
+              
+              const hoy = new Date().toISOString().split('T')[0];
+              const asisHoy = rawAsis.find(as => as.fecha && as.fecha.startsWith(hoy));
+              if (asisHoy) {
+                const estHoy = (asisHoy.estado || '').toLowerCase();
+                alumno.asistenciaHoy = (estHoy === 'asistencia' || estHoy === 'presente') ? 'presente' : estHoy;
+              }
+              renderParentPortal(alumno);
+            }
+          }
+        } catch (err) {
+          console.error('Error al cargar asistencias del alumno:', err);
+        }
+      }
+
+      // 5. Cargar tareas y proyectos activos del maestro asignado al alumno
+      if (teacherId) {
+        try {
+          const [resTareas, resProyectos] = await Promise.all([
+            fetch(`${API_BASE_URL}/tareas/maestro/${teacherId}`),
+            fetch(`${API_BASE_URL}/proyectos/maestro/${teacherId}`)
+          ]);
+
+          if (resTareas.ok) {
+            const tareas = await resTareas.json();
+            if (Array.isArray(tareas)) {
+              tareasState = tareas.map(t => ({
+                id: t.id,
+                titulo: t.titulo,
+                campos: t.campos_formativos || [],
+                fechaPub: t.fecha_publicacion,
+                fecha: t.fecha_entrega,
+                desc: t.instrucciones || '',
+                calificaciones: {}
+              }));
+            }
+            renderParentTasks(tareas);
+          }
+          if (resProyectos.ok) {
+            const proyectos = await resProyectos.json();
+            if (Array.isArray(proyectos)) {
+              proyectosState = proyectos.map(p => ({
+                id: p.id,
+                titulo: p.titulo,
+                campos: p.campos_formativos || [],
+                fechaPub: p.fecha_publicacion,
+                fecha: p.fecha_entrega,
+                desc: p.instrucciones || '',
+                calificaciones: {}
+              }));
+            }
+            renderParentProjects(proyectos);
+          }
+        } catch (err) {
+          console.error('Error al cargar tareas/proyectos en el portal del padre:', err);
+        }
+      }
+    }
+
     function renderParentPortal(alumno) {
       // 1. Datos del Alumno
-      document.getElementById('p-avatar').textContent = alumno.nombre.charAt(0).toUpperCase();
-      document.getElementById('p-nombre').textContent = alumno.nombre;
+      const initial = (alumno.nombre || alumno.nombre_completo || 'A').charAt(0).toUpperCase();
+      document.getElementById('p-avatar').textContent = initial;
+      document.getElementById('p-nombre').textContent = alumno.nombre || alumno.nombre_completo || 'Alumno';
       
       const curpBadge = document.getElementById('p-curp-badge');
       if (curpBadge) {
-        curpBadge.textContent = `CURP: ${alumno.curp || 'SIN-CURP'}`;
+        curpBadge.textContent = `CURP / ID: ${alumno.curp || (alumno.id ? alumno.id.substring(0, 11).toUpperCase() : (alumno.uuid ? alumno.uuid.substring(0, 11).toUpperCase() : 'SIN-CURP'))}`;
       }
 
-      document.getElementById('p-grupo-tutor').textContent = `${maestroState.grupo} • Tutor: ${alumno.tutor}`;
-      document.getElementById('p-profesor').textContent = `Docente Titular: ${maestroState.nombre}`;
-      document.getElementById('p_msg_tutor_name').value = alumno.tutor;
+      const maestroGrupo = alumno.maestro?.grupo || maestroState.grupo || 'Grupo Escolar';
+      const maestroNombre = alumno.maestro?.nombre || maestroState.nombre || 'Docente Titular';
+      const tutorNombre = alumno.tutor || alumno.nombre_tutor || 'Tutor';
+
+      document.getElementById('p-grupo-tutor').textContent = `${maestroGrupo} • Tutor: ${tutorNombre}`;
+      document.getElementById('p-profesor').textContent = `Docente Titular: ${maestroNombre}`;
+      document.getElementById('p_msg_tutor_name').value = tutorNombre;
 
       // 2. Asistencias
-      const att = alumno.asistenciasTotales || { presentes: 22, retardos: 1, faltas: 0 };
-      const total = (att.presentes + att.retardos + att.faltas) || 1;
-      const rate = Math.round(((att.presentes + (att.retardos * 0.5)) / total) * 100);
+      const att = alumno.asistenciasTotales || { presentes: 0, retardos: 0, faltas: 0 };
+      const total = (att.presentes + att.retardos + att.faltas);
+      const rate = total > 0 ? Math.round(((att.presentes + (att.retardos * 0.5)) / total) * 100) : 100;
 
       document.getElementById('p-asist-presentes').textContent = att.presentes;
       document.getElementById('p-asist-retardos').textContent = att.retardos;
       document.getElementById('p-asist-faltas').textContent = att.faltas;
-      document.getElementById('p-asist-rate-badge').textContent = `${rate}%`;
-      document.getElementById('p-asist-hoy-badge').textContent = alumno.asistenciaHoy === 'presente' ? `Presente (${alumno.horaAsistencia})` : (alumno.asistenciaHoy === 'retardo' ? 'Retardo' : 'Pendiente / Falta');
+      document.getElementById('p-asist-rate-badge').textContent = total > 0 ? `${rate}%` : '--%';
+      
+      let hoyTexto = 'Pendiente / Sin registrar';
+      if (alumno.asistenciaHoy === 'presente') {
+        hoyTexto = `Presente (${alumno.horaAsistencia || 'A tiempo'})`;
+      } else if (alumno.asistenciaHoy === 'retardo') {
+        hoyTexto = `Retardo (${alumno.horaAsistencia || 'Tarde'})`;
+      } else if (alumno.asistenciaHoy === 'falta') {
+        hoyTexto = 'Inasistencia / Falta';
+      }
+      document.getElementById('p-asist-hoy-badge').textContent = hoyTexto;
 
       // 3. Reporte de Evaluación (Materias Enteras • Promedio con Decimales)
       const matContainer = document.getElementById('p-materias-list');
       let sum = 0, count = 0;
 
       matContainer.innerHTML = materiasState.map(m => {
-        const rawCal = (alumno.calificaciones && alumno.calificaciones[m] !== undefined) ? alumno.calificaciones[m] : 9;
-        const cal = Math.round(parseFloat(rawCal) || 0);
-        sum += cal;
-        count++;
+        const hasCal = (alumno.calificaciones && alumno.calificaciones[m] !== undefined && alumno.calificaciones[m] !== null && alumno.calificaciones[m] !== '');
+        const cal = hasCal ? Math.round(parseFloat(alumno.calificaciones[m]) || 0) : '-';
+        if (hasCal) {
+          sum += cal;
+          count++;
+        }
         return `
           <div class="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
             <span class="font-bold text-slate-800 dark:text-slate-200">${m}</span>
-            <span class="px-2.5 py-1 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 font-extrabold text-brand-700 dark:text-brand-300 text-xs shadow-2xs">
+            <span class="px-2.5 py-1 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 font-extrabold ${hasCal ? 'text-brand-700 dark:text-brand-300' : 'text-slate-400'} text-xs shadow-2xs">
               ${cal}
             </span>
           </div>
         `;
       }).join('');
 
-      const avgDecimal = count > 0 ? (sum / count).toFixed(1) : '10.0';
+      const avgDecimal = count > 0 ? (sum / count).toFixed(1) : 'Sin calificar';
       document.getElementById('p-promedio-general').textContent = `Promedio General: ${avgDecimal}`;
 
       // 4. Proyectos Escolares
-      const projContainer = document.getElementById('p-proyectos-list');
-      if (proyectosState.length === 0) {
-        projContainer.innerHTML = '<p class="text-slate-500 dark:text-slate-300 text-center py-4">No hay proyectos activos asignados.</p>';
-      } else {
-        projContainer.innerHTML = proyectosState.map(p => {
-          const note = (p.calificaciones && p.calificaciones[alumno.uuid]) ? p.calificaciones[alumno.uuid] : 10;
-          const camposBadges = (p.campos || []).map(c => `
-            <span class="text-[9px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-md border border-indigo-100 dark:border-indigo-800/60">${c}</span>
-          `).join(' ');
-
-          return `
-            <div class="p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700/80 space-y-1.5">
-              <div class="flex items-center justify-between gap-2">
-                <div class="flex flex-wrap gap-1">${camposBadges}</div>
-                <span class="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md shrink-0 border border-emerald-100 dark:border-emerald-800/60">Nota: ${note}</span>
-              </div>
-              <h4 class="font-bold text-slate-900 dark:text-slate-100 text-xs">${p.titulo}</h4>
-              <p class="text-[11px] text-slate-600 dark:text-slate-200 leading-relaxed">${p.desc}</p>
-              <div class="text-[10px] text-slate-500 dark:text-slate-300 flex items-center justify-between pt-1">
-                <span>Entrega: ${p.fecha}</span>
-                <span class="text-indigo-600 dark:text-indigo-300 font-semibold">Proyecto Integrador</span>
-              </div>
-            </div>
-          `;
-        }).join('');
-      }
+      renderParentProjects();
 
       // 5. Tareas Escolares
-      const tareasContainer = document.getElementById('p-tareas-list');
-      if (tareasState.length === 0) {
-        tareasContainer.innerHTML = '<p class="text-slate-500 dark:text-slate-300 text-center py-4">No hay tareas asignadas para casa.</p>';
-      } else {
-        tareasContainer.innerHTML = tareasState.map(t => {
-          const note = (t.calificaciones && t.calificaciones[alumno.uuid]) ? t.calificaciones[alumno.uuid] : 9;
-          const camposBadges = (t.campos || []).map(c => `
-            <span class="text-[9px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-100 dark:border-emerald-800/60">${c}</span>
-          `).join(' ');
-
-          return `
-            <div class="p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700/80 space-y-1.5">
-              <div class="flex items-center justify-between gap-2">
-                <div class="flex flex-wrap gap-1">${camposBadges}</div>
-                <span class="text-[11px] font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-md shrink-0 border border-indigo-100 dark:border-indigo-800/60">Nota: ${note}</span>
-              </div>
-              <h4 class="font-bold text-slate-900 dark:text-slate-100 text-xs">${t.titulo}</h4>
-              <p class="text-[11px] text-slate-600 dark:text-slate-200 leading-relaxed">${t.desc}</p>
-              <div class="text-[10px] text-slate-500 dark:text-slate-300 flex items-center justify-between pt-1">
-                <span>Entrega: ${t.fecha}</span>
-                <span class="text-emerald-600 dark:text-emerald-400 font-semibold">Tarea en Casa</span>
-              </div>
-            </div>
-          `;
-        }).join('');
-      }
+      renderParentTasks();
 
       // 6. Mensajes y Tickets de este Alumno
       renderParentChatHistory(alumno.uuid);
@@ -837,45 +1145,145 @@
       lucide.createIcons();
     }
 
+    function renderParentProjects(customProjects = null) {
+      const projContainer = document.getElementById('p-proyectos-list');
+      if (!projContainer) return;
+      const list = customProjects !== null ? customProjects : proyectosState;
+
+      if (!list || list.length === 0) {
+        projContainer.innerHTML = '<p class="text-slate-500 dark:text-slate-300 text-center py-4">No hay proyectos activos asignados.</p>';
+        return;
+      }
+
+      const currentStudentId = currentParentStudent?.uuid || currentParentStudent?.id;
+      projContainer.innerHTML = list.map(p => {
+        const studentNote = p.calificaciones && currentStudentId && (p.calificaciones[currentStudentId] || p.calificaciones[p.id]);
+        const noteText = studentNote !== undefined ? `Nota: ${studentNote}` : 'Pendiente';
+        const camposList = p.campos_formativos || p.campos || [];
+        const camposBadges = camposList.map(c => `
+          <span class="text-[9px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-md border border-indigo-100 dark:border-indigo-800/60">${c}</span>
+        `).join(' ');
+
+        return `
+          <div class="p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700/80 space-y-1.5">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex flex-wrap gap-1">${camposBadges}</div>
+              <span class="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md shrink-0 border border-emerald-100 dark:border-emerald-800/60">${noteText}</span>
+            </div>
+            <h4 class="font-bold text-slate-900 dark:text-slate-100 text-xs">${p.titulo}</h4>
+            <p class="text-[11px] text-slate-600 dark:text-slate-200 leading-relaxed">${p.instrucciones || p.desc || ''}</p>
+            <div class="text-[10px] text-slate-500 dark:text-slate-300 flex items-center justify-between pt-1">
+              <span>Entrega: ${p.fecha_entrega || p.fecha || 'Sin fecha'}</span>
+              <span class="text-indigo-600 dark:text-indigo-300 font-semibold">Proyecto Integrador</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderParentTasks(customTasks = null) {
+      const tareasContainer = document.getElementById('p-tareas-list');
+      if (!tareasContainer) return;
+      const list = customTasks !== null ? customTasks : tareasState;
+
+      if (!list || list.length === 0) {
+        tareasContainer.innerHTML = '<p class="text-slate-500 dark:text-slate-300 text-center py-4">No hay tareas asignadas para casa.</p>';
+        return;
+      }
+
+      const currentStudentId = currentParentStudent?.uuid || currentParentStudent?.id;
+      tareasContainer.innerHTML = list.map(t => {
+        const studentNote = t.calificaciones && currentStudentId && (t.calificaciones[currentStudentId] || t.calificaciones[t.id]);
+        const noteText = studentNote !== undefined ? `Nota: ${studentNote}` : 'Pendiente';
+        const camposList = t.campos_formativos || t.campos || [];
+        const camposBadges = camposList.map(c => `
+          <span class="text-[9px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-100 dark:border-emerald-800/60">${c}</span>
+        `).join(' ');
+
+        return `
+          <div class="p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700/80 space-y-1.5">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex flex-wrap gap-1">${camposBadges}</div>
+              <span class="text-[11px] font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-md shrink-0 border border-indigo-100 dark:border-indigo-800/60">${noteText}</span>
+            </div>
+            <h4 class="font-bold text-slate-900 dark:text-slate-100 text-xs">${t.titulo}</h4>
+            <p class="text-[11px] text-slate-600 dark:text-slate-200 leading-relaxed">${t.instrucciones || t.desc || ''}</p>
+            <div class="text-[10px] text-slate-500 dark:text-slate-300 flex items-center justify-between pt-1">
+              <span>Entrega: ${t.fecha_entrega || t.fecha || 'Sin fecha'}</span>
+              <span class="text-emerald-600 dark:text-emerald-400 font-semibold">Tarea en Casa</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
     // Modal Escáner QR de Padres
+    let isParentScanProcessing = false;
+
     function toggleParentScannerModal() {
       const modal = document.getElementById('modal-parent-scanner');
       if (modal.classList.contains('hidden')) {
-        modal.classList.remove('hidden');
-        startParentQrCamera();
+        openParentScannerModal();
       } else {
-        modal.classList.add('hidden');
-        stopParentQrCamera();
+        closeParentScannerModal();
       }
+    }
+
+    function openParentScannerModal() {
+      const modal = document.getElementById('modal-parent-scanner');
+      modal.classList.remove('hidden');
+      isParentScanProcessing = false;
+      startParentQrCamera();
+      lucide.createIcons();
+    }
+
+    function closeParentScannerModal() {
+      const modal = document.getElementById('modal-parent-scanner');
+      modal.classList.add('hidden');
+      stopParentQrCamera();
       lucide.createIcons();
     }
 
     async function startParentQrCamera() {
       isParentCameraActive = true;
+      isParentScanProcessing = false;
       const placeholder = document.getElementById('parent-scanner-placeholder');
-      placeholder.classList.add('hidden');
+      if (placeholder) placeholder.classList.remove('hidden');
 
       try {
+        if (parentHtml5QrScannerInstance) {
+          try {
+            await parentHtml5QrScannerInstance.stop();
+            parentHtml5QrScannerInstance.clear();
+          } catch(e) {}
+        }
         parentHtml5QrScannerInstance = new Html5Qrcode("parent-qr-reader");
-        const scanConfig = { fps: 12, qrbox: { width: 200, height: 200 } };
+        const scanConfig = { fps: 10, qrbox: { width: 200, height: 200 } };
         const onScanSuccess = (decodedText) => {
-          toggleParentScannerModal();
+          if (isParentScanProcessing) return;
+          isParentScanProcessing = true;
+          closeParentScannerModal();
           openParentPortalByUuid(decodedText);
         };
 
         await startScannerForcingBackCamera(parentHtml5QrScannerInstance, scanConfig, onScanSuccess);
+        if (placeholder) placeholder.classList.add('hidden');
       } catch (e) {
-        placeholder.classList.remove('hidden');
+        if (placeholder) placeholder.classList.remove('hidden');
         showToast("No se pudo iniciar la cámara trasera.", "error");
         isParentCameraActive = false;
       }
     }
 
-    function stopParentQrCamera() {
-      if (parentHtml5QrScannerInstance) {
-        parentHtml5QrScannerInstance.stop().then(() => parentHtml5QrScannerInstance.clear()).catch(() => {});
-      }
+    async function stopParentQrCamera() {
       isParentCameraActive = false;
+      if (parentHtml5QrScannerInstance) {
+        try {
+          await parentHtml5QrScannerInstance.stop();
+          parentHtml5QrScannerInstance.clear();
+        } catch (e) {}
+        parentHtml5QrScannerInstance = null;
+      }
     }
 
     function renderParentDemoChips() {
@@ -948,41 +1356,70 @@
     async function startQrCamera() {
       const placeholder = document.getElementById('scanner-placeholder');
       const btnText = document.getElementById('btn-camera-text');
-      placeholder.classList.add('hidden');
+      if (placeholder) placeholder.classList.remove('hidden');
       isCameraActive = true;
-      btnText.textContent = "Detener Cámara Trasera";
+      if (btnText) btnText.textContent = "Detener Cámara Trasera";
 
       try {
+        if (html5QrScannerInstance) {
+          try {
+            await html5QrScannerInstance.stop();
+            html5QrScannerInstance.clear();
+          } catch(e) {}
+        }
         html5QrScannerInstance = new Html5Qrcode("qr-reader");
-        const scanConfig = { fps: 12, qrbox: { width: 190, height: 190 } };
+        const scanConfig = { fps: 10, qrbox: { width: 190, height: 190 } };
         const onScanSuccess = (decodedText) => handleAttendanceScan(decodedText);
 
         await startScannerForcingBackCamera(html5QrScannerInstance, scanConfig, onScanSuccess);
+        if (placeholder) placeholder.classList.add('hidden');
       } catch (e) {
         showToast("No se pudo iniciar la cámara trasera.", "error");
         stopQrCamera();
       }
     }
 
-    function stopQrCamera() {
+    async function stopQrCamera() {
       if (html5QrScannerInstance) {
-        html5QrScannerInstance.stop().then(() => html5QrScannerInstance.clear()).catch(() => {});
+        try {
+          await html5QrScannerInstance.stop();
+          html5QrScannerInstance.clear();
+        } catch(e) {}
+        html5QrScannerInstance = null;
       }
-      document.getElementById('scanner-placeholder').classList.remove('hidden');
-      document.getElementById('btn-camera-text').textContent = "Activar Cámara Trasera";
+      document.getElementById('scanner-placeholder')?.classList.remove('hidden');
+      const btnText = document.getElementById('btn-camera-text');
+      if (btnText) btnText.textContent = "Activar Cámara Trasera";
       isCameraActive = false;
     }
 
     function handleManualScan() {
       const input = document.getElementById('manual-scan-input');
-      const val = input.value.trim();
+      const val = input?.value.trim();
       if (!val) return;
       handleAttendanceScan(val);
       input.value = '';
     }
 
+    let lastAttendanceScanTime = 0;
+    let lastAttendanceScannedCode = '';
+
     function handleAttendanceScan(scannedCode) {
-      const q = (scannedCode || '').toLowerCase().trim();
+      const now = Date.now();
+      const rawQ = (scannedCode || '').trim();
+      if (!rawQ) return;
+
+      // Cooldown de 2.5s para el mismo código y 600ms entre distintos
+      if (rawQ === lastAttendanceScannedCode && (now - lastAttendanceScanTime) < 2500) {
+        return;
+      }
+      if ((now - lastAttendanceScanTime) < 600) {
+        return;
+      }
+      lastAttendanceScanTime = now;
+      lastAttendanceScannedCode = rawQ;
+
+      const q = rawQ.toLowerCase();
       const a = alumnosState.find(x => 
         (x.curp && x.curp.toLowerCase().trim() === q) ||
         (x.uuid && x.uuid.toLowerCase() === q) || 
@@ -996,15 +1433,22 @@
 
       playScanChime('success');
       const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const prevStatus = a.asistenciaHoy || 'pendiente';
       a.asistenciaHoy = 'presente';
       a.horaAsistencia = timeStr;
       if (!a.asistenciasTotales) a.asistenciasTotales = { presentes: 0, retardos: 0, faltas: 0 };
-      a.asistenciasTotales.presentes += 1;
+      
+      if (prevStatus !== 'presente') {
+        if (prevStatus === 'retardo' && a.asistenciasTotales.retardos > 0) a.asistenciasTotales.retardos -= 1;
+        if (prevStatus === 'falta' && a.asistenciasTotales.faltas > 0) a.asistenciasTotales.faltas -= 1;
+        a.asistenciasTotales.presentes += 1;
+      }
 
       document.getElementById('last-scan-name').textContent = a.nombre;
       document.getElementById('last-scan-meta').textContent = `Hora: ${timeStr} • A tiempo`;
       document.getElementById('last-scan-feedback').classList.remove('hidden');
 
+      saveState();
       showToast(`Asistencia confirmada: ${a.nombre}`, "success");
       updateTeacherViews();
     }
@@ -1012,21 +1456,60 @@
     function markAllAttendance(status) {
       const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       alumnosState.forEach(a => {
+        const prevStatus = a.asistenciaHoy || 'pendiente';
         a.asistenciaHoy = status;
-        a.horaAsistencia = status === 'presente' ? timeStr : '--:--';
+        a.horaAsistencia = (status === 'presente' || status === 'retardo') ? timeStr : '--:--';
         if (!a.asistenciasTotales) a.asistenciasTotales = { presentes: 0, retardos: 0, faltas: 0 };
+        
+        if (prevStatus === 'presente' && a.asistenciasTotales.presentes > 0) a.asistenciasTotales.presentes -= 1;
+        if (prevStatus === 'retardo' && a.asistenciasTotales.retardos > 0) a.asistenciasTotales.retardos -= 1;
+        if (prevStatus === 'falta' && a.asistenciasTotales.faltas > 0) a.asistenciasTotales.faltas -= 1;
+
         if (status === 'presente') a.asistenciasTotales.presentes += 1;
+        if (status === 'retardo') a.asistenciasTotales.retardos += 1;
+        if (status === 'falta') a.asistenciasTotales.faltas += 1;
       });
+      saveState();
       updateTeacherViews();
-      showToast("Todos marcados como presentes", "success");
+      showToast("Todos marcados como " + status, "success");
     }
 
     function setAlumnoAttendance(uuid, status) {
       const a = alumnosState.find(x => x.uuid === uuid);
       if (!a) return;
+
+      const prevStatus = a.asistenciaHoy || 'pendiente';
       a.asistenciaHoy = status;
       a.horaAsistencia = (status === 'presente' || status === 'retardo') ? new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--';
+      
+      if (!a.asistenciasTotales) a.asistenciasTotales = { presentes: 0, retardos: 0, faltas: 0 };
+      
+      if (prevStatus === 'presente' && a.asistenciasTotales.presentes > 0) a.asistenciasTotales.presentes -= 1;
+      if (prevStatus === 'retardo' && a.asistenciasTotales.retardos > 0) a.asistenciasTotales.retardos -= 1;
+      if (prevStatus === 'falta' && a.asistenciasTotales.faltas > 0) a.asistenciasTotales.faltas -= 1;
+
+      if (status === 'presente') a.asistenciasTotales.presentes += 1;
+      if (status === 'retardo') a.asistenciasTotales.retardos += 1;
+      if (status === 'falta') a.asistenciasTotales.faltas += 1;
+
+      saveState();
       updateTeacherViews();
+
+      // Sincronizar asistencia con backend
+      const teacherId = localStorage.getItem('currentTeacherId') || a.id_maestro || maestroState.id;
+      const studentId = a.id || a.uuid;
+      if (teacherId && studentId && status !== 'pendiente') {
+        fetch(`${API_BASE_URL}/asistencias`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id_alumno: studentId,
+            id_maestro: teacherId,
+            estado: status,
+            fecha: new Date().toISOString().split('T')[0]
+          })
+        }).catch(err => console.warn("No se pudo registrar asistencia en backend:", err));
+      }
     }
 
     let currentAsistFilter = 'todos';
@@ -1100,6 +1583,79 @@
     // ==========================================================
     // 7. SISTEMA DE MENSAJERÍA ASÍNCRONA (DOCENTE & FAMILIAS)
     // ==========================================================
+    async function loadTeacherMessages(filterQuery = '') {
+      const currentTeacherId = localStorage.getItem('currentTeacherId') || maestroState.id || 1;
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/mensajes/maestro/${currentTeacherId}`);
+        if (res.ok) {
+          const data = await res.json();
+          const serverMessages = Array.isArray(data) ? data : (data.datos || data.mensajes || []);
+
+          if (serverMessages && serverMessages.length > 0) {
+            const grouped = {};
+
+            serverMessages.forEach(msg => {
+              const alumnoId = msg.id_alumno;
+              if (!alumnoId) return;
+
+              if (!grouped[alumnoId]) {
+                const student = alumnosState.find(a => a.uuid === alumnoId || String(a.id) === String(alumnoId) || a.curp === alumnoId);
+                grouped[alumnoId] = {
+                  id: alumnoId,
+                  alumnoUuid: alumnoId,
+                  asunto: msg.asunto || 'Mensaje Escolar',
+                  leidoPorMaestro: true,
+                  mensajes: []
+                };
+              }
+
+              const isMe = msg.enviado_por === 'maestro';
+              const student = alumnosState.find(a => a.uuid === alumnoId || String(a.id) === String(alumnoId) || a.curp === alumnoId);
+              const autor = isMe 
+                ? (maestroState.nombre || 'Prof. Carlos Mendoza') 
+                : (student?.tutor ? `${student.tutor} (Tutor)` : 'Padre / Tutor');
+
+              let formattedDate = 'Hoy';
+              if (msg.created_at || msg.fecha) {
+                const d = new Date(msg.created_at || msg.fecha);
+                if (!isNaN(d.getTime())) {
+                  formattedDate = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+                } else {
+                  formattedDate = msg.created_at || msg.fecha;
+                }
+              }
+
+              grouped[alumnoId].mensajes.push({
+                id: msg.id,
+                remitente: isMe ? 'maestro' : 'padre',
+                enviado_por: msg.enviado_por,
+                autor: autor,
+                texto: msg.texto,
+                fecha: formattedDate,
+                asunto: msg.asunto
+              });
+
+              if (!isMe && msg.asunto) {
+                grouped[alumnoId].asunto = msg.asunto;
+              }
+            });
+
+            Object.values(grouped).forEach(th => {
+              th.mensajes.sort((a, b) => (new Date(a.fecha) - new Date(b.fecha)) || ((a.id || 0) - (b.id || 0)));
+            });
+
+            mensajesState = Object.values(grouped);
+            saveState();
+          }
+        }
+      } catch (err) {
+        console.warn("Servidor no disponible para cargar mensajes del maestro:", err);
+      }
+
+      renderTeacherMessagesThreads(filterQuery);
+    }
+
     function renderTeacherMessagesThreads(filterQuery = '') {
       const container = document.getElementById('teacher-threads-list');
       const q = filterQuery.toLowerCase().trim();
@@ -1213,10 +1769,16 @@
       const alumno = alumnosState.find(a => a.uuid === alumnoUuid);
       if (!alumno) return;
       const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const prevStatus = alumno.asistenciaHoy || 'pendiente';
       alumno.asistenciaHoy = 'presente';
       alumno.horaAsistencia = `${timeStr} (Justificado)`;
       if (!alumno.asistenciasTotales) alumno.asistenciasTotales = { presentes: 0, retardos: 0, faltas: 0 };
-      alumno.asistenciasTotales.presentes += 1;
+      
+      if (prevStatus !== 'presente') {
+        if (prevStatus === 'retardo' && alumno.asistenciasTotales.retardos > 0) alumno.asistenciasTotales.retardos -= 1;
+        if (prevStatus === 'falta' && alumno.asistenciasTotales.faltas > 0) alumno.asistenciasTotales.faltas -= 1;
+        alumno.asistenciasTotales.presentes += 1;
+      }
 
       const th = mensajesState.find(x => x.id === threadId);
       if (th) {
@@ -1230,35 +1792,69 @@
         });
       }
 
+      saveState();
       updateTeacherViews();
       showToast(`Falta de ${alumno.nombre} registrada como justificada`, "success");
     }
 
-    function handleTeacherSendReply(e) {
+    async function handleTeacherSendReply(e) {
       e.preventDefault();
       const input = document.getElementById('teacher-reply-input');
-      const text = input.value.trim();
+      const text = input ? input.value.trim() : '';
       if (!text) return;
 
-      const th = mensajesState.find(x => x.id === selectedThreadId);
-      if (!th) return;
+      const th = mensajesState.find(x => String(x.id) === String(selectedThreadId) || String(x.alumnoUuid) === String(selectedThreadId)) || mensajesState[0];
+      if (!th) {
+        showToast("Selecciona una conversación para responder", "error");
+        return;
+      }
+
+      const id_alumno = th.alumnoUuid || th.id_alumno || th.id;
+      const currentTeacherId = localStorage.getItem('currentTeacherId') || maestroState.id || 1;
+
+      const payload = {
+        id_alumno: id_alumno,
+        id_maestro: currentTeacherId,
+        asunto: 'Respuesta',
+        texto: text,
+        enviado_por: 'maestro'
+      };
 
       const now = new Date();
       const fechaStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 
       th.mensajes.push({
+        id: Date.now(),
         remitente: 'maestro',
-        autor: maestroState.nombre,
+        enviado_por: 'maestro',
+        autor: maestroState.nombre || 'Prof. Carlos Mendoza',
         texto: text,
-        fecha: fechaStr
+        fecha: fechaStr,
+        asunto: 'Respuesta'
       });
 
       th.leidoPorMaestro = true;
       saveState();
-      input.value = '';
+      if (input) input.value = '';
 
       renderTeacherSelectedThread();
       renderTeacherMessagesThreads();
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/mensajes`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          console.warn("Backend error al enviar respuesta:", errData);
+        }
+      } catch (err) {
+        console.warn("No se pudo conectar con el servidor para enviar respuesta:", err);
+      }
+
       showToast("Respuesta enviada al padre de familia", "success");
     }
 
@@ -1285,51 +1881,87 @@
     }
 
     // Portal de Padres: Envío y Chat de Mensajes
-    function handleParentSendMessage(e) {
+    async function handleParentSendMessage(e) {
       e.preventDefault();
-      if (!currentParentStudent) return;
+      if (!currentParentStudent) {
+        showToast("No se ha seleccionado ningún alumno activo", "error");
+        return;
+      }
 
-      const asunto = document.getElementById('p_msg_asunto').value;
+      const asunto = document.getElementById('p_msg_asunto')?.value || 'Aviso General';
       const input = document.getElementById('p_msg_texto');
-      const texto = input.value.trim();
+      const texto = input ? input.value.trim() : '';
       if (!texto) return;
+
+      const id_alumno = currentParentStudent.id || currentParentStudent.uuid;
+      const currentTeacherId = localStorage.getItem('currentTeacherId') || currentParentStudent.id_maestro || maestroState.id || 1;
+
+      const payload = {
+        id_alumno: id_alumno,
+        id_maestro: currentTeacherId,
+        asunto: asunto,
+        texto: texto,
+        enviado_por: 'padre'
+      };
 
       const now = new Date();
       const fechaStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 
-      // Buscar si ya existe un hilo de este alumno con ese asunto, o crear uno nuevo
-      let thread = mensajesState.find(m => m.alumnoUuid === currentParentStudent.uuid && m.asunto === asunto);
+      let thread = mensajesState.find(m => 
+        m.alumnoUuid === currentParentStudent.uuid || 
+        String(m.alumnoUuid) === String(currentParentStudent.id) ||
+        m.id_alumno === currentParentStudent.uuid || 
+        String(m.id_alumno) === String(currentParentStudent.id)
+      );
+
+      const nuevoMensaje = {
+        id: Date.now(),
+        id_alumno: id_alumno,
+        id_maestro: currentTeacherId,
+        remitente: 'padre',
+        enviado_por: 'padre',
+        autor: `${currentParentStudent.tutor || 'Tutor'} (Tutor)`,
+        asunto: asunto,
+        texto: texto,
+        fecha: fechaStr
+      };
 
       if (thread) {
         thread.leidoPorMaestro = false;
-        thread.mensajes.push({
-          remitente: 'padre',
-          autor: `${currentParentStudent.tutor} (Tutor)`,
-          texto: texto,
-          fecha: fechaStr
-        });
+        thread.asunto = asunto;
+        thread.mensajes.push(nuevoMensaje);
       } else {
         thread = {
-          id: Date.now(),
-          alumnoUuid: currentParentStudent.uuid,
+          id: currentParentStudent.uuid || Date.now(),
+          alumnoUuid: currentParentStudent.uuid || id_alumno,
+          id_alumno: id_alumno,
           asunto: asunto,
           leidoPorMaestro: false,
-          mensajes: [
-            {
-              remitente: 'padre',
-              autor: `${currentParentStudent.tutor} (Tutor)`,
-              texto: texto,
-              fecha: fechaStr
-            }
-          ]
+          mensajes: [nuevoMensaje]
         };
         mensajesState.unshift(thread);
       }
 
       saveState();
-      input.value = '';
+      if (input) input.value = '';
       renderParentChatHistory(currentParentStudent.uuid);
       updateUnreadBadges();
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/mensajes`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          console.warn("Backend error al guardar mensaje:", errData);
+        }
+      } catch (err) {
+        console.warn("No se pudo conectar con el servidor para guardar mensaje:", err);
+      }
+
       showToast("Mensaje enviado al maestro con éxito", "success");
     }
 
@@ -1375,24 +2007,62 @@
     }
 
     // ==========================================================
-    // 8. REPORTE DE EVALUACIÓN & PROMEDIOS REDONDEADOS
+    // 8. CONFIGURACIÓN DE PERFIL Y REPORTE DE EVALUACIÓN
     // ==========================================================
-    function handleSaveConfiguracion(e) {
-      e.preventDefault();
-      maestroState.nombre = document.getElementById('config_nombre').value.trim();
-      maestroState.correo = document.getElementById('config_correo').value.trim();
+    async function loadTeacherProfile() {
+      const teacherId = localStorage.getItem('currentTeacherId') || maestroState.id;
+      if (!teacherId) return;
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/maestros/${teacherId}`);
+        if (res.ok) {
+          const maestro = await res.json();
+          if (maestro) {
+            if (maestro.nombre) maestroState.nombre = maestro.nombre;
+            if (maestro.escuela) maestroState.colegio = maestro.escuela;
+            if (maestro.ciclo_escolar) maestroState.ciclo = maestro.ciclo_escolar;
+            if (maestro.grado_grupo) maestroState.grupo = maestro.grado_grupo;
+            saveState();
+
+            const nameEl = document.getElementById('config_nombre') || document.getElementById('config-teacher-name');
+            if (nameEl && maestro.nombre) nameEl.value = maestro.nombre;
+
+            const schoolEl = document.getElementById('config_colegio') || document.getElementById('config-school-name');
+            if (schoolEl && maestro.escuela) schoolEl.value = maestro.escuela;
+
+            const cycleEl = document.getElementById('config_ciclo') || document.getElementById('config-cycle');
+            if (cycleEl && maestro.ciclo_escolar) cycleEl.value = maestro.ciclo_escolar;
+
+            const groupEl = document.getElementById('config-grade-group');
+            if (groupEl && maestro.grado_grupo) groupEl.value = maestro.grado_grupo;
+          }
+        }
+      } catch (err) {
+        console.error('Error cargando configuración:', err);
+      }
+    }
+
+    async function handleUpdateProfile(event) {
+      if (event) event.preventDefault();
+      const teacherId = localStorage.getItem('currentTeacherId') || maestroState.id;
+      const nombre = (document.getElementById('config_nombre') || document.getElementById('config-teacher-name'))?.value?.trim();
+      const correo = document.getElementById('config_correo')?.value?.trim();
+      const escuela = (document.getElementById('config_colegio') || document.getElementById('config-school-name'))?.value?.trim();
       
       const gradoConfig = document.getElementById('config_grado_sel')?.value;
       const grupoConfig = document.getElementById('config_grupo_sel')?.value;
+      let grado_grupo = (document.getElementById('config-grade-group'))?.value?.trim();
       if (gradoConfig && grupoConfig) {
-        maestroState.grupo = `${gradoConfig} ${grupoConfig}`;
-      } else {
-        const configGrupo = document.getElementById('config_grupo');
-        if (configGrupo) maestroState.grupo = configGrupo.value.trim();
+        grado_grupo = `${gradoConfig} ${grupoConfig}`;
       }
+      
+      const ciclo_escolar = (document.getElementById('config_ciclo') || document.getElementById('config-cycle'))?.value?.trim();
 
-      maestroState.colegio = document.getElementById('config_colegio').value.trim();
-      maestroState.ciclo = document.getElementById('config_ciclo').value.trim();
+      if (nombre) maestroState.nombre = nombre;
+      if (correo) maestroState.correo = correo;
+      if (escuela) maestroState.colegio = escuela;
+      if (grado_grupo) maestroState.grupo = grado_grupo;
+      if (ciclo_escolar) maestroState.ciclo = ciclo_escolar;
 
       const maxInput = document.getElementById('config_max_alumnos');
       if (maxInput) {
@@ -1402,8 +2072,29 @@
         }
       }
 
+      saveState();
       updateTeacherViews();
-      showToast("Configuración guardada correctamente", "success");
+
+      if (teacherId) {
+        try {
+          const res = await fetch(`${API_BASE_URL}/maestros/${teacherId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nombre, escuela, grado_grupo, ciclo_escolar })
+          });
+          if (res.ok) {
+            showToast('Perfil actualizado correctamente.', 'success');
+            const sidebarGroup = document.querySelector('.sidebar-group-label');
+            if (sidebarGroup && grado_grupo) sidebarGroup.textContent = grado_grupo;
+          }
+        } catch (err) {
+          console.error('Error al guardar perfil:', err);
+        }
+      }
+    }
+
+    function handleSaveConfiguracion(e) {
+      return handleUpdateProfile(e);
     }
 
     function handleTeacherPhotoUpload(event) {
@@ -1607,13 +2298,21 @@
             valA = a.nombre.toLowerCase();
             valB = b.nombre.toLowerCase();
           } else if (gradesSortCol === 'promedio') {
-            const promA = materiasState.reduce((acc, m) => acc + (parseInt(a.calificaciones?.[m], 10) || 9), 0) / (materiasState.length || 1);
-            const promB = materiasState.reduce((acc, m) => acc + (parseInt(b.calificaciones?.[m], 10) || 9), 0) / (materiasState.length || 1);
-            valA = promA;
-            valB = promB;
+            const getProm = (al) => {
+              let s = 0, c = 0;
+              materiasState.forEach(m => {
+                if (al.calificaciones?.[m] !== undefined && al.calificaciones?.[m] !== null) {
+                  s += parseFloat(al.calificaciones[m]) || 0;
+                  c++;
+                }
+              });
+              return c > 0 ? s / c : 0;
+            };
+            valA = getProm(a);
+            valB = getProm(b);
           } else {
-            valA = parseInt(a.calificaciones?.[gradesSortCol], 10) || 9;
-            valB = parseInt(b.calificaciones?.[gradesSortCol], 10) || 9;
+            valA = a.calificaciones?.[gradesSortCol] !== undefined ? parseFloat(a.calificaciones[gradesSortCol]) : -1;
+            valB = b.calificaciones?.[gradesSortCol] !== undefined ? parseFloat(b.calificaciones[gradesSortCol]) : -1;
           }
 
           if (valA < valB) return gradesSortDir === 'asc' ? -1 : 1;
@@ -1630,10 +2329,12 @@
 
         let sum = 0, count = 0;
         materiasState.forEach(m => {
-          const rawVal = alumno.calificaciones[m] !== undefined ? alumno.calificaciones[m] : 9;
-          const val = Math.round(parseFloat(rawVal) || 0);
-          sum += val;
-          count++;
+          const hasVal = alumno.calificaciones && alumno.calificaciones[m] !== undefined && alumno.calificaciones[m] !== null && alumno.calificaciones[m] !== '';
+          const val = hasVal ? Math.round(parseFloat(alumno.calificaciones[m]) || 0) : '';
+          if (hasVal) {
+            sum += val;
+            count++;
+          }
 
           rowHtml += `
             <td class="px-3 py-2 text-center">
@@ -1642,6 +2343,7 @@
                 step="1"
                 min="0"
                 max="10"
+                placeholder="-"
                 value="${val}"
                 oninput="updateDynamicGrade(${aIdx}, '${m}', this.value)"
                 class="w-16 text-center py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold focus:bg-white dark:bg-slate-900 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600"
@@ -1650,7 +2352,7 @@
           `;
         });
 
-        const avgDecimal = count > 0 ? (sum / count).toFixed(1) : '10.0';
+        const avgDecimal = count > 0 ? (sum / count).toFixed(1) : '-';
         rowHtml += `
           <td class="px-4 py-3 text-center font-extrabold text-brand-600 dark:text-brand-400 text-sm font-mono" id="prom-alumno-${aIdx}">
             ${avgDecimal}
@@ -1671,27 +2373,59 @@
       const alumno = alumnosState[alumnoIdx];
       if (!alumno) return;
       if (!alumno.calificaciones) alumno.calificaciones = {};
-      let intVal = parseInt(value, 10);
-      if (isNaN(intVal)) intVal = 0;
-      if (intVal > 10) intVal = 10;
-      if (intVal < 0) intVal = 0;
-      alumno.calificaciones[materia] = intVal;
+      
+      const trimmed = String(value).trim();
+      if (trimmed === '') {
+        delete alumno.calificaciones[materia];
+      } else {
+        let intVal = parseInt(trimmed, 10);
+        if (isNaN(intVal)) intVal = 0;
+        if (intVal > 10) intVal = 10;
+        if (intVal < 0) intVal = 0;
+        alumno.calificaciones[materia] = intVal;
+      }
 
       let sum = 0, count = 0;
       materiasState.forEach(m => {
-        sum += (parseInt(alumno.calificaciones[m], 10) || 0);
-        count++;
+        if (alumno.calificaciones[m] !== undefined && alumno.calificaciones[m] !== null) {
+          sum += (parseInt(alumno.calificaciones[m], 10) || 0);
+          count++;
+        }
       });
-      const avgDecimal = count > 0 ? (sum / count).toFixed(1) : '10.0';
+      const avgDecimal = count > 0 ? (sum / count).toFixed(1) : '-';
       const el = document.getElementById(`prom-alumno-${alumnoIdx}`);
       if (el) el.textContent = avgDecimal;
 
       saveState();
     }
 
-    function saveAllGrades() {
+    async function saveAllGrades() {
       saveState();
       showToast("¡Reporte de Evaluación guardado exitosamente!", "success");
+
+      // Sincronizar calificaciones con backend
+      const teacherId = localStorage.getItem('currentTeacherId') || maestroState.id;
+      if (teacherId && alumnosState.length > 0) {
+        for (const alumno of alumnosState) {
+          const studentId = alumno.id || alumno.uuid;
+          if (!studentId || !alumno.calificaciones) continue;
+          for (const mat of Object.keys(alumno.calificaciones)) {
+            const cal = alumno.calificaciones[mat];
+            if (cal !== undefined && cal !== null && cal !== '') {
+              fetch(`${API_BASE_URL}/calificaciones`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  id_alumno: studentId,
+                  id_maestro: teacherId,
+                  materia: mat,
+                  calificacion: cal
+                })
+              }).catch(() => {});
+            }
+          }
+        }
+      }
     }
 
     function openMateriasModal() {
@@ -1776,56 +2510,104 @@
     // ==========================================================
     // 9. PROYECTOS & TAREAS
     // ==========================================================
+
+    // Obtener campos formativos seleccionados en cualquier modal
+    function getSelectedCamposFormativos(containerSelector) {
+      const container = document.querySelector(containerSelector);
+      if (!container) return [];
+      
+      const checkboxes = container.querySelectorAll('input[type="checkbox"]:checked');
+      return Array.from(checkboxes).map(cb => cb.value || cb.nextElementSibling?.textContent?.trim()).filter(Boolean);
+    }
+
+    function closeModal(modalId) {
+      const el = document.getElementById(modalId) || document.getElementById(modalId.replace('nueva', 'new').replace('nuevo', 'new'));
+      if (el) el.classList.add('hidden');
+    }
+
     function openNewProjectModal() {
-      document.getElementById('modal-new-project').classList.remove('hidden');
+      document.getElementById('modal-new-project')?.classList.remove('hidden');
       lucide.createIcons();
     }
 
     function closeNewProjectModal() {
-      document.getElementById('modal-new-project').classList.add('hidden');
+      closeModal('modal-new-project');
     }
 
-    function handleCreateProject(e) {
-      e.preventDefault();
-      const checkboxes = document.querySelectorAll('input[name="proj_campo"]:checked');
-      const selectedCampos = Array.from(checkboxes).map(cb => cb.value);
+    // Crear nuevo proyecto desde el modal
+    async function handleCreateProject(event) {
+      if (event) event.preventDefault();
 
-      if (selectedCampos.length === 0) {
-        showToast("Selecciona al menos un Campo Formativo.", "error");
+      const teacherId = localStorage.getItem('currentTeacherId') || maestroState.id;
+      const titulo = (document.getElementById('project-title') || document.getElementById('proj-title'))?.value?.trim();
+      const fechaPublicacion = (document.getElementById('project-publish-date') || document.getElementById('proj-pub-date'))?.value || new Date().toISOString().split('T')[0];
+      const fechaEntrega = (document.getElementById('project-due-date') || document.getElementById('proj-date'))?.value;
+      const instrucciones = (document.getElementById('project-rubric') || document.getElementById('proj-desc'))?.value?.trim();
+      const camposFormativos = getSelectedCamposFormativos('#modal-new-project') || getSelectedCamposFormativos('#modal-nuevo-proyecto');
+
+      if (!teacherId || !titulo || !fechaEntrega) {
+        showToast('Por favor completa el título y la fecha de entrega del proyecto.', 'error');
         return;
       }
 
-      const nuevo = {
-        id: Date.now(),
-        titulo: document.getElementById('proj-title').value.trim(),
-        campos: selectedCampos,
-        fechaPub: document.getElementById('proj-pub-date').value,
-        fecha: document.getElementById('proj-date').value,
-        desc: document.getElementById('proj-desc').value.trim(),
-        calificaciones: {}
-      };
+      if (camposFormativos.length === 0) {
+        showToast('Selecciona al menos un Campo Formativo.', 'error');
+        return;
+      }
 
-      proyectosState.push(nuevo);
-      updateTeacherViews();
-      closeNewProjectModal();
-      document.getElementById('form-new-project').reset();
-      showToast("Proyecto publicado con éxito", "success");
+      try {
+        const res = await fetch(`${API_BASE_URL}/proyectos`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id_maestro: teacherId,
+            titulo,
+            campos_formativos: camposFormativos,
+            fecha_publicacion: fechaPublicacion,
+            fecha_entrega: fechaEntrega,
+            instrucciones
+          })
+        });
+
+        if (res.ok) {
+          closeModal('modal-new-project');
+          closeModal('modal-nuevo-proyecto');
+          document.getElementById('form-new-project')?.reset();
+          showToast('Proyecto publicado con éxito', 'success');
+          loadTeacherProjects(teacherId);
+        } else {
+          console.error('Error al guardar el proyecto');
+        }
+      } catch (err) {
+        console.error('Error de red al crear proyecto:', err);
+      }
     }
 
-    function renderProjectsGrid() {
+    function renderProjectsList(proyectos) {
+      renderProjectsGrid(proyectos);
+    }
+
+    function renderProjectsGrid(customProjects = null) {
       const container = document.getElementById('projects-grid');
-      if (proyectosState.length === 0) {
+      if (!container) return;
+      const list = customProjects !== null ? customProjects : proyectosState;
+
+      if (!list || list.length === 0) {
         container.innerHTML = `<div class="col-span-1 md:col-span-2 lg:col-span-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-8 flex flex-col items-center justify-center gap-3"><i data-lucide="folder-kanban" class="w-10 h-10 text-slate-300"></i><div class="text-center"><p class="text-sm font-bold text-slate-700 dark:text-slate-300">No hay proyectos activos</p><p class="text-[11px] text-slate-400">Planifica el primer proyecto integrador.</p></div></div>`;
+        lucide.createIcons();
         return;
       }
 
-      container.innerHTML = proyectosState.map((proj, idx) => {
-        const camposBadges = (proj.campos || []).map(c => `
+      container.innerHTML = list.map((proj, idx) => {
+        const camposList = proj.campos_formativos || proj.campos || [];
+        const camposBadges = camposList.map(c => `
           <span class="text-[9px] font-bold uppercase tracking-wider text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-900/40 px-2 py-0.5 rounded-md border border-brand-100">${c}</span>
         `).join(' ');
 
-        const pubText = proj.fechaPub ? `Pub: ${proj.fechaPub}` : 'Publicado';
-        const isPendingReview = new Date(proj.fecha) < new Date();
+        const pubDate = proj.fecha_publicacion || proj.fechaPub;
+        const dueDate = proj.fecha_entrega || proj.fecha;
+        const pubText = pubDate ? `Pub: ${pubDate}` : 'Publicado';
+        const isPendingReview = dueDate ? (new Date(dueDate) < new Date()) : false;
         const pendingBadge = isPendingReview ? `<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-400">Revisión Pendiente</span>` : '';
 
         return `
@@ -1834,11 +2616,11 @@
               <div class="flex flex-wrap gap-1 mb-2">${camposBadges}</div>
               <h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm mt-1">${proj.titulo}</h3>
               <p class="text-[10px] text-slate-400 mb-1">${pubText}</p>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">${proj.desc}</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">${proj.instrucciones || proj.desc || ''}</p>
             </div>
             <div class="pt-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
               <div class="flex items-center gap-2">
-                <span>Entrega: <strong class="text-slate-700 dark:text-slate-300">${proj.fecha}</strong></span>
+                <span>Entrega: <strong class="text-slate-700 dark:text-slate-300">${dueDate || 'Sin fecha'}</strong></span>
                 ${pendingBadge}
               </div>
               <button onclick="deleteProject(${idx})" class="text-slate-400 hover:text-rose-600 p-1 cursor-pointer">
@@ -1848,64 +2630,116 @@
           </div>
         `;
       }).join('');
+      lucide.createIcons();
     }
 
-    function deleteProject(index) {
+    async function deleteProject(index) {
+      const proj = proyectosState[index];
+      if (!proj) return;
+      if (!confirm("¿Deseas eliminar este proyecto escolar?")) return;
+
+      const projId = proj.id;
       proyectosState.splice(index, 1);
+      saveState();
       updateTeacherViews();
       showToast("Proyecto eliminado", "info");
+
+      if (projId && typeof projId === 'string' && projId.length > 10) {
+        try {
+          await fetch(`${API_BASE_URL}/proyectos/${projId}`, { method: 'DELETE' });
+        } catch (err) {
+          console.warn("Error al borrar proyecto en backend:", err);
+        }
+      }
     }
 
     function openNewTareaModal() {
-      document.getElementById('modal-new-tarea').classList.remove('hidden');
+      document.getElementById('modal-new-tarea')?.classList.remove('hidden');
       lucide.createIcons();
     }
 
     function closeNewTareaModal() {
-      document.getElementById('modal-new-tarea').classList.add('hidden');
+      closeModal('modal-new-tarea');
     }
 
-    function handleCreateTarea(e) {
-      e.preventDefault();
-      const checkboxes = document.querySelectorAll('input[name="tarea_campo"]:checked');
-      const selectedCampos = Array.from(checkboxes).map(cb => cb.value);
+    // Crear nueva tarea desde el modal
+    async function handleCreateTask(event) {
+      if (event) event.preventDefault();
+      
+      const teacherId = localStorage.getItem('currentTeacherId') || maestroState.id;
+      const titulo = (document.getElementById('task-title') || document.getElementById('tarea-title'))?.value?.trim();
+      const fechaPublicacion = (document.getElementById('task-publish-date') || document.getElementById('tarea-pub-date'))?.value || new Date().toISOString().split('T')[0];
+      const fechaEntrega = (document.getElementById('task-due-date') || document.getElementById('tarea-date'))?.value;
+      const instrucciones = (document.getElementById('task-instructions') || document.getElementById('tarea-desc'))?.value?.trim();
+      const camposFormativos = getSelectedCamposFormativos('#modal-new-tarea') || getSelectedCamposFormativos('#modal-nueva-tarea');
 
-      if (selectedCampos.length === 0) {
-        showToast("Selecciona al menos un Campo Formativo.", "error");
+      if (!teacherId || !titulo || !fechaEntrega) {
+        showToast('Por favor completa el título y la fecha de entrega.', 'error');
         return;
       }
 
-      const nueva = {
-        id: Date.now(),
-        titulo: document.getElementById('tarea-title').value.trim(),
-        campos: selectedCampos,
-        fechaPub: document.getElementById('tarea-pub-date').value,
-        fecha: document.getElementById('tarea-date').value,
-        desc: document.getElementById('tarea-desc').value.trim(),
-        calificaciones: {}
-      };
+      if (camposFormativos.length === 0) {
+        showToast('Selecciona al menos un Campo Formativo.', 'error');
+        return;
+      }
 
-      tareasState.push(nueva);
-      updateTeacherViews();
-      closeNewTareaModal();
-      document.getElementById('form-new-tarea').reset();
-      showToast("Tarea asignada para casa", "success");
+      try {
+        const res = await fetch(`${API_BASE_URL}/tareas`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id_maestro: teacherId,
+            titulo,
+            campos_formativos: camposFormativos,
+            fecha_publicacion: fechaPublicacion,
+            fecha_entrega: fechaEntrega,
+            instrucciones
+          })
+        });
+
+        if (res.ok) {
+          closeModal('modal-new-tarea');
+          closeModal('modal-nueva-tarea');
+          document.getElementById('form-new-tarea')?.reset();
+          showToast('Tarea asignada para casa', 'success');
+          loadTeacherTasks(teacherId);
+        } else {
+          console.error('Error al guardar la tarea');
+        }
+      } catch (err) {
+        console.error('Error de red al crear tarea:', err);
+      }
     }
 
-    function renderTareasGrid() {
+    function handleCreateTarea(event) {
+      return handleCreateTask(event);
+    }
+
+    function renderTasksList(tareas) {
+      renderTareasGrid(tareas);
+    }
+
+    function renderTareasGrid(customTasks = null) {
       const container = document.getElementById('tareas-grid');
-      if (tareasState.length === 0) {
+      if (!container) return;
+      const list = customTasks !== null ? customTasks : tareasState;
+
+      if (!list || list.length === 0) {
         container.innerHTML = `<div class="col-span-1 md:col-span-2 lg:col-span-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-8 flex flex-col items-center justify-center gap-3"><i data-lucide="check-square" class="w-10 h-10 text-slate-300"></i><div class="text-center"><p class="text-sm font-bold text-slate-700 dark:text-slate-300">No hay tareas asignadas</p><p class="text-[11px] text-slate-400">Crea la primera tarea escolar.</p></div></div>`;
+        lucide.createIcons();
         return;
       }
 
-      container.innerHTML = tareasState.map((tarea, idx) => {
-        const camposBadges = (tarea.campos || []).map(c => `
+      container.innerHTML = list.map((tarea, idx) => {
+        const camposList = tarea.campos_formativos || tarea.campos || [];
+        const camposBadges = camposList.map(c => `
           <span class="text-[9px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/40 px-2 py-0.5 rounded-md border border-indigo-100">${c}</span>
         `).join(' ');
 
-        const pubText = tarea.fechaPub ? `Pub: ${tarea.fechaPub}` : 'Publicado';
-        const isPendingReview = new Date(tarea.fecha) < new Date();
+        const pubDate = tarea.fecha_publicacion || tarea.fechaPub;
+        const dueDate = tarea.fecha_entrega || tarea.fecha;
+        const pubText = pubDate ? `Pub: ${pubDate}` : 'Publicado';
+        const isPendingReview = dueDate ? (new Date(dueDate) < new Date()) : false;
         const pendingBadge = isPendingReview ? `<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-400">Revisión Pendiente</span>` : '';
 
         return `
@@ -1914,11 +2748,11 @@
               <div class="flex flex-wrap gap-1 mb-2">${camposBadges}</div>
               <h3 class="font-bold text-slate-900 dark:text-slate-100 text-sm mt-1">${tarea.titulo}</h3>
               <p class="text-[10px] text-slate-400 mb-1">${pubText}</p>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">${tarea.desc}</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">${tarea.instrucciones || tarea.desc || ''}</p>
             </div>
             <div class="pt-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
               <div class="flex items-center gap-2">
-                <span>Entrega: <strong class="text-slate-700 dark:text-slate-300">${tarea.fecha}</strong></span>
+                <span>Entrega: <strong class="text-slate-700 dark:text-slate-300">${dueDate || 'Sin fecha'}</strong></span>
                 ${pendingBadge}
               </div>
               <button onclick="deleteTarea(${idx})" class="text-slate-400 hover:text-rose-600 p-1 cursor-pointer">
@@ -1928,17 +2762,94 @@
           </div>
         `;
       }).join('');
+      lucide.createIcons();
     }
 
-    function deleteTarea(index) {
+    async function deleteTarea(index) {
+      const t = tareasState[index];
+      if (!t) return;
+      if (!confirm("¿Deseas eliminar esta tarea escolar?")) return;
+
+      const tareaId = t.id;
       tareasState.splice(index, 1);
+      saveState();
       updateTeacherViews();
       showToast("Tarea eliminada", "info");
+
+      if (tareaId && typeof tareaId === 'string' && tareaId.length > 10) {
+        try {
+          await fetch(`${API_BASE_URL}/tareas/${tareaId}`, { method: 'DELETE' });
+        } catch (err) {
+          console.warn("Error al borrar tarea en backend:", err);
+        }
+      }
     }
 
     // ==========================================================
     // 9.5 CALENDARIO ESCOLAR
     // ==========================================================
+    async function loadTeacherCalendar(teacherId) {
+      const id = teacherId || localStorage.getItem('currentTeacherId') || maestroState.id;
+      if (!id) return;
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/calendario/maestro/${id}`);
+        if (res.ok) {
+          const eventos = await res.json();
+          if (Array.isArray(eventos)) {
+            calendarioEventsState = eventos;
+            localStorage.setItem('lumni_calendario', JSON.stringify(calendarioEventsState));
+          }
+          renderCalendarEvents(calendarioEventsState);
+        }
+      } catch (err) {
+        console.error('Error cargando calendario:', err);
+      }
+    }
+
+    function renderCalendarEvents(eventos) {
+      renderCalendario('teacher-calendar-grid');
+    }
+
+    async function handleCreateCalendarEvent(event) {
+      if (event) event.preventDefault();
+      const teacherId = localStorage.getItem('currentTeacherId') || maestroState.id;
+      const titulo = (document.getElementById('event-title') || document.getElementById('evento-title'))?.value?.trim();
+      let tipo = (document.getElementById('event-type') || document.getElementById('evento-type'))?.value || 'evento';
+      const fecha = (document.getElementById('event-date') || document.getElementById('evento-date'))?.value;
+      const descripcion = (document.getElementById('event-desc') || document.getElementById('evento-desc'))?.value?.trim();
+
+      if (!teacherId || !titulo || !fecha) {
+        showToast('Completa los campos obligatorios (título y fecha).', 'error');
+        return;
+      }
+
+      const validTypes = ['evento', 'entrega', 'evaluacion'];
+      if (!validTypes.includes(tipo)) {
+        tipo = 'evento';
+      }
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/calendario`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id_maestro: teacherId, titulo, tipo, fecha, descripcion: descripcion || '' })
+        });
+        if (res.ok) {
+          closeModal('modal-nuevo-evento');
+          closeModal('modal-new-evento');
+          document.getElementById('form-nuevo-evento')?.reset();
+          showToast('Evento agendado con éxito', 'success');
+          loadTeacherCalendar(teacherId);
+        } else {
+          const errData = await res.json();
+          showToast(errData.error || 'Error al guardar evento', 'error');
+        }
+      } catch (err) {
+        console.error('Error al guardar evento:', err);
+      }
+    }
+
     function renderCalendario(containerId) {
       const container = document.getElementById(containerId);
       if (!container) return;
@@ -1976,6 +2887,17 @@
         const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
         let eventsHtml = '';
+
+        // Buscar eventos de la base de datos de calendario
+        const dayCalendarEvents = (calendarioEventsState || []).filter(e => e.fecha === dateStr);
+        dayCalendarEvents.forEach(e => {
+          const badgeClass = e.tipo === 'evaluacion' 
+            ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800/60'
+            : (e.tipo === 'entrega' 
+                ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60'
+                : 'bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border-purple-200 dark:border-purple-800/60');
+          eventsHtml += `<div class="text-[9px] ${badgeClass} p-0.5 rounded mb-0.5 truncate border" title="Evento: ${e.titulo}">${e.titulo}</div>`;
+        });
 
         // Buscar eventos para este día
         const dayProjects = proyectosState.filter(p => p.fecha === dateStr);
@@ -2019,41 +2941,8 @@
     let currentAnuncioCategoryFilter = 'todas';
     let currentAnuncioSearchQuery = '';
 
-    const initialAnunciosSeed = [
-      {
-        id: 1,
-        fecha: '2026-08-25',
-        titulo: 'Reunión General de Padres de Familia',
-        categoria: 'Reunión',
-        prioridad: 'Alta',
-        fijado: true,
-        autor: 'Prof. Carlos Mendoza',
-        desc: 'El próximo viernes tendremos reunión general para entrega de resultados del primer bloque, informe de avances y acuerdos pedagógicos en el aula.'
-      },
-      {
-        id: 2,
-        fecha: '2026-08-20',
-        titulo: 'Suspensión Oficial de Labores Escolares',
-        categoria: 'General',
-        prioridad: 'Normal',
-        fijado: false,
-        autor: 'Prof. Carlos Mendoza',
-        desc: 'El próximo lunes no habrá clases por conmemoración del calendario cívico escolar oficial de la SEP.'
-      },
-      {
-        id: 3,
-        fecha: '2026-08-28',
-        titulo: 'Materiales para Proyecto de Ciencias',
-        categoria: 'Académico',
-        prioridad: 'Normal',
-        fijado: false,
-        autor: 'Prof. Carlos Mendoza',
-        desc: 'Recordatorio para traer los materiales reciclables para el prototipo del circuito ecológico antes del jueves.'
-      }
-    ];
-
     let rawAnuncios = JSON.parse(localStorage.getItem('lumni_anuncios'));
-    let anunciosState = (rawAnuncios && Array.isArray(rawAnuncios) && rawAnuncios.length > 0)
+    let anunciosState = (rawAnuncios && Array.isArray(rawAnuncios))
       ? rawAnuncios.map((a, idx) => ({
           id: a.id || (Date.now() - (idx * 1000)),
           fecha: a.fecha || new Date().toISOString().split('T')[0],
@@ -2062,9 +2951,10 @@
           prioridad: a.prioridad || (a.titulo?.toLowerCase().includes('urgente') ? 'Alta' : 'Normal'),
           fijado: Boolean(a.fijado),
           autor: a.autor || maestroState?.nombre || 'Docente Titular',
-          desc: a.desc || ''
+          desc: a.desc || a.contenido || '',
+          contenido: a.contenido || a.desc || ''
         }))
-      : initialAnunciosSeed;
+      : [];
 
     function getAnuncioCategoryMeta(cat) {
       const meta = {
@@ -2306,25 +3196,27 @@
       lucide.createIcons();
     }
 
-    function renderAnunciosPadres() {
+    function renderParentAnnouncements(customList = null) {
       const container = document.getElementById('p-anuncios-list');
       const badge = document.getElementById('p-anuncios-count-badge');
       if (!container) return;
 
+      const list = customList !== null ? customList : anunciosState;
+
       if (badge) {
-        badge.textContent = `${anunciosState.length} comunicado${anunciosState.length === 1 ? '' : 's'}`;
+        badge.textContent = `${list.length} comunicado${list.length === 1 ? '' : 's'}`;
       }
 
-      if (anunciosState.length === 0) {
+      if (list.length === 0) {
         container.innerHTML = `
           <div class="bg-white/10 rounded-2xl p-4 border border-white/20 text-center text-xs text-white/80">
-            No hay avisos escolares pendientes en el tablero por el momento.
+            No hay avisos escolares publicados por el docente titular en este momento.
           </div>
         `;
         return;
       }
 
-      const sorted = [...anunciosState].sort((a, b) => {
+      const sorted = [...list].sort((a, b) => {
         if (a.fijado && !b.fijado) return -1;
         if (!a.fijado && b.fijado) return 1;
         return new Date(b.fecha) - new Date(a.fecha);
@@ -2365,11 +3257,11 @@
 
             <div>
               <h4 class="font-extrabold text-sm sm:text-base text-white tracking-wide">${a.titulo}</h4>
-              <p class="text-xs sm:text-sm text-white/95 mt-1 leading-relaxed whitespace-pre-line">${a.desc}</p>
+              <p class="text-xs sm:text-sm text-white/95 mt-1 leading-relaxed whitespace-pre-line">${a.desc || a.contenido || ''}</p>
             </div>
 
             <div class="pt-2 border-t border-white/15 flex items-center justify-between text-[11px] text-white/75">
-              <span>Emitido por: <strong class="text-white font-semibold">${a.autor || maestroState?.nombre || 'Docente Titular'}</strong></span>
+              <span>Emitido por: <strong class="text-white font-semibold">${a.autor || (currentParentStudent?.maestro?.nombre) || maestroState?.nombre || 'Docente Titular'}</strong></span>
               <button onclick="copyAnuncioWhatsApp('${a.id}')" class="text-amber-200 hover:text-white font-semibold flex items-center gap-1 cursor-pointer transition-colors" title="Compartir mensaje">
                 <i data-lucide="share-2" class="w-3 h-3"></i>
                 <span>Compartir</span>
@@ -2379,6 +3271,10 @@
         `;
       }).join('');
       lucide.createIcons();
+    }
+
+    function renderAnunciosPadres(customList = null) {
+      renderParentAnnouncements(customList);
     }
 
     function openNewAnuncioModal(editId = null) {
@@ -2427,7 +3323,34 @@
       document.getElementById('form-new-anuncio')?.reset();
     }
 
-    function handleCreateOrUpdateAnuncio(e) {
+    // Crear Anuncio en Backend
+    async function handleCreateAnnouncement(titulo, contenido, extraData = {}) {
+      const teacherId = localStorage.getItem('currentTeacherId') || maestroState.id;
+      if (!teacherId || !contenido.trim()) return;
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/anuncios`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id_maestro: teacherId,
+            titulo: titulo || 'Comunicado Escolar',
+            contenido: contenido.trim(),
+            ...extraData
+          })
+        });
+
+        if (res.ok) {
+          await loadTeacherAnnouncements(teacherId);
+        } else {
+          console.error('Error al publicar anuncio en el servidor');
+        }
+      } catch (err) {
+        console.error('Error al enviar anuncio:', err);
+      }
+    }
+
+    async function handleCreateOrUpdateAnuncio(e) {
       e.preventDefault();
       const editId = document.getElementById('anuncio-edit-id')?.value;
       const titulo = document.getElementById('anuncio-titulo').value.trim();
@@ -2448,21 +3371,27 @@
             fecha,
             desc,
             fijado,
-            autor: maestroState?.nombre || 'Prof. Carlos Mendoza'
+            autor: maestroState?.nombre || 'Docente Titular'
           };
+          saveState();
           showToast("Aviso escolar actualizado exitosamente", "success");
         }
       } else {
+        const localId = Date.now();
         anunciosState.unshift({
-          id: Date.now(),
+          id: localId,
           titulo,
           categoria,
           prioridad,
           fecha,
           desc,
           fijado,
-          autor: maestroState?.nombre || 'Prof. Carlos Mendoza'
+          autor: maestroState?.nombre || 'Docente Titular'
         });
+        saveState();
+
+        // Enviar al servidor Supabase
+        await handleCreateAnnouncement(titulo, desc, { categoria, fecha, fijado, prioridad });
         showToast("Aviso escolar publicado para todas las familias", "success");
       }
 
@@ -2482,11 +3411,34 @@
       showToast(anuncio.fijado ? "Aviso fijado en el tablero" : "Aviso desfijado", "info");
     }
 
-    function deleteAnuncioById(id) {
-      if (!confirm("¿Deseas eliminar este comunicado escolar?")) return;
-      anunciosState = anunciosState.filter(a => String(a.id) !== String(id));
+    async function deleteAnnouncement(anuncioId) {
+      const teacherId = localStorage.getItem('currentTeacherId') || maestroState.id;
+      
+      // 1. Eliminar localmente de inmediato para feedback instantáneo
+      anunciosState = anunciosState.filter(a => String(a.id) !== String(anuncioId));
+      saveState();
       updateTeacherViews();
       showToast("Aviso escolar eliminado", "info");
+
+      // 2. Eliminar de la base de datos en Supabase
+      try {
+        const res = await fetch(`${API_BASE_URL}/anuncios/${anuncioId}`, {
+          method: 'DELETE'
+        });
+
+        if (res.ok) {
+          if (teacherId) loadTeacherAnnouncements(teacherId);
+        } else {
+          console.error('No se pudo borrar el anuncio del servidor');
+        }
+      } catch (err) {
+        console.error('Error de red al borrar anuncio:', err);
+      }
+    }
+
+    function deleteAnuncioById(id) {
+      if (!confirm("¿Deseas eliminar este comunicado escolar de forma permanente?")) return;
+      deleteAnnouncement(id);
     }
 
     function deleteAnuncio(idx) {
@@ -2576,36 +3528,44 @@
       let sum = 0;
       let count = 0;
       tbody.innerHTML = materiasState.map(m => {
-        const rawVal = student.calificaciones?.[m] !== undefined ? student.calificaciones[m] : 9;
-        const val = Math.round(parseFloat(rawVal) || 0);
-        sum += val;
-        count++;
-        let rating = 'Sobresaliente';
-        if (val < 6) rating = 'Insuficiente';
-        else if (val < 7.5) rating = 'Básico';
-        else if (val < 9) rating = 'Satisfactorio';
+        const hasVal = student.calificaciones?.[m] !== undefined && student.calificaciones?.[m] !== null && student.calificaciones?.[m] !== '';
+        const val = hasVal ? Math.round(parseFloat(student.calificaciones[m]) || 0) : '-';
+        if (hasVal) {
+          sum += val;
+          count++;
+        }
+        let rating = 'Pendiente';
+        if (hasVal) {
+          if (val < 6) rating = 'Insuficiente';
+          else if (val < 7.5) rating = 'Básico';
+          else if (val < 9) rating = 'Satisfactorio';
+          else rating = 'Sobresaliente';
+        }
 
         return `
           <tr class="hover:bg-slate-50 transition-colors">
             <td class="px-4 py-2.5 font-semibold text-slate-900">${m}</td>
             <td class="px-4 py-2.5 text-center font-mono font-bold text-slate-800">${val}</td>
-            <td class="px-4 py-2.5 text-center text-xs font-semibold ${val >= 9 ? 'text-emerald-700' : (val >= 7 ? 'text-indigo-700' : 'text-amber-700')}">${rating}</td>
+            <td class="px-4 py-2.5 text-center text-xs font-semibold ${hasVal ? (val >= 9 ? 'text-emerald-700' : (val >= 7 ? 'text-indigo-700' : 'text-amber-700')) : 'text-slate-400'}">${rating}</td>
           </tr>
         `;
       }).join('');
 
-      const avg = count > 0 ? (sum / count) : 10;
-      document.getElementById('boleta-final-average').textContent = avg.toFixed(1);
-      let finalRating = 'Sobresaliente';
-      if (avg < 6) finalRating = 'Insuficiente';
-      else if (avg < 7.5) finalRating = 'Básico';
-      else if (avg < 9) finalRating = 'Satisfactorio';
+      const avg = count > 0 ? (sum / count) : null;
+      document.getElementById('boleta-final-average').textContent = avg !== null ? avg.toFixed(1) : '-';
+      let finalRating = 'Sin evaluar';
+      if (avg !== null) {
+        if (avg < 6) finalRating = 'Insuficiente';
+        else if (avg < 7.5) finalRating = 'Básico';
+        else if (avg < 9) finalRating = 'Satisfactorio';
+        else finalRating = 'Sobresaliente';
+      }
       document.getElementById('boleta-final-rating').textContent = finalRating;
 
       // Resumen de Asistencias
-      const pres = student.asistenciasTotales?.presentes || (student.asistenciaHoy === 'presente' ? 1 : 0);
-      const ret = student.asistenciasTotales?.retardos || (student.asistenciaHoy === 'retardo' ? 1 : 0);
-      const falt = student.asistenciasTotales?.faltas || (student.asistenciaHoy === 'falta' ? 1 : 0);
+      const pres = student.asistenciasTotales?.presentes || 0;
+      const ret = student.asistenciasTotales?.retardos || 0;
+      const falt = student.asistenciasTotales?.faltas || 0;
       const total = pres + ret + falt;
       const rate = total > 0 ? Math.round(((pres + ret * 0.5) / total) * 100) : 100;
 
@@ -2722,7 +3682,7 @@
       }
 
       const payload = {
-        id_maestro: localStorage.getItem('currentTeacherId'),
+        id_maestro: localStorage.getItem('currentTeacherId') || maestroState.id,
         nombres: nombres,
         primer_apellido: paterno,
         segundo_apellido: materno,
@@ -2736,7 +3696,7 @@
 
       withLoading(btn, async () => {
         try {
-          const res = await fetch('http://localhost:3000/api/alumnos/registro', {
+          const res = await fetch(`${API_BASE_URL}/alumnos/registro`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -2749,27 +3709,33 @@
 
           const data = await res.json();
 
+          const bAlumno = data?.alumno || data?.datos;
+          const assignedId = bAlumno?.id || ('alu-' + crypto.randomUUID());
+
           const nuevoAlumno = {
-            uuid: data?.alumno?.uuid || ('alu-' + crypto.randomUUID()),
+            id: assignedId,
+            uuid: assignedId,
+            id_maestro: bAlumno?.id_maestro || payload.id_maestro,
             nombres: nombres,
             primerApellido: paterno,
             segundoApellido: materno,
             nombre: nombre_completo,
             fechaNacimiento: fechaNac,
             sexo: sexo,
-            curp: curp,
+            curp: curp || (assignedId ? assignedId.substring(0, 11).toUpperCase() : 'CURP'),
             tutor: tutor,
             telefono: telefono,
             suscripcion: 'activa',
             asistenciaHoy: 'pendiente',
             horaAsistencia: '--:--',
-            asistenciasTotales: { presentes: 1, retardos: 0, faltas: 0 },
-            calificaciones: {}
+            asistenciasTotales: { presentes: 0, retardos: 0, faltas: 0 },
+            calificaciones: {},
+            qr_codigo: bAlumno?.qr_codigo || assignedId,
+            qr: bAlumno?.qr_codigo || assignedId
           };
 
-          materiasState.forEach(m => nuevoAlumno.calificaciones[m] = 9);
-
           alumnosState.unshift(nuevoAlumno);
+          saveState();
           updateTeacherViews();
           renderParentDemoChips();
           form.reset();
@@ -2777,27 +3743,30 @@
           openQrModal(nuevoAlumno.uuid);
         } catch (err) {
           // Si el backend no está disponible, registrar en modo local
+          const localUuid = 'alu-' + crypto.randomUUID();
           const nuevoAlumno = {
-            uuid: 'alu-' + crypto.randomUUID(),
+            id: localUuid,
+            uuid: localUuid,
             nombres: nombres,
             primerApellido: paterno,
             segundoApellido: materno,
             nombre: nombre_completo,
             fechaNacimiento: fechaNac,
             sexo: sexo,
-            curp: curp,
+            curp: curp || localUuid.substring(0, 11).toUpperCase(),
             tutor: tutor,
             telefono: telefono,
             suscripcion: 'activa',
             asistenciaHoy: 'pendiente',
             horaAsistencia: '--:--',
-            asistenciasTotales: { presentes: 1, retardos: 0, faltas: 0 },
-            calificaciones: {}
+            asistenciasTotales: { presentes: 0, retardos: 0, faltas: 0 },
+            calificaciones: {},
+            qr_codigo: localUuid,
+            qr: localUuid
           };
 
-          materiasState.forEach(m => nuevoAlumno.calificaciones[m] = 9);
-
           alumnosState.unshift(nuevoAlumno);
+          saveState();
           updateTeacherViews();
           renderParentDemoChips();
           form.reset();
@@ -2924,6 +3893,7 @@
       alumnosState = alumnosState.filter(x => x.uuid !== uuid);
       reportesState = reportesState.filter(r => r.alumnoUuid !== uuid);
       mensajesState = mensajesState.filter(m => m.alumnoUuid !== uuid);
+      saveState();
       updateTeacherViews();
       renderParentDemoChips();
       showToast(`Alumno eliminado`, "info");
@@ -2972,6 +3942,7 @@
       a.telefono = document.getElementById('edit-alumno-tel').value.trim();
 
       closeEditModal();
+      saveState();
       updateTeacherViews();
       renderParentDemoChips();
       showToast("Datos del alumno actualizados", "success");
@@ -3515,12 +4486,14 @@
             suscripcion: 'activa',
             asistenciaHoy: 'pendiente',
             horaAsistencia: '--:--',
-            asistenciasTotales: { presentes: 1, retardos: 0, faltas: 0 },
+            asistenciasTotales: { presentes: 0, retardos: 0, faltas: 0 },
             calificaciones: {}
           };
           // Inicializar materias
           materiasState.forEach(m => {
-            newStudent.calificaciones[m] = row.calificaciones[m] !== undefined ? Math.round(Number(row.calificaciones[m])) : 9;
+            if (row.calificaciones[m] !== undefined && row.calificaciones[m] !== null && row.calificaciones[m] !== '') {
+              newStudent.calificaciones[m] = Math.round(Number(row.calificaciones[m]));
+            }
           });
           alumnosState.push(newStudent);
           newCount++;
@@ -3609,8 +4582,26 @@
     // ==========================================================
     // 12. NOTIFICACIONES TOAST
     // ==========================================================
+    let lastToastMessage = '';
+    let lastToastTime = 0;
+
     function showToast(message, type = 'info') {
+      const now = Date.now();
+      // Evitar spam de notificaciones idénticas repetidas en menos de 1.8 segundos
+      if (lastToastMessage === message && (now - lastToastTime) < 1800) {
+        return;
+      }
+      lastToastMessage = message;
+      lastToastTime = now;
+
       const container = document.getElementById('toast-container');
+      if (!container) return;
+
+      // Limitar a máximo 3 toasts visibles en pantalla simultáneamente
+      while (container.children.length >= 3) {
+        container.firstElementChild.remove();
+      }
+
       const toast = document.createElement('div');
 
       const styles = {
