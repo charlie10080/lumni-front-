@@ -501,6 +501,7 @@
       { id: 'calificaciones', title: 'Reporte de Evaluación', subtitle: 'Plantilla de materias y promedios oficiales' },
       { id: 'proyectos', title: 'Proyectos Escolares', subtitle: 'Actividades articuladas con Campos Formativos' },
       { id: 'tareas', title: 'Tareas y Asignaciones', subtitle: 'Ejercicios para casa con Campos Formativos' },
+      { id: 'anuncios', title: 'Anuncios & Circulares para Familias', subtitle: 'Publica comunicados oficiales y avisos visibles para todos los tutores' },
       { id: 'mensajes', title: 'Bandeja de Mensajes', subtitle: 'Comunicación asíncrona directa con familias' },
       { id: 'reportes', title: 'Módulo de Reportes', subtitle: 'Seguimiento, méritos y citatorios individuales' },
       { id: 'calendario', title: 'Calendario Escolar', subtitle: 'Eventos, entregas y proyectos' },
@@ -519,7 +520,7 @@
               btnEl.className = "w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-bold bg-brand-50 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 group";
               const icon = btnEl.querySelector('i');
               if (icon) icon.className = "w-5 h-5 shrink-0 text-brand-600 dark:text-brand-400";
-              const span = btnEl.querySelector('span:not(#sidebar-unread-badge)');
+              const span = btnEl.querySelector('span:not(#sidebar-unread-badge):not(#sidebar-anuncios-badge)');
               if (span) span.className = "whitespace-nowrap font-medium text-sm text-left flex-1";
             }
 
@@ -531,12 +532,16 @@
               btnEl.className = "w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:text-brand-300 hover:bg-brand-50 dark:bg-brand-900/40 group";
               const icon = btnEl.querySelector('i');
               if (icon) icon.className = "w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600 dark:text-brand-400";
-              const span = btnEl.querySelector('span:not(#sidebar-unread-badge)');
+              const span = btnEl.querySelector('span:not(#sidebar-unread-badge):not(#sidebar-anuncios-badge)');
               if (span) span.className = "whitespace-nowrap font-medium text-sm text-left flex-1";
             }
           }
         }
       });
+
+      if (tabName === 'anuncios') {
+        renderTeacherAnunciosManagement();
+      }
 
       if (tabName === 'mensajes') {
         renderTeacherMessagesThreads();
@@ -1551,6 +1556,7 @@
       renderReportesList();
       populateReportesSelect();
       renderDashboardActivity();
+      renderTeacherAnunciosManagement();
       renderTeacherAnunciosList();
       renderAnunciosPadres();
       updateUnreadBadges();
@@ -2008,22 +2014,259 @@
     }
 
     // ==========================================================
-    // 9.6 ANUNCIOS GENERALES (DOCENTE & FAMILIAS)
+    // 9.6 ANUNCIOS Y CIRCULARES ESCOLARES (DOCENTE & FAMILIAS)
     // ==========================================================
-    let anunciosState = JSON.parse(localStorage.getItem('lumni_anuncios')) || [
+    let currentAnuncioCategoryFilter = 'todas';
+    let currentAnuncioSearchQuery = '';
+
+    const initialAnunciosSeed = [
       {
         id: 1,
         fecha: '2026-08-25',
-        titulo: 'Reunión de Padres de Familia',
-        desc: 'El próximo viernes tendremos reunión general para entrega de resultados del primer bloque y acuerdos pedagógicos.'
+        titulo: 'Reunión General de Padres de Familia',
+        categoria: 'Reunión',
+        prioridad: 'Alta',
+        fijado: true,
+        autor: 'Prof. Carlos Mendoza',
+        desc: 'El próximo viernes tendremos reunión general para entrega de resultados del primer bloque, informe de avances y acuerdos pedagógicos en el aula.'
       },
       {
         id: 2,
         fecha: '2026-08-20',
-        titulo: 'Suspensión Oficial de Labores',
-        desc: 'El próximo lunes no habrá clases por conmemoración del calendario cívico escolar.'
+        titulo: 'Suspensión Oficial de Labores Escolares',
+        categoria: 'General',
+        prioridad: 'Normal',
+        fijado: false,
+        autor: 'Prof. Carlos Mendoza',
+        desc: 'El próximo lunes no habrá clases por conmemoración del calendario cívico escolar oficial de la SEP.'
+      },
+      {
+        id: 3,
+        fecha: '2026-08-28',
+        titulo: 'Materiales para Proyecto de Ciencias',
+        categoria: 'Académico',
+        prioridad: 'Normal',
+        fijado: false,
+        autor: 'Prof. Carlos Mendoza',
+        desc: 'Recordatorio para traer los materiales reciclables para el prototipo del circuito ecológico antes del jueves.'
       }
     ];
+
+    let rawAnuncios = JSON.parse(localStorage.getItem('lumni_anuncios'));
+    let anunciosState = (rawAnuncios && Array.isArray(rawAnuncios) && rawAnuncios.length > 0)
+      ? rawAnuncios.map((a, idx) => ({
+          id: a.id || (Date.now() - (idx * 1000)),
+          fecha: a.fecha || new Date().toISOString().split('T')[0],
+          titulo: a.titulo || 'Comunicado Escolar',
+          categoria: a.categoria || 'General',
+          prioridad: a.prioridad || (a.titulo?.toLowerCase().includes('urgente') ? 'Alta' : 'Normal'),
+          fijado: Boolean(a.fijado),
+          autor: a.autor || maestroState?.nombre || 'Docente Titular',
+          desc: a.desc || ''
+        }))
+      : initialAnunciosSeed;
+
+    function getAnuncioCategoryMeta(cat) {
+      const meta = {
+        'Urgente': {
+          label: 'Urgente / Importante',
+          icon: 'alert-circle',
+          badgeClass: 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60',
+          parentBadgeClass: 'bg-rose-500/30 text-rose-100 border border-rose-400/40'
+        },
+        'Reunión': {
+          label: 'Reunión de Padres',
+          icon: 'users',
+          badgeClass: 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60',
+          parentBadgeClass: 'bg-amber-500/30 text-amber-100 border border-amber-400/40'
+        },
+        'Evento': {
+          label: 'Evento Escolar',
+          icon: 'party-popper',
+          badgeClass: 'bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60',
+          parentBadgeClass: 'bg-purple-500/30 text-purple-100 border border-purple-400/40'
+        },
+        'Académico': {
+          label: 'Académico & Tareas',
+          icon: 'book-open',
+          badgeClass: 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60',
+          parentBadgeClass: 'bg-emerald-500/30 text-emerald-100 border border-emerald-400/40'
+        },
+        'General': {
+          label: 'General',
+          icon: 'megaphone',
+          badgeClass: 'bg-brand-50 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800/60',
+          parentBadgeClass: 'bg-white/20 text-white border border-white/30'
+        }
+      };
+      return meta[cat] || meta['General'];
+    }
+
+    function filterTeacherAnuncios(cat) {
+      currentAnuncioCategoryFilter = cat;
+      const buttons = document.querySelectorAll('#anuncios-categories-filter .anuncio-filter-btn');
+      buttons.forEach(btn => {
+        const btnCat = btn.getAttribute('data-cat');
+        if (btnCat === cat) {
+          btn.className = "anuncio-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-brand-600 text-white shadow-xs";
+        } else {
+          btn.className = "anuncio-filter-btn px-3 py-1.5 rounded-xl text-xs font-medium transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800";
+        }
+      });
+      renderTeacherAnunciosManagement();
+    }
+
+    function handleSearchAnuncios(e) {
+      currentAnuncioSearchQuery = (e.target.value || '').trim().toLowerCase();
+      renderTeacherAnunciosManagement();
+    }
+
+    function renderTeacherAnunciosManagement() {
+      const container = document.getElementById('teacher-anuncios-grid');
+      if (!container) return;
+
+      const totalEl = document.getElementById('anuncios-stat-total');
+      if (totalEl) totalEl.textContent = anunciosState.length;
+
+      const urgentesCount = anunciosState.filter(a => a.fijado || a.prioridad === 'Alta' || a.categoria === 'Urgente').length;
+      const urgentesEl = document.getElementById('anuncios-stat-urgentes');
+      if (urgentesEl) urgentesEl.textContent = urgentesCount;
+
+      const alcanceEl = document.getElementById('anuncios-stat-alcance');
+      if (alcanceEl) {
+        const aluCount = alumnosState.length;
+        alcanceEl.textContent = `${aluCount} Alumnos (${aluCount} Familias)`;
+      }
+
+      const sidebarBadge = document.getElementById('sidebar-anuncios-badge');
+      if (sidebarBadge) {
+        if (anunciosState.length > 0) {
+          sidebarBadge.textContent = anunciosState.length;
+          sidebarBadge.classList.remove('hidden');
+        } else {
+          sidebarBadge.classList.add('hidden');
+        }
+      }
+
+      let filtered = [...anunciosState];
+      if (currentAnuncioCategoryFilter !== 'todas') {
+        filtered = filtered.filter(a => a.categoria === currentAnuncioCategoryFilter);
+      }
+      if (currentAnuncioSearchQuery) {
+        filtered = filtered.filter(a => 
+          (a.titulo || '').toLowerCase().includes(currentAnuncioSearchQuery) ||
+          (a.desc || '').toLowerCase().includes(currentAnuncioSearchQuery) ||
+          (a.categoria || '').toLowerCase().includes(currentAnuncioSearchQuery)
+        );
+      }
+
+      // Ordenar: Fijados primero, luego por fecha descendente
+      filtered.sort((a, b) => {
+        if (a.fijado && !b.fijado) return -1;
+        if (!a.fijado && b.fijado) return 1;
+        return new Date(b.fecha) - new Date(a.fecha);
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-1 md:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-8 text-center space-y-3">
+            <div class="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 mx-auto flex items-center justify-center">
+              <i data-lucide="megaphone" class="w-6 h-6"></i>
+            </div>
+            <p class="text-sm font-bold text-slate-800 dark:text-slate-200">No se encontraron avisos escolares</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+              ${currentAnuncioSearchQuery || currentAnuncioCategoryFilter !== 'todas'
+                ? 'Prueba cambiando los filtros de búsqueda o categoría.'
+                : 'Aún no has publicado ningún aviso para las familias. Haz clic en "Publicar Nuevo Aviso" para comenzar.'}
+            </p>
+            <button onclick="openNewAnuncioModal()" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold inline-flex items-center gap-1.5 transition-all cursor-pointer">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span>Publicar Aviso Ahora</span>
+            </button>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      container.innerHTML = filtered.map(a => {
+        const meta = getAnuncioCategoryMeta(a.categoria);
+        const isUrgent = a.prioridad === 'Alta' || a.categoria === 'Urgente';
+        const isPinned = Boolean(a.fijado);
+
+        return `
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border ${isPinned ? 'border-amber-300 dark:border-amber-700/80 ring-1 ring-amber-400/20' : 'border-slate-200 dark:border-slate-700/80'} p-5 shadow-xs flex flex-col justify-between space-y-4 hover:shadow-md transition-all">
+            
+            <div class="space-y-3">
+              <!-- Top bar con Badges y Pin -->
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold ${meta.badgeClass}">
+                    <i data-lucide="${meta.icon}" class="w-3 h-3"></i>
+                    <span>${a.categoria}</span>
+                  </span>
+
+                  ${isUrgent ? `
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60">
+                      <i data-lucide="alert-triangle" class="w-3 h-3 text-rose-600 animate-pulse"></i>
+                      <span>Urgente</span>
+                    </span>
+                  ` : ''}
+
+                  ${isPinned ? `
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-200 border border-amber-200 dark:border-amber-700">
+                      <i data-lucide="pin" class="w-3 h-3 text-amber-600"></i>
+                      <span>Fijado</span>
+                    </span>
+                  ` : ''}
+                </div>
+
+                <span class="text-[11px] font-medium text-slate-400 flex items-center gap-1">
+                  <i data-lucide="calendar" class="w-3 h-3"></i>
+                  <span>${a.fecha}</span>
+                </span>
+              </div>
+
+              <!-- Título y Descripción -->
+              <div>
+                <h3 class="font-bold text-sm text-slate-900 dark:text-slate-100 leading-snug">${a.titulo}</h3>
+                <p class="text-xs text-slate-600 dark:text-slate-400 mt-2 leading-relaxed whitespace-pre-line">${a.desc}</p>
+              </div>
+            </div>
+
+            <!-- Footer con Autor y Botones de Acción -->
+            <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
+              <div class="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-[11px]">
+                <i data-lucide="user-check" class="w-3.5 h-3.5 text-brand-600 dark:text-brand-400"></i>
+                <span>${a.autor || maestroState?.nombre || 'Docente'}</span>
+              </div>
+
+              <div class="flex items-center gap-1.5 self-end sm:self-auto">
+                <button onclick="copyAnuncioWhatsApp('${a.id}')" class="px-2.5 py-1.5 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-300 rounded-xl text-[11px] font-bold flex items-center gap-1 transition-all border border-emerald-200 dark:border-emerald-800/60 cursor-pointer" title="Copiar para enviar a grupo de WhatsApp">
+                  <i data-lucide="message-circle" class="w-3.5 h-3.5 text-emerald-600"></i>
+                  <span>WhatsApp</span>
+                </button>
+
+                <button onclick="togglePinAnuncio('${a.id}')" class="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer" title="${isPinned ? 'Desfijar aviso' : 'Fijar al inicio'}">
+                  <i data-lucide="pin" class="w-3.5 h-3.5 ${isPinned ? 'text-amber-500 fill-amber-500' : ''}"></i>
+                </button>
+
+                <button onclick="openEditAnuncioModal('${a.id}')" class="p-1.5 text-slate-400 hover:text-brand-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer" title="Editar comunicado">
+                  <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                </button>
+
+                <button onclick="deleteAnuncioById('${a.id}')" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer" title="Eliminar aviso">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
 
     function renderTeacherAnunciosList() {
       const container = document.getElementById('dash-anuncios-list');
@@ -2034,28 +2277,149 @@
         return;
       }
 
-      container.innerHTML = anunciosState.map((a, idx) => `
-        <div class="bg-slate-50 dark:bg-slate-800/80 rounded-xl p-3 border border-slate-200 dark:border-slate-700/80 space-y-1 transition-all">
-          <div class="flex items-center justify-between gap-2">
-            <h4 class="font-bold text-xs text-slate-900 dark:text-slate-100">${a.titulo}</h4>
-            <div class="flex items-center gap-1.5 shrink-0">
-              <span class="text-[10px] text-slate-400 font-medium">${a.fecha}</span>
-              <button onclick="deleteAnuncio(${idx})" class="p-1 text-slate-400 hover:text-rose-600 rounded cursor-pointer" title="Eliminar aviso" aria-label="Eliminar aviso">
-                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-              </button>
+      const preview = [...anunciosState]
+        .sort((a, b) => (b.fijado ? 1 : 0) - (a.fijado ? 1 : 0) || new Date(b.fecha) - new Date(a.fecha))
+        .slice(0, 3);
+
+      container.innerHTML = preview.map(a => {
+        const meta = getAnuncioCategoryMeta(a.categoria);
+        return `
+          <div class="bg-slate-50 dark:bg-slate-800/80 rounded-xl p-3 border border-slate-200 dark:border-slate-700/80 space-y-1.5 transition-all">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-1.5 overflow-hidden">
+                <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-bold ${meta.badgeClass}">
+                  ${a.categoria}
+                </span>
+                <h4 class="font-bold text-xs text-slate-900 dark:text-slate-100 truncate">${a.titulo}</h4>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <span class="text-[10px] text-slate-400 font-medium">${a.fecha}</span>
+                <button onclick="deleteAnuncioById('${a.id}')" class="p-1 text-slate-400 hover:text-rose-600 rounded cursor-pointer" title="Eliminar aviso" aria-label="Eliminar aviso">
+                  <i data-lucide="trash-2" class="w-3 h-3"></i>
+                </button>
+              </div>
             </div>
+            <p class="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2">${a.desc}</p>
           </div>
-          <p class="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">${a.desc}</p>
-        </div>
-      `).join('');
+        `;
+      }).join('');
       lucide.createIcons();
     }
 
-    function openNewAnuncioModal() {
+    function renderAnunciosPadres() {
+      const container = document.getElementById('p-anuncios-list');
+      const badge = document.getElementById('p-anuncios-count-badge');
+      if (!container) return;
+
+      if (badge) {
+        badge.textContent = `${anunciosState.length} comunicado${anunciosState.length === 1 ? '' : 's'}`;
+      }
+
+      if (anunciosState.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white/10 rounded-2xl p-4 border border-white/20 text-center text-xs text-white/80">
+            No hay avisos escolares pendientes en el tablero por el momento.
+          </div>
+        `;
+        return;
+      }
+
+      const sorted = [...anunciosState].sort((a, b) => {
+        if (a.fijado && !b.fijado) return -1;
+        if (!a.fijado && b.fijado) return 1;
+        return new Date(b.fecha) - new Date(a.fecha);
+      });
+
+      container.innerHTML = sorted.map(a => {
+        const meta = getAnuncioCategoryMeta(a.categoria);
+        const isUrgent = a.prioridad === 'Alta' || a.categoria === 'Urgente';
+        const isPinned = Boolean(a.fijado);
+
+        return `
+          <div class="bg-white/10 hover:bg-white/15 rounded-2xl p-4 border border-white/25 backdrop-blur-xs space-y-2.5 transition-all text-white shadow-xs">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${meta.parentBadgeClass}">
+                  <i data-lucide="${meta.icon}" class="w-3 h-3"></i>
+                  <span>${a.categoria}</span>
+                </span>
+                ${isUrgent ? `
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-500 text-white animate-pulse">
+                    <i data-lucide="alert-triangle" class="w-3 h-3"></i>
+                    <span>URGENTE</span>
+                  </span>
+                ` : ''}
+                ${isPinned ? `
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-400 text-amber-950">
+                    <i data-lucide="pin" class="w-3 h-3"></i>
+                    <span>Fijado</span>
+                  </span>
+                ` : ''}
+              </div>
+
+              <span class="text-[11px] text-white/80 font-medium flex items-center gap-1">
+                <i data-lucide="calendar" class="w-3 h-3"></i>
+                <span>${a.fecha}</span>
+              </span>
+            </div>
+
+            <div>
+              <h4 class="font-extrabold text-sm sm:text-base text-white tracking-wide">${a.titulo}</h4>
+              <p class="text-xs sm:text-sm text-white/95 mt-1 leading-relaxed whitespace-pre-line">${a.desc}</p>
+            </div>
+
+            <div class="pt-2 border-t border-white/15 flex items-center justify-between text-[11px] text-white/75">
+              <span>Emitido por: <strong class="text-white font-semibold">${a.autor || maestroState?.nombre || 'Docente Titular'}</strong></span>
+              <button onclick="copyAnuncioWhatsApp('${a.id}')" class="text-amber-200 hover:text-white font-semibold flex items-center gap-1 cursor-pointer transition-colors" title="Compartir mensaje">
+                <i data-lucide="share-2" class="w-3 h-3"></i>
+                <span>Compartir</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    function openNewAnuncioModal(editId = null) {
+      const editInput = document.getElementById('anuncio-edit-id');
+      const headerTitle = document.getElementById('modal-anuncio-header-title');
+      const submitTxt = document.getElementById('btn-submit-anuncio-txt');
+      const tituloInput = document.getElementById('anuncio-titulo');
+      const catInput = document.getElementById('anuncio-categoria');
       const dateInput = document.getElementById('anuncio-fecha');
-      if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+      const descInput = document.getElementById('anuncio-desc');
+      const fijadoInput = document.getElementById('anuncio-fijado');
+
+      if (editId) {
+        const anuncio = anunciosState.find(a => String(a.id) === String(editId));
+        if (anuncio) {
+          if (editInput) editInput.value = anuncio.id;
+          if (headerTitle) headerTitle.textContent = "Editar Comunicado Escolar";
+          if (submitTxt) submitTxt.textContent = "Guardar Cambios";
+          if (tituloInput) tituloInput.value = anuncio.titulo;
+          if (catInput) catInput.value = anuncio.categoria;
+          if (dateInput) dateInput.value = anuncio.fecha;
+          if (descInput) descInput.value = anuncio.desc;
+          if (fijadoInput) fijadoInput.checked = Boolean(anuncio.fijado);
+        }
+      } else {
+        if (editInput) editInput.value = "";
+        if (headerTitle) headerTitle.textContent = "Publicar Aviso / Circular para Familias";
+        if (submitTxt) submitTxt.textContent = "Publicar Aviso";
+        if (tituloInput) tituloInput.value = "";
+        if (catInput) catInput.value = "General";
+        if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+        if (descInput) descInput.value = "";
+        if (fijadoInput) fijadoInput.checked = false;
+      }
+
       document.getElementById('modal-new-anuncio').classList.remove('hidden');
       lucide.createIcons();
+    }
+
+    function openEditAnuncioModal(id) {
+      openNewAnuncioModal(id);
     }
 
     function closeNewAnuncioModal() {
@@ -2063,49 +2427,118 @@
       document.getElementById('form-new-anuncio')?.reset();
     }
 
-    function handleCreateAnuncio(e) {
+    function handleCreateOrUpdateAnuncio(e) {
       e.preventDefault();
+      const editId = document.getElementById('anuncio-edit-id')?.value;
       const titulo = document.getElementById('anuncio-titulo').value.trim();
-      const fecha = document.getElementById('anuncio-fecha').value;
+      const categoria = document.getElementById('anuncio-categoria').value;
+      const fecha = document.getElementById('anuncio-fecha').value || new Date().toISOString().split('T')[0];
       const desc = document.getElementById('anuncio-desc').value.trim();
+      const fijado = Boolean(document.getElementById('anuncio-fijado')?.checked);
+      const prioridad = (categoria === 'Urgente') ? 'Alta' : 'Normal';
 
-      anunciosState.unshift({
-        id: Date.now(),
-        fecha: fecha || new Date().toISOString().split('T')[0],
-        titulo,
-        desc
-      });
+      if (editId) {
+        const index = anunciosState.findIndex(a => String(a.id) === String(editId));
+        if (index !== -1) {
+          anunciosState[index] = {
+            ...anunciosState[index],
+            titulo,
+            categoria,
+            prioridad,
+            fecha,
+            desc,
+            fijado,
+            autor: maestroState?.nombre || 'Prof. Carlos Mendoza'
+          };
+          showToast("Aviso escolar actualizado exitosamente", "success");
+        }
+      } else {
+        anunciosState.unshift({
+          id: Date.now(),
+          titulo,
+          categoria,
+          prioridad,
+          fecha,
+          desc,
+          fijado,
+          autor: maestroState?.nombre || 'Prof. Carlos Mendoza'
+        });
+        showToast("Aviso escolar publicado para todas las familias", "success");
+      }
 
       closeNewAnuncioModal();
       updateTeacherViews();
-      showToast("Aviso escolar publicado exitosamente", "success");
     }
 
-    function deleteAnuncio(idx) {
-      if (!confirm("¿Deseas eliminar este aviso escolar?")) return;
-      anunciosState.splice(idx, 1);
+    function handleCreateAnuncio(e) {
+      handleCreateOrUpdateAnuncio(e);
+    }
+
+    function togglePinAnuncio(id) {
+      const anuncio = anunciosState.find(a => String(a.id) === String(id));
+      if (!anuncio) return;
+      anuncio.fijado = !anuncio.fijado;
+      updateTeacherViews();
+      showToast(anuncio.fijado ? "Aviso fijado en el tablero" : "Aviso desfijado", "info");
+    }
+
+    function deleteAnuncioById(id) {
+      if (!confirm("¿Deseas eliminar este comunicado escolar?")) return;
+      anunciosState = anunciosState.filter(a => String(a.id) !== String(id));
       updateTeacherViews();
       showToast("Aviso escolar eliminado", "info");
     }
 
-    function renderAnunciosPadres() {
-      const container = document.getElementById('p-anuncios-list');
-      if (!container) return;
-
-      if (anunciosState.length === 0) {
-        container.innerHTML = '<p class="text-xs text-white/70">No hay avisos recientes en el tablero.</p>';
-        return;
+    function deleteAnuncio(idx) {
+      if (anunciosState[idx]) {
+        deleteAnuncioById(anunciosState[idx].id);
       }
+    }
 
-      container.innerHTML = anunciosState.map(a => `
-        <div class="bg-white/10 rounded-xl p-3 border border-white/20 backdrop-blur-sm space-y-1">
-          <div class="flex items-center justify-between gap-2">
-            <h4 class="font-bold text-sm text-white">${a.titulo}</h4>
-            <span class="text-[10px] text-white/80 shrink-0 font-medium">${a.fecha}</span>
-          </div>
-          <p class="text-xs text-white/90 leading-relaxed">${a.desc}</p>
-        </div>
-      `).join('');
+    function copyAnuncioWhatsApp(id) {
+      const anuncio = anunciosState.find(a => String(a.id) === String(id));
+      if (!anuncio) return;
+      const emojiCat = {
+        'Urgente': '🚨',
+        'Reunión': '👨‍👩‍👧‍👦',
+        'Evento': '🎉',
+        'Académico': '📚',
+        'General': '📢'
+      }[anuncio.categoria] || '📢';
+
+      const texto = `${emojiCat} *COMUNICADO ESCOLAR: ${anuncio.titulo.toUpperCase()}*\n\n` +
+        `📅 *Fecha:* ${anuncio.fecha}\n` +
+        `🏷️ *Categoría:* ${anuncio.categoria} ${anuncio.prioridad === 'Alta' ? '*(URGENTE)*' : ''}\n` +
+        `👤 *Emitido por:* ${anuncio.autor || maestroState?.nombre || 'Docente Titular'}\n\n` +
+        `📝 *Mensaje:*\n${anuncio.desc}\n\n` +
+        `🏫 _Lumni - Plataforma Escolar Inteligente_`;
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(texto).then(() => {
+          showToast("Aviso copiado con formato para WhatsApp", "success");
+        }).catch(() => {
+          fallbackCopyText(texto);
+        });
+      } else {
+        fallbackCopyText(texto);
+      }
+    }
+
+    function fallbackCopyText(text) {
+      try {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showToast("Texto copiado al portapapeles", "success");
+      } catch (err) {
+        showToast("No se pudo copiar automáticamente", "error");
+      }
     }
 
     // ==========================================================

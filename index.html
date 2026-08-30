@@ -466,6 +466,13 @@
             <span class="whitespace-nowrap font-medium text-sm text-left">Tareas</span>
           </button>
 
+          <!-- ANUNCIOS Y CIRCULARES ESCOLARES -->
+          <button onclick="switchTeacherTab('anuncios'); closeMobileSidebarIfOpen();" id="sidebar-tab-anuncios" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:text-brand-300 hover:bg-brand-50 dark:bg-brand-900/40 group">
+            <i data-lucide="megaphone" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600 dark:text-brand-400"></i>
+            <span class="whitespace-nowrap font-medium text-sm text-left flex-1">Anuncios &amp; Avisos</span>
+            <span id="sidebar-anuncios-badge" class="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 hidden">0</span>
+          </button>
+
           <!-- MENSAJES con badge de no leídos -->
           <button onclick="switchTeacherTab('mensajes'); closeMobileSidebarIfOpen();" id="sidebar-tab-mensajes" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:text-brand-300 hover:bg-brand-50 dark:bg-brand-900/40 group">
             <i data-lucide="inbox" class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-brand-600 dark:text-brand-400"></i>
@@ -694,10 +701,15 @@
                   <i data-lucide="megaphone" class="w-4 h-4 text-amber-500"></i>
                   <span>Avisos Publicados para Padres</span>
                 </h3>
-                <button onclick="openNewAnuncioModal()" class="px-3 py-1.5 bg-amber-50 dark:bg-amber-900/40 hover:bg-amber-100 text-amber-700 dark:text-amber-300 rounded-xl text-xs font-bold flex items-center gap-1 transition-all border border-amber-200 dark:border-amber-700 cursor-pointer">
-                  <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                  <span>Nuevo Aviso</span>
-                </button>
+                <div class="flex items-center gap-1.5">
+                  <button onclick="switchTeacherTab('anuncios')" class="px-2.5 py-1.5 text-xs font-semibold text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 transition-colors">
+                    Ver todos
+                  </button>
+                  <button onclick="openNewAnuncioModal()" class="px-3 py-1.5 bg-amber-50 dark:bg-amber-900/40 hover:bg-amber-100 text-amber-700 dark:text-amber-300 rounded-xl text-xs font-bold flex items-center gap-1 transition-all border border-amber-200 dark:border-amber-700 cursor-pointer">
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                    <span>Nuevo Aviso</span>
+                  </button>
+                </div>
               </div>
               <div id="dash-anuncios-list" class="space-y-2.5 text-xs max-h-[260px] overflow-y-auto pr-1"></div>
             </div>
@@ -1050,6 +1062,97 @@
             </button>
           </div>
           <div id="tareas-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+        </div>
+
+        <!-- SUB-VISTA: ANUNCIOS Y CIRCULARES ESCOLARES (COMPLETO) -->
+        <div id="m-view-anuncios" class="space-y-6 hidden animate-in fade-in duration-150">
+          
+          <!-- Encabezado con Métricas y Botón de Creación -->
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200 dark:border-slate-700/80 pb-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                  <i data-lucide="megaphone" class="w-5 h-5"></i>
+                </span>
+                <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Tablero de Anuncios y Circulares</h2>
+              </div>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Publica comunicados oficiales, recordatorios y circulares escolares visibles para todos los tutores y padres de familia.</p>
+            </div>
+            <div class="flex items-center gap-2 self-start sm:self-auto">
+              <button onclick="openNewAnuncioModal()" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-sm hover:shadow cursor-pointer">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>Publicar Nuevo Aviso</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Tarjetas de Métricas Rápidas -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0">
+                <i data-lucide="newspaper" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400">Total de Avisos</p>
+                <h3 id="anuncios-stat-total" class="text-lg font-extrabold text-slate-900 dark:text-slate-100">0</h3>
+              </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400">Avisos Urgentes / Fijados</p>
+                <h3 id="anuncios-stat-urgentes" class="text-lg font-extrabold text-slate-900 dark:text-slate-100">0</h3>
+              </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-4 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                <i data-lucide="users" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400">Alcance de Familias</p>
+                <h3 id="anuncios-stat-alcance" class="text-lg font-extrabold text-slate-900 dark:text-slate-100">100% de la matrícula</h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- Barra de Filtros y Búsqueda -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div class="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-none" id="anuncios-categories-filter">
+              <button onclick="filterTeacherAnuncios('todas')" data-cat="todas" class="anuncio-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-brand-600 text-white shadow-xs">
+                Todas
+              </button>
+              <button onclick="filterTeacherAnuncios('General')" data-cat="General" class="anuncio-filter-btn px-3 py-1.5 rounded-xl text-xs font-medium transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                General
+              </button>
+              <button onclick="filterTeacherAnuncios('Urgente')" data-cat="Urgente" class="anuncio-filter-btn px-3 py-1.5 rounded-xl text-xs font-medium transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                Urgente / Importante
+              </button>
+              <button onclick="filterTeacherAnuncios('Reunión')" data-cat="Reunión" class="anuncio-filter-btn px-3 py-1.5 rounded-xl text-xs font-medium transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                Reunión de Padres
+              </button>
+              <button onclick="filterTeacherAnuncios('Evento')" data-cat="Evento" class="anuncio-filter-btn px-3 py-1.5 rounded-xl text-xs font-medium transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                Evento Escolar
+              </button>
+              <button onclick="filterTeacherAnuncios('Académico')" data-cat="Académico" class="anuncio-filter-btn px-3 py-1.5 rounded-xl text-xs font-medium transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                Académico &amp; Tareas
+              </button>
+            </div>
+
+            <div class="relative min-w-[220px]">
+              <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+              <input type="text" id="anuncios-search-input" oninput="handleSearchAnuncios(event)" placeholder="Buscar comunicado..." class="w-full pl-9 pr-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600" />
+            </div>
+          </div>
+
+          <!-- Cuadrícula de Avisos Publicados -->
+          <div id="teacher-anuncios-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Renderizado dinámico desde app.js -->
+          </div>
+
         </div>
 
         <!-- NUEVA SUB-VISTA: MENSAJES (BANDEJA 2 COLUMNAS ESTILO CORREO) -->
@@ -1480,14 +1583,26 @@
     <!-- Módulos del Portal de Padres -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="print-parent-report">
       
-      <!-- 0. ANUNCIOS GENERALES -->
-      <div class="md:col-span-2 bg-gradient-to-r from-brand-600 to-indigo-600 rounded-2xl p-5 shadow-xs space-y-3 text-white">
-        <div class="flex items-center gap-2">
-          <i data-lucide="megaphone" class="w-5 h-5 text-amber-300"></i>
-          <h3 class="text-sm font-bold">Avisos y Tablero de Anuncios</h3>
-        </div>
-        <div id="p-anuncios-list" class="space-y-2">
-          <!-- Renderizado dinámicamente en app.js -->
+      <!-- 0. ANUNCIOS GENERALES Y CIRCULARES ESCOLARES -->
+      <div id="p-anuncios-section" class="md:col-span-2 space-y-3">
+        <div class="bg-gradient-to-r from-amber-500 via-brand-600 to-indigo-600 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4 text-white">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/20 pb-3">
+            <div class="flex items-center gap-2.5">
+              <span class="p-2 bg-white/20 backdrop-blur-xs rounded-xl text-amber-200">
+                <i data-lucide="megaphone" class="w-5 h-5"></i>
+              </span>
+              <div>
+                <h3 class="text-sm sm:text-base font-bold">Tablero de Avisos y Comunicados Oficiales</h3>
+                <p class="text-[11px] text-white/80">Mensajes y circulares emitidas por el profesor titular para las familias</p>
+              </div>
+            </div>
+            <span id="p-anuncios-count-badge" class="self-start sm:self-auto text-[11px] font-bold px-3 py-1 bg-white/20 backdrop-blur-xs rounded-full border border-white/30 text-white">
+              0 avisos
+            </span>
+          </div>
+          <div id="p-anuncios-list" class="space-y-3">
+            <!-- Renderizado dinámicamente en app.js -->
+          </div>
         </div>
       </div>
 
@@ -2022,43 +2137,65 @@
     </div>
   </div>
 
-  <!-- MODAL: CREAR ANUNCIO / CIRCULAR ESCOLAR -->
+  <!-- MODAL: CREAR / EDITAR ANUNCIO / CIRCULAR ESCOLAR -->
   <div id="modal-new-anuncio" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
-    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-700">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-700 animate-in fade-in zoom-in-95 duration-150">
       
       <div class="bg-gradient-to-r from-amber-600 to-brand-600 px-6 py-4 text-white flex items-center justify-between">
         <div class="flex items-center gap-2">
           <i data-lucide="megaphone" class="w-5 h-5 text-amber-200"></i>
-          <span class="font-bold text-sm">Publicar Aviso / Circular para Familias</span>
+          <span id="modal-anuncio-header-title" class="font-bold text-sm">Publicar Aviso / Circular para Familias</span>
         </div>
         <button onclick="closeNewAnuncioModal()" class="text-slate-200 hover:text-white p-1" aria-label="Cerrar modal anuncio">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <form id="form-new-anuncio" onsubmit="handleCreateAnuncio(event)" class="p-6 space-y-4 text-left">
+      <form id="form-new-anuncio" onsubmit="handleCreateOrUpdateAnuncio(event)" class="p-6 space-y-4 text-left">
+        <input type="hidden" id="anuncio-edit-id" value="" />
+
         <div>
-          <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Título del Aviso *</label>
-          <input type="text" id="anuncio-titulo" required placeholder="Ej. Junta informativa de evaluaciones" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600" />
+          <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Título del Aviso / Circular *</label>
+          <input type="text" id="anuncio-titulo" required placeholder="Ej. Junta informativa de evaluaciones del 1er periodo" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600 text-slate-900 dark:text-slate-100" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Categoría *</label>
+            <select id="anuncio-categoria" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600 text-slate-900 dark:text-slate-100">
+              <option value="General">📢 General (Informativo)</option>
+              <option value="Urgente">🚨 Urgente / Importante</option>
+              <option value="Reunión">👨‍👩‍👧‍👦 Reunión de Padres</option>
+              <option value="Evento">🎉 Evento Escolar / Cívico</option>
+              <option value="Académico">📚 Académico &amp; Materiales</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Fecha de Publicación *</label>
+            <input type="date" id="anuncio-fecha" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600 text-slate-900 dark:text-slate-100" />
+          </div>
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Fecha *</label>
-          <input type="date" id="anuncio-fecha" required class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600" />
+          <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Detalle del Mensaje para las Familias *</label>
+          <textarea id="anuncio-desc" required rows="4" placeholder="Escribe las indicaciones claras, horarios, lugar o requerimientos para los padres de familia..." class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600 resize-none text-slate-900 dark:text-slate-100 leading-relaxed"></textarea>
         </div>
 
-        <div>
-          <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Detalle del Mensaje *</label>
-          <textarea id="anuncio-desc" required rows="3" placeholder="Escribe las indicaciones o información para los padres de familia..." class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600 resize-none"></textarea>
+        <div class="flex items-center gap-2 p-3 bg-amber-50 dark:bg-amber-950/40 rounded-xl border border-amber-200/80 dark:border-amber-800/60">
+          <input type="checkbox" id="anuncio-fijado" class="w-4 h-4 rounded text-amber-600 focus:ring-amber-500/30 border-slate-300 dark:border-slate-600" />
+          <label for="anuncio-fijado" class="text-xs text-amber-900 dark:text-amber-200 font-semibold cursor-pointer">
+            Fijar al inicio del tablero de avisos de todos los padres
+          </label>
         </div>
 
-        <div class="pt-2 flex items-center justify-end gap-2">
-          <button type="button" onclick="closeNewAnuncioModal()" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold">
+        <div class="pt-2 flex items-center justify-end gap-2 border-t border-slate-100 dark:border-slate-800">
+          <button type="button" onclick="closeNewAnuncioModal()" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold">
             Cancelar
           </button>
-          <button type="submit" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs">
+          <button type="submit" id="btn-submit-anuncio" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all">
             <i data-lucide="send" class="w-4 h-4"></i>
-            <span>Publicar Aviso</span>
+            <span id="btn-submit-anuncio-txt">Publicar Aviso</span>
           </button>
         </div>
       </form>
