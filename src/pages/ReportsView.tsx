@@ -62,12 +62,12 @@ export const ReportsView: React.FC = () => {
   const parentStudentId = currentUser?.studentId || localStorage.getItem('lumni_parent_student_id');
   const student =
     role === 'parent'
-      ? students.find((s) => s.id === parentStudentId || s.curp === parentStudentId || s.matricula === parentStudentId) || students[0]
-      : students.find((s) => s.id === selectedStudentId) || students[0];
+      ? students.find((s) => s.id === parentStudentId || s.curp === parentStudentId || s.matricula === parentStudentId) || null
+      : students.find((s) => s.id === selectedStudentId) || students[0] || null;
 
-  const teacherName = currentUser && role === 'teacher'
-    ? `${currentUser.nombre} ${currentUser.apellidos || ''}`
-    : 'Prof. Carlos Mendoza Morales';
+  const teacherName = schoolInfo.director || (currentUser
+    ? `${currentUser.nombre} ${currentUser.apellidos || ''}`.trim()
+    : 'Docente Titular');
 
   const triggerSuccess = (msg: string) => {
     setDownloadSuccess(msg);
@@ -509,6 +509,13 @@ export const ReportsView: React.FC = () => {
                   Plataforma Lumni v2.0 • Folio Interno: LUM-{student.id.toUpperCase()}
                 </p>
               </div>
+            </div>
+          )}
+
+          {!student && (
+            <div className="p-12 text-center bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 text-xs text-slate-400">
+              <p className="font-bold text-sm text-slate-700 dark:text-slate-300">Aún no hay alumnos en tu aula escolar</p>
+              <p className="mt-1">Registra alumnos en tu grupo para previsualizar y descargar sus boletas membretadas en PDF.</p>
             </div>
           )}
         </div>

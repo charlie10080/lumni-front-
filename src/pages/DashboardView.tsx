@@ -16,6 +16,8 @@ import {
   FileSpreadsheet,
   ArrowRight,
   TrendingUp,
+  UserPlus,
+  PlusCircle,
 } from 'lucide-react';
 
 export const DashboardView: React.FC<{ onNavigate: (tab: string) => void }> = ({ onNavigate }) => {
@@ -46,9 +48,9 @@ export const DashboardView: React.FC<{ onNavigate: (tab: string) => void }> = ({
       }
     });
   });
-  const groupAverage = countGrades > 0 ? (sumGrades / countGrades).toFixed(1) : '9.2';
+  const groupAverage = countGrades > 0 ? (sumGrades / countGrades).toFixed(1) : '--';
 
-  const userName = currentUser?.nombre || 'Usuario';
+  const userName = currentUser?.nombre || 'Docente';
   const userGroup = currentUser?.grupo || '3er Grado - Grupo B';
 
   return (
@@ -74,20 +76,32 @@ export const DashboardView: React.FC<{ onNavigate: (tab: string) => void }> = ({
           <div className="flex flex-wrap items-center gap-3">
             {role === 'teacher' && (
               <>
-                <Button
-                  variant="primary"
-                  leftIcon={<QrCode className="w-4 h-4" />}
-                  onClick={() => onNavigate('attendance')}
-                >
-                  Pase de Lista QR
-                </Button>
-                <Button
-                  variant="secondary"
-                  leftIcon={<GraduationCap className="w-4 h-4" />}
-                  onClick={() => onNavigate('grades')}
-                >
-                  Capturar Notas
-                </Button>
+                {totalStudents === 0 ? (
+                  <Button
+                    variant="primary"
+                    leftIcon={<UserPlus className="w-4 h-4" />}
+                    onClick={() => onNavigate('students')}
+                  >
+                    Agregar Alumnos
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      variant="primary"
+                      leftIcon={<QrCode className="w-4 h-4" />}
+                      onClick={() => onNavigate('attendance')}
+                    >
+                      Pase de Lista QR
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      leftIcon={<GraduationCap className="w-4 h-4" />}
+                      onClick={() => onNavigate('grades')}
+                    >
+                      Capturar Notas
+                    </Button>
+                  </>
+                )}
               </>
             )}
             {role === 'parent' && (
@@ -111,15 +125,15 @@ export const DashboardView: React.FC<{ onNavigate: (tab: string) => void }> = ({
           subtitle={`de ${currentUser?.maxAlumnos || 50} cupos activos`}
           icon={Users}
           colorVariant="indigo"
-          badge={{ text: '100% Expedientes al día', isPositive: true }}
+          badge={totalStudents > 0 ? { text: 'Expedientes al día', isPositive: true } : { text: 'Aula nueva', isPositive: true }}
         />
         <StatCard
           title="Asistencia Reciente"
-          value={`${attendancePercent}%`}
-          subtitle={`${presentCount} presentes en la última sesión`}
+          value={totalStudents > 0 ? `${attendancePercent}%` : '--'}
+          subtitle={totalStudents > 0 ? `${presentCount} presentes en la última sesión` : 'Sin sesiones registradas'}
           icon={CalendarCheck}
           colorVariant="emerald"
-          badge={{ text: '+4% vs semana pasada', isPositive: true }}
+          badge={totalStudents > 0 ? { text: 'Lista activa', isPositive: true } : { text: 'Por iniciar', isPositive: false }}
         />
         <StatCard
           title="Promedio General"
@@ -127,7 +141,7 @@ export const DashboardView: React.FC<{ onNavigate: (tab: string) => void }> = ({
           subtitle="Primer Trimestre 2026-2027"
           icon={Award}
           colorVariant="amber"
-          badge={{ text: 'Rendimiento Sobresaliente', isPositive: true }}
+          badge={countGrades > 0 ? { text: 'Notas capturadas', isPositive: true } : { text: 'Sin calificaciones', isPositive: false }}
         />
         <StatCard
           title="Avisos Publicados"
@@ -135,7 +149,7 @@ export const DashboardView: React.FC<{ onNavigate: (tab: string) => void }> = ({
           subtitle="Comunicados activos del plantel"
           icon={Bell}
           colorVariant="sky"
-          badge={{ text: 'Comunidad Informada', isPositive: true }}
+          badge={notices.length > 0 ? { text: 'Comunidad informada', isPositive: true } : { text: '0 comunicados', isPositive: false }}
         />
       </div>
 
@@ -154,67 +168,93 @@ export const DashboardView: React.FC<{ onNavigate: (tab: string) => void }> = ({
                   Resumen de asistencias y promedios por alumno
                 </p>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                rightIcon={<ArrowRight className="w-4 h-4" />}
-                onClick={() => onNavigate('students')}
-              >
-                Ver Lista Completa
-              </Button>
+              {totalStudents > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  rightIcon={<ArrowRight className="w-4 h-4" />}
+                  onClick={() => onNavigate('students')}
+                >
+                  Ver Lista Completa
+                </Button>
+              )}
             </CardHeader>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b border-slate-200 dark:border-slate-800 text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                    <th className="py-3 px-3">Alumno</th>
-                    <th className="py-3 px-3">CURP</th>
-                    <th className="py-3 px-3 text-center">Asistencias</th>
-                    <th className="py-3 px-3 text-center">Último Estado</th>
-                    <th className="py-3 px-3 text-right">Promedio T1</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-700 dark:text-slate-300">
-                  {students.slice(0, 4).map((student) => {
-                    const gradesObj = student.calificacionesTrimestres[1] || {};
-                    const scores = Object.values(gradesObj).filter((g): g is number => typeof g === 'number');
-                    const avg = scores.length > 0 ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : '-';
-                    const lastStatus = student.asistenciasPorFecha['2026-09-11']?.status || 'presente';
+            {totalStudents === 0 ? (
+              <div className="p-8 text-center space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto border border-indigo-200 dark:border-indigo-800">
+                  <UserPlus className="w-6 h-6" />
+                </div>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                  Tu aula escolar está lista
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+                  Agrega a tus alumnos o importa tu lista escolar para comenzar a registrar asistencias y generar boletas de evaluación.
+                </p>
+                <div className="pt-2">
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    leftIcon={<PlusCircle className="w-4 h-4" />}
+                    onClick={() => onNavigate('students')}
+                  >
+                    Registrar Mi Primer Alumno
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-slate-200 dark:border-slate-800 text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      <th className="py-3 px-3">Alumno</th>
+                      <th className="py-3 px-3">CURP</th>
+                      <th className="py-3 px-3 text-center">Asistencias</th>
+                      <th className="py-3 px-3 text-center">Último Estado</th>
+                      <th className="py-3 px-3 text-right">Promedio T1</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-700 dark:text-slate-300">
+                    {students.slice(0, 4).map((student) => {
+                      const gradesObj = student.calificacionesTrimestres[1] || {};
+                      const scores = Object.values(gradesObj).filter((g): g is number => typeof g === 'number');
+                      const avg = scores.length > 0 ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : '-';
+                      const lastStatus = student.asistenciasPorFecha[todayStr]?.status || student.asistenciasPorFecha['2026-09-11']?.status || 'pendiente';
 
-                    return (
-                      <tr key={student.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition">
-                        <td className="py-3 px-3 font-medium text-slate-900 dark:text-white flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-xs text-indigo-600 dark:text-indigo-400 border border-slate-200 dark:border-slate-700">
-                            {student.nombre.charAt(0)}
-                          </div>
-                          <div>
-                            <p className="font-semibold text-slate-900 dark:text-white">{student.nombre} {student.apellidos}</p>
-                            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">{student.matricula}</p>
-                          </div>
-                        </td>
-                        <td className="py-3 px-3 text-xs font-mono text-slate-500 dark:text-slate-400">
-                          {student.curp.slice(0, 10)}...
-                        </td>
-                        <td className="py-3 px-3 text-center text-xs">
-                          <span className="text-emerald-600 dark:text-emerald-400 font-bold">{student.asistenciasTotales.presentes}P</span> /{' '}
-                          <span className="text-amber-600 dark:text-amber-400 font-bold">{student.asistenciasTotales.retardos}R</span> /{' '}
-                          <span className="text-rose-600 dark:text-rose-400 font-bold">{student.asistenciasTotales.faltas}F</span>
-                        </td>
-                        <td className="py-3 px-3 text-center">
-                          <AttendanceBadge status={lastStatus} />
-                        </td>
-                        <td className="py-3 px-3 text-right font-bold">
-                          <span className="px-2 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/20 font-bold text-xs">
-                            {avg}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                      return (
+                        <tr key={student.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition">
+                          <td className="py-3 px-3 font-medium text-slate-900 dark:text-white flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-xs text-indigo-600 dark:text-indigo-400 border border-slate-200 dark:border-slate-700">
+                              {student.nombre.charAt(0)}
+                            </div>
+                            <div>
+                              <p className="font-semibold text-slate-900 dark:text-white">{student.nombre} {student.apellidos}</p>
+                              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">{student.matricula}</p>
+                            </div>
+                          </td>
+                          <td className="py-3 px-3 text-xs font-mono text-slate-500 dark:text-slate-400">
+                            {student.curp.slice(0, 10)}...
+                          </td>
+                          <td className="py-3 px-3 text-center text-xs">
+                            <span className="text-emerald-600 dark:text-emerald-400 font-bold">{student.asistenciasTotales.presentes}P</span> /{' '}
+                            <span className="text-amber-600 dark:text-amber-400 font-bold">{student.asistenciasTotales.retardos}R</span> /{' '}
+                            <span className="text-rose-600 dark:text-rose-400 font-bold">{student.asistenciasTotales.faltas}F</span>
+                          </td>
+                          <td className="py-3 px-3 text-center">
+                            <AttendanceBadge status={lastStatus} />
+                          </td>
+                          <td className="py-3 px-3 text-right font-bold">
+                            <span className="px-2 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/20 font-bold text-xs">
+                              {avg}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </Card>
         </div>
 
@@ -226,32 +266,48 @@ export const DashboardView: React.FC<{ onNavigate: (tab: string) => void }> = ({
                 <Bell className="w-4 h-4 text-amber-500 dark:text-amber-400" />
                 Avisos Recientes
               </CardTitle>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onNavigate('notices')}
-              >
-                Ver Todos
-              </Button>
+              {notices.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onNavigate('notices')}
+                >
+                  Ver Todos
+                </Button>
+              )}
             </CardHeader>
 
-            <div className="space-y-3">
-              {notices.slice(0, 3).map((notice) => (
-                <div
-                  key={notice.id}
-                  className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 transition"
-                >
-                  <div className="flex items-center justify-between gap-2 mb-1.5">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20 dark:border-indigo-500/30 uppercase">
-                      {notice.audiencia}
-                    </span>
-                    <span className="text-[11px] text-slate-500 dark:text-slate-400">{notice.fecha}</span>
+            {notices.length === 0 ? (
+              <div className="p-6 text-center text-xs text-slate-400">
+                <p>No hay comunicados publicados aún.</p>
+                {role === 'teacher' && (
+                  <button
+                    onClick={() => onNavigate('notices')}
+                    className="text-indigo-600 dark:text-indigo-400 font-bold mt-2 hover:underline cursor-pointer"
+                  >
+                    + Publicar Primer Comunicado
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {notices.slice(0, 3).map((notice) => (
+                  <div
+                    key={notice.id}
+                    className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 transition"
+                  >
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20 dark:border-indigo-500/30 uppercase">
+                        {notice.audiencia}
+                      </span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">{notice.fecha}</span>
+                    </div>
+                    <h4 className="text-xs font-bold text-slate-900 dark:text-white mb-1 line-clamp-1">{notice.titulo}</h4>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2">{notice.contenido}</p>
                   </div>
-                  <h4 className="text-xs font-bold text-slate-900 dark:text-white mb-1 line-clamp-1">{notice.titulo}</h4>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2">{notice.contenido}</p>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </Card>
 
           {/* Quick PDF & Report Export Banner */}

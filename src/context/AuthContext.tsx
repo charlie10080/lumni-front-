@@ -52,7 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!isAuth) return null;
     const savedRole = (localStorage.getItem('lumni_active_role') as UserRole) || 'teacher';
     const saved = localStorage.getItem(`lumni_user_${savedRole}`);
-    return saved ? JSON.parse(saved) : mockUsers[savedRole] || mockUsers.teacher;
+    return saved ? JSON.parse(saved) : null;
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -61,9 +61,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (isAuthenticated) {
       const saved = localStorage.getItem(`lumni_user_${role}`);
       if (saved) {
-        setCurrentUser(JSON.parse(saved));
-      } else {
-        setCurrentUser(mockUsers[role] || mockUsers.teacher);
+        try {
+          setCurrentUser(JSON.parse(saved));
+        } catch {
+          setCurrentUser(mockUsers[role] || mockUsers.teacher);
+        }
       }
       localStorage.setItem('lumni_active_role', role);
       localStorage.setItem('lumni_is_authenticated', 'true');
@@ -83,6 +85,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('lumni_is_authenticated', 'true');
       localStorage.setItem('lumni_active_role', selectedRole);
       localStorage.setItem(`lumni_user_${selectedRole}`, JSON.stringify(user));
+      if (selectedRole === 'parent') {
+        localStorage.setItem('lumni_parent_scope_id', 'demo');
+        localStorage.setItem('lumni_parent_student_id', 'stu_01');
+      }
       setIsLoading(false);
     }, 400);
   };
@@ -104,7 +110,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           ciclo: '2026-2027',
         };
 
-        // Try reading Firestore user profile if exists
+        // Leer perfil del usuario en Firestore si existe
         if (db) {
           try {
             const userDocSnap = await getDoc(doc(db, 'users', fbUser.uid));
@@ -125,19 +131,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoading(false);
         return;
       } catch (err: any) {
-        console.warn('Firebase login failed, checking local credentials:', err);
-        // Throw proper error if Firebase was intentionally used
-        if (err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+        console.warn('Firebase login check:', err);
+        if (
+          err.code === 'auth/wrong-password' ||
+          err.code === 'auth/user-not-found' ||
+          err.code === 'auth/invalid-credential' ||
+          err.code === 'auth/invalid-email'
+        ) {
           setIsLoading(false);
-          throw new Error('Correo o contraseña incorrectos en Firebase Auth.');
+          throw new Error('Correo o contraseña incorrectos.');
         }
       }
     }
 
     // Modo Local / Demo Fallback
-    await new Promise((resolve) => setTimeout(resolve, 600));
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
-    // Determinar rol por correo (Maestro o Tutor)
+    // Determinar si es usuario demo o local
     let detectedRole: UserRole = 'teacher';
     if (email.includes('tutor') || email.includes('soto') || email.includes('padre') || email.includes('familiar')) {
       detectedRole = 'parent';
@@ -175,7 +185,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           colegio: data.colegio || 'Colegio Lumni',
           grupo: data.grupo || '3° B',
           ciclo: data.ciclo || '2026-2027',
-          maxAlumnos: 45,
+          maxAlumnos: 50,
           suscripcion: {
             estado: 'activa',
             plan: 'Docente Pro',
@@ -208,17 +218,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (err: any) {
         setIsLoading(false);
         if (err.code === 'auth/email-already-in-use') {
-          throw new Error('Este correo ya está registrado. Por favor inicia sesión.');
+          throw new Error('Este correo ya está registrado. Por favor inicia sesión con tu contraseña.');
         } else if (err.code === 'auth/weak-password') {
-          throw new Error('La contraseña debe tener al menos 6 caracteres.');
+          throw new Error('La contraseña debe contener al menos 6 caracteres.');
         } else {
           throw new Error(err.message || 'Error al registrar la cuenta de docente.');
         }
       }
     }
 
-    // Modo Local / Demo Fallback
-    await new Promise((resolve) => setTimeout(resolve, 600));
+    // Modo Local / Offline Fallback
+    await new Promise((resolve) => setTimeout(resolve, 500));
     const localProfile: UserProfile = {
       id: `tea_${Date.now()}`,
       email: data.email,
@@ -228,7 +238,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       colegio: data.colegio || 'Colegio Lumni',
       grupo: data.grupo || '3° B',
       ciclo: data.ciclo || '2026-2027',
-      maxAlumnos: 45,
+      maxAlumnos: 50,
       suscripcion: {
         estado: 'activa',
         plan: 'Docente Pro',
@@ -253,7 +263,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loginAsParentWithStudent = async (curpOrCode: string): Promise<{ success: boolean; error?: string; student?: any }> => {
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 400));
 
     const cleanInput = curpOrCode.trim().toUpperCase();
     if (!cleanInput) {
@@ -261,33 +271,104 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: false, error: 'Por favor ingresa la CURP o Matrícula del alumno.' };
     }
 
-    // Buscar entre los alumnos guardados o los mock
-    const savedStudents = localStorage.getItem('lumni_students_v2');
-    const studentList = savedStudents ? JSON.parse(savedStudents) : mockStudents;
+    let foundStudent: any = null;
+    let foundTeacherId = 'demo';
 
-    const matched = studentList.find(
-      (s: any) =>
-        (s.curp && s.curp.toUpperCase() === cleanInput) ||
-        (s.matricula && s.matricula.toUpperCase() === cleanInput) ||
-        (s.id && s.id.toUpperCase() === cleanInput)
-    );
+    // 1. Consultar Firestore `/student_lookup/${cleanInput}`
+    if (isFirebaseConfigured && db) {
+      try {
+        const lookupSnap = await getDoc(doc(db, 'student_lookup', cleanInput));
+        if (lookupSnap.exists()) {
+          const lookupData = lookupSnap.data();
+          foundTeacherId = lookupData.teacherId;
 
-    if (!matched) {
+          // Obtener los datos completos del aula del docente
+          const classroomSnap = await getDoc(doc(db, 'classrooms', foundTeacherId));
+          if (classroomSnap.exists()) {
+            const clData = classroomSnap.data();
+            const stuList = clData.students || [];
+            foundStudent = stuList.find(
+              (s: any) =>
+                s.id === lookupData.studentId ||
+                (s.curp && s.curp.toUpperCase() === cleanInput) ||
+                (s.matricula && s.matricula.toUpperCase() === cleanInput)
+            );
+
+            // Cachear aula en localStorage para navegación offline rápida del tutor
+            localStorage.setItem(`lumni_acc_${foundTeacherId}_students`, JSON.stringify(stuList));
+            if (clData.subjects) localStorage.setItem(`lumni_acc_${foundTeacherId}_subjects`, JSON.stringify(clData.subjects));
+            if (clData.notices) localStorage.setItem(`lumni_acc_${foundTeacherId}_notices`, JSON.stringify(clData.notices));
+            if (clData.threads) localStorage.setItem(`lumni_acc_${foundTeacherId}_threads`, JSON.stringify(clData.threads));
+            if (clData.projects) localStorage.setItem(`lumni_acc_${foundTeacherId}_projects`, JSON.stringify(clData.projects));
+            if (clData.tasks) localStorage.setItem(`lumni_acc_${foundTeacherId}_tasks`, JSON.stringify(clData.tasks));
+            if (clData.calendarEvents) localStorage.setItem(`lumni_acc_${foundTeacherId}_calendar`, JSON.stringify(clData.calendarEvents));
+            if (clData.incidentReports) localStorage.setItem(`lumni_acc_${foundTeacherId}_incidents`, JSON.stringify(clData.incidentReports));
+            if (clData.schoolInfo) localStorage.setItem(`lumni_acc_${foundTeacherId}_school`, JSON.stringify(clData.schoolInfo));
+          }
+        }
+      } catch (err) {
+        console.warn('Firestore student lookup error:', err);
+      }
+    }
+
+    // 2. Si no se encontró en Firestore, buscar a través de las particiones locales
+    if (!foundStudent) {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('lumni_acc_') && key.endsWith('_students')) {
+          try {
+            const raw = localStorage.getItem(key);
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (Array.isArray(parsed)) {
+                const match = parsed.find(
+                  (s: any) =>
+                    (s.curp && s.curp.toUpperCase() === cleanInput) ||
+                    (s.matricula && s.matricula.toUpperCase() === cleanInput) ||
+                    (s.id && s.id.toUpperCase() === cleanInput)
+                );
+                if (match) {
+                  foundStudent = match;
+                  foundTeacherId = key.replace('lumni_acc_', '').replace('_students', '');
+                  break;
+                }
+              }
+            }
+          } catch {}
+        }
+      }
+    }
+
+    // 3. Fallback a alumnos demo
+    if (!foundStudent) {
+      const demoMatch = mockStudents.find(
+        (s: any) =>
+          (s.curp && s.curp.toUpperCase() === cleanInput) ||
+          (s.matricula && s.matricula.toUpperCase() === cleanInput) ||
+          (s.id && s.id.toUpperCase() === cleanInput)
+      );
+      if (demoMatch) {
+        foundStudent = demoMatch;
+        foundTeacherId = 'demo';
+      }
+    }
+
+    if (!foundStudent) {
       setIsLoading(false);
       return {
         success: false,
-        error: `No se encontró ningún estudiante con la clave o CURP "${cleanInput}". Verifica los datos con el docente.`,
+        error: `No se encontró ningún estudiante con la clave o CURP "${cleanInput}". Verifica que esté dado de alta por su docente.`,
       };
     }
 
     const parentProfile: UserProfile = {
-      id: `parent_${matched.id}`,
-      nombre: matched.tutorNombre || `Tutor de ${matched.nombre}`,
-      email: matched.tutorEmail || `${matched.curp.toLowerCase()}@tutor.lumni`,
+      id: `parent_${foundStudent.id}`,
+      nombre: foundStudent.tutorNombre || `Tutor de ${foundStudent.nombre}`,
+      email: foundStudent.tutorEmail || `${foundStudent.curp?.toLowerCase() || 'tutor'}@correo.com`,
       rol: 'parent',
       colegio: 'Colegio Lumni',
       ciclo: '2026-2027',
-      studentId: matched.id,
+      studentId: foundStudent.id,
     };
 
     setRole('parent');
@@ -296,10 +377,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('lumni_is_authenticated', 'true');
     localStorage.setItem('lumni_active_role', 'parent');
     localStorage.setItem('lumni_user_parent', JSON.stringify(parentProfile));
-    localStorage.setItem('lumni_parent_student_id', matched.id);
+    localStorage.setItem('lumni_parent_scope_id', foundTeacherId);
+    localStorage.setItem('lumni_parent_student_id', foundStudent.id);
 
     setIsLoading(false);
-    return { success: true, student: matched };
+    return { success: true, student: foundStudent };
   };
 
   const switchRole = (newRole: UserRole) => {
@@ -315,11 +397,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.warn('Error signing out from Firebase', e);
       }
     }
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await new Promise((resolve) => setTimeout(resolve, 200));
     setIsAuthenticated(false);
     setCurrentUser(null);
     localStorage.removeItem('lumni_is_authenticated');
+    localStorage.removeItem('lumni_active_role');
+    localStorage.removeItem('lumni_parent_scope_id');
     localStorage.removeItem('lumni_parent_student_id');
+    localStorage.removeItem('lumni_user_teacher');
+    localStorage.removeItem('lumni_user_parent');
     setIsLoading(false);
   };
 
@@ -375,4 +461,3 @@ export const useAuth = () => {
   }
   return context;
 };
-

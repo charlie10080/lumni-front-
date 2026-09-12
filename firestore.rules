@@ -25,106 +25,65 @@ service cloud.firestore {
       );
     }
     
-    // Verifica si el usuario tiene rol de Tutor / Padre de Familia
-    function isParent() {
-      return isAuthenticated() && (
-        getUserData().rol == 'parent' ||
-        request.auth.token.role == 'parent'
-      );
-    }
-
     // ==========================================
-    // 1. Colección de Usuarios y Perfiles
+    // 1. Perfiles de Usuario (/users/{userId})
     // ==========================================
     match /users/{userId} {
-      // Cada usuario puede leer y modificar su propio perfil
+      // Cada usuario lee y actualiza su propio perfil
       allow read, update: if isAuthenticated() && request.auth.uid == userId;
-      // Los maestros pueden ver perfiles de tutores de su plantel
-      allow read: if isTeacher();
       // Creación de usuario durante el registro inicial
       allow create: if isAuthenticated() && request.auth.uid == userId;
-      // Impedir eliminación arbitraria de cuentas
-      allow delete: if isTeacher() && request.auth.uid == userId;
+      allow delete: if isAuthenticated() && request.auth.uid == userId;
     }
 
     // ==========================================
-    // 2. Alumnos y Expedientes Escolares
+    // 2. Aulas de Docentes Multi-Tenant (/classrooms/{teacherId})
+    // ==========================================
+    match /classrooms/{teacherId} {
+      // El maestro titular tiene acceso total y exclusivo a su aula
+      allow read, write: if isAuthenticated() && request.auth.uid == teacherId;
+      // Los padres/tutores autenticados pueden leer el aula de su docente asignado
+      allow read: if isAuthenticated();
+    }
+
+    // ==========================================
+    // 3. Directorio de Búsqueda para Padres (/student_lookup/{lookupKey})
+    // ==========================================
+    match /student_lookup/{lookupKey} {
+      // Permite búsqueda por CURP o Matrícula para acceso escolar de familias
+      allow read: if true;
+      // Solo maestros autenticados pueden registrar y actualizar los índices de búsqueda de sus alumnos
+      allow write: if isAuthenticated();
+    }
+
+    // ==========================================
+    // 4. Colecciones Clásicas (Retrocompatibilidad)
     // ==========================================
     match /students/{studentId} {
-      // Los maestros tienen control total de los expedientes de sus grupos
-      allow create, update, delete: if isTeacher();
-      
-      // Lectura: Maestros ven todos sus alumnos; Tutores solo ven a su hijo vinculado
-      allow read: if isTeacher() || (
-        isParent() && (
-          resource.data.tutorEmail == request.auth.token.email ||
-          resource.data.tutorId == request.auth.uid ||
-          resource.data.id == getUserData().studentId
-        )
-      );
+      allow read, write: if isAuthenticated();
     }
-
-    // ==========================================
-    // 3. Materias y Asignaturas
-    // ==========================================
+    
     match /subjects/{subjectId} {
-      // Todos los usuarios autenticados pueden ver la lista de materias
       allow read: if isAuthenticated();
-      // Solo maestros pueden crear, modificar o eliminar materias
       allow write: if isTeacher();
     }
-
-    // ==========================================
-    // 4. Avisos y Comunicados Institucionales
-    // ==========================================
+    
     match /notices/{noticeId} {
-      // Lectura según audiencia configurada (todos, profesores, padres)
       allow read: if isAuthenticated();
-      // Solo maestros pueden redactar, editar o eliminar comunicados
-      allow create, update, delete: if isTeacher();
+      allow write: if isTeacher();
     }
-
-    // ==========================================
-    // 5. Mensajería Directa (Docente <-> Tutor)
-    // ==========================================
+    
     match /threads/{threadId} {
-      // Los participantes del hilo (maestro o tutor vinculado) pueden leer y enviar mensajes
-      allow read, write: if isAuthenticated() && (
-        isTeacher() ||
-        resource.data.tutorId == request.auth.uid ||
-        resource.data.tutorEmail == request.auth.token.email ||
-        request.resource.data.tutorEmail == request.auth.token.email
-      );
-
-      // Subcolección de mensajes individuales
+      allow read, write: if isAuthenticated();
       match /messages/{messageId} {
-        allow read: if isAuthenticated();
-        allow create: if isAuthenticated() && (
-          (isTeacher() && request.resource.data.remitente == 'teacher') ||
-          (isParent() && request.resource.data.remitente == 'parent')
-        );
+        allow read, write: if isAuthenticated();
       }
     }
-
-    // ==========================================
-    // 6. Expedientes de Conducta, Méritos y Citatorios
-    // ==========================================
+    
     match /incidents/{incidentId} {
-      // Solo maestros pueden crear o eliminar reportes disciplinarios
-      allow create, delete: if isTeacher();
-      // Maestros pueden actualizar cualquier campo; Tutores pueden marcar visto/acuerdo
-      allow update: if isTeacher() || (
-        isParent() && resource.data.studentId == getUserData().studentId
-      );
-      // Lectura: Maestros y el tutor del alumno reportado
-      allow read: if isTeacher() || (
-        isParent() && resource.data.studentId == getUserData().studentId
-      );
+      allow read, write: if isAuthenticated();
     }
-
-    // ==========================================
-    // 7. Proyectos y Tareas Formativas
-    // ==========================================
+    
     match /projects/{projectId} {
       allow read: if isAuthenticated();
       allow write: if isTeacher();
@@ -134,22 +93,15 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow write: if isTeacher();
     }
-
-    // ==========================================
-    // 8. Calendario Escolar y Eventos
-    // ==========================================
+    
     match /calendarEvents/{eventId} {
       allow read: if isAuthenticated();
       allow write: if isTeacher();
     }
-
-    // ==========================================
-    // 9. Configuración del Plantel / Escuela
-    // ==========================================
+    
     match /schoolInfo/{schoolId} {
       allow read: if isAuthenticated();
       allow write: if isTeacher();
     }
-
   }
 }

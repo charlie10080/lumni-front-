@@ -37,7 +37,7 @@ export const GradesView: React.FC = () => {
   const parentStudentId = currentUser?.studentId || localStorage.getItem('lumni_parent_student_id');
   const currentParentStudent =
     students.find((s) => s.id === parentStudentId || s.curp === parentStudentId || s.matricula === parentStudentId) ||
-    students[0];
+    null;
 
   // Modal para agregar/quitar materias
   const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
@@ -221,13 +221,27 @@ export const GradesView: React.FC = () => {
   // Si el usuario es un padre/tutor, renderizar únicamente la Boleta Individual de su hijo
   if (role === 'parent') {
     const student = currentParentStudent;
+    if (!student) {
+      return (
+        <div className="p-12 text-center max-w-lg mx-auto space-y-4">
+          <div className="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto border border-amber-500/20">
+            <AlertTriangle className="w-7 h-7" />
+          </div>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Expediente de Alumno No Encontrado</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            No pudimos localizar la información del alumno asociado a esta sesión. Por favor verifica la CURP o comunícate con el docente titular de tu plantel.
+          </p>
+        </div>
+      );
+    }
+
     const avgT1 = calculateStudentTrimesterAverage(student, 1);
     const avgT2 = calculateStudentTrimesterAverage(student, 2);
     const avgT3 = calculateStudentTrimesterAverage(student, 3);
     const avgAnnual = calculateStudentAnnualAverage(student);
 
     const handleDownloadPDF = () => {
-      const teacherName = 'Prof. Carlos Mendoza Morales';
+      const teacherName = schoolInfo.director || 'Docente Titular';
       generateOfficialBoletaPDF(student, subjects, schoolInfo, teacherName);
     };
 
@@ -601,7 +615,17 @@ export const GradesView: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-700 dark:text-slate-300">
-              {filteredStudents.map((student) => {
+              {filteredStudents.length === 0 ? (
+                <tr>
+                  <td colSpan={subjects.length + 2} className="py-12 text-center text-xs text-slate-500 dark:text-slate-400">
+                    <p className="font-bold text-sm text-slate-700 dark:text-slate-300">Aún no hay alumnos en tu aula escolar</p>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                      Registra a tus alumnos desde el módulo de Alumnos para capturar sus calificaciones.
+                    </p>
+                  </td>
+                </tr>
+              ) : (
+                filteredStudents.map((student) => {
                 const studentGrades = student.calificacionesTrimestres[tr] || {};
                 const currentAvg =
                   viewMode === 'annual'
@@ -686,7 +710,7 @@ export const GradesView: React.FC = () => {
                     </td>
                   </tr>
                 );
-              })}
+              }))}
             </tbody>
           </table>
         </div>

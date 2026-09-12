@@ -281,67 +281,94 @@ export const StudentsView: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-700 dark:text-slate-300">
-              {filteredStudents.map((student) => (
-                <tr key={student.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition">
-                  <td className="py-3.5 px-4 font-medium text-slate-900 dark:text-white flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-bold text-white text-xs shadow-md shrink-0">
-                      {student.nombre.charAt(0)}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-slate-900 dark:text-white">{student.nombre} {student.apellidos}</p>
-                      <span className="inline-flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
-                        <CheckCircle className="w-3 h-3" /> Activo
-                      </span>
-                    </div>
-                  </td>
-                  <td className="py-3.5 px-4">
-                    <p className="font-mono text-xs text-slate-800 dark:text-slate-300 font-semibold">{student.curp}</p>
-                    <p className="text-[11px] text-slate-500 font-mono">{student.matricula}</p>
-                  </td>
-                  <td className="py-3.5 px-4 text-xs">
-                    <p className="font-semibold text-slate-900 dark:text-white">{student.grado} {student.grupo}</p>
-                    <p className="text-slate-500 dark:text-slate-400">{student.turno}</p>
-                  </td>
-                  <td className="py-3.5 px-4 text-xs">
-                    <p className="font-semibold text-slate-900 dark:text-white">{student.tutorNombre}</p>
-                    <p className="text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5">
-                      <Phone className="w-3 h-3" /> {student.tutorTelefono}
-                    </p>
-                  </td>
-                  <td className="py-3.5 px-4 text-center">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      leftIcon={<QrCode className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />}
-                      onClick={() => setCredentialStudent(student)}
-                    >
-                      Credencial
-                    </Button>
-                  </td>
-                  <td className="py-3.5 px-4 text-right">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <button
-                        title="Editar alumno"
-                        onClick={() => handleOpenEdit(student)}
-                        className="p-2 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button
-                        title="Eliminar alumno"
-                        onClick={() => {
-                          if (confirm(`¿Seguro que deseas dar de baja a ${student.nombre}?`)) {
-                            deleteStudent(student.id);
-                          }
-                        }}
-                        className="p-2 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition cursor-pointer"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+              {filteredStudents.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center">
+                    <div className="max-w-xs mx-auto space-y-3">
+                      <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto border border-indigo-200 dark:border-indigo-800">
+                        <UserPlus className="w-6 h-6" />
+                      </div>
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                        {students.length === 0 ? 'Aún no hay alumnos en tu aula' : 'Sin resultados de búsqueda'}
+                      </h4>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        {students.length === 0
+                          ? 'Comienza registrando a los alumnos de tu grupo para generar credenciales QR y capturar asistencias.'
+                          : 'Intenta ajustando el término de búsqueda o los filtros de grado y grupo.'}
+                      </p>
+                      {students.length === 0 && (
+                        <div className="pt-2">
+                          <Button variant="primary" size="sm" leftIcon={<UserPlus className="w-4 h-4" />} onClick={handleOpenAdd}>
+                            Registrar Mi Primer Alumno
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredStudents.map((student) => (
+                  <tr key={student.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition">
+                    <td className="py-3.5 px-4 font-medium text-slate-900 dark:text-white flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-bold text-white text-xs shadow-md shrink-0">
+                        {student.nombre.charAt(0)}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-slate-900 dark:text-white">{student.nombre} {student.apellidos}</p>
+                        <span className="inline-flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                          <CheckCircle className="w-3 h-3" /> Activo
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <p className="font-mono text-xs text-slate-800 dark:text-slate-300 font-semibold">{student.curp}</p>
+                      <p className="text-[11px] text-slate-500 font-mono">{student.matricula}</p>
+                    </td>
+                    <td className="py-3.5 px-4 text-xs">
+                      <p className="font-semibold text-slate-900 dark:text-white">{student.grado} {student.grupo}</p>
+                      <p className="text-slate-500 dark:text-slate-400">{student.turno}</p>
+                    </td>
+                    <td className="py-3.5 px-4 text-xs">
+                      <p className="font-semibold text-slate-900 dark:text-white">{student.tutorNombre}</p>
+                      <p className="text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5">
+                        <Phone className="w-3 h-3" /> {student.tutorTelefono}
+                      </p>
+                    </td>
+                    <td className="py-3.5 px-4 text-center">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        leftIcon={<QrCode className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />}
+                        onClick={() => setCredentialStudent(student)}
+                      >
+                        Credencial
+                      </Button>
+                    </td>
+                    <td className="py-3.5 px-4 text-right">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          title="Editar alumno"
+                          onClick={() => handleOpenEdit(student)}
+                          className="p-2 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          title="Eliminar alumno"
+                          onClick={() => {
+                            if (confirm(`¿Seguro que deseas dar de baja a ${student.nombre}?`)) {
+                              deleteStudent(student.id);
+                            }
+                          }}
+                          className="p-2 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition cursor-pointer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

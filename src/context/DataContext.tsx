@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import {
   Student,
   Subject,
@@ -22,6 +22,9 @@ import {
   mockCalendarEvents,
   mockIncidentReports,
 } from '../services/mockData';
+import { useAuth } from './AuthContext';
+import { db, isFirebaseConfigured } from '../config/firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 interface DataContextType {
   students: Student[];
@@ -68,90 +71,250 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
+// Plantilla limpia oficial de materias de la SEP (Nueva Escuela Mexicana)
+export const cleanDefaultSubjects: Subject[] = [
+  { id: 'sub_1', nombre: 'Lenguajes', clave: 'LEN-101' },
+  { id: 'sub_2', nombre: 'Saberes y Pensamiento Científico', clave: 'SAB-102' },
+  { id: 'sub_3', nombre: 'Ética, Naturaleza y Sociedades', clave: 'ETI-103' },
+  { id: 'sub_4', nombre: 'De lo Humano y lo Comunitario', clave: 'HUM-104' },
+  { id: 'sub_5', nombre: 'Inglés', clave: 'ING-105' },
+];
+
+// Plantilla limpia de calendario oficial de ciclo escolar
+export const cleanDefaultCalendar: CalendarEvent[] = [
+  { id: 'cal_1', titulo: 'Inicio de Ciclo Escolar', tipo: 'evento', fecha: '2026-08-28', descripcion: 'Bienvenida a clases y organización del aula escolar.' },
+  { id: 'cal_2', titulo: 'Consejo Técnico Escolar (CTE)', tipo: 'suspension', fecha: '2026-09-25', descripcion: 'Sesión ordinaria de planeación pedagógica docente.' },
+  { id: 'cal_3', titulo: 'Evaluación 1er Trimestre', tipo: 'evaluacion', fecha: '2026-11-15', descripcion: 'Captura y cierre de calificaciones del primer periodo formativo.' },
+];
+
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [students, setStudents] = useState<Student[]>(() => {
-    const saved = localStorage.getItem('lumni_students_v2');
-    return saved ? JSON.parse(saved) : mockStudents;
-  });
+  const { currentUser, role } = useAuth();
 
-  const [subjects, setSubjects] = useState<Subject[]>(() => {
-    const saved = localStorage.getItem('lumni_subjects_v2');
-    return saved ? JSON.parse(saved) : mockSubjects;
-  });
+  // Calcular el scope único de datos:
+  // - Si no hay usuario logueado: 'guest' (estado 100% limpio en memoria para evitar contaminaciones)
+  // - Si es usuario demo (Prof. Carlos Mendoza / Laura Soto): 'demo'
+  // - Si es padre de familia: el ID del maestro de su hijo ('lumni_parent_scope_id')
+  // - Si es maestro registrado: su UID único de Firebase / cuenta
+  const isDemo =
+    currentUser?.id === 'usr_prof_01' ||
+    currentUser?.id === 'usr_tutor_01' ||
+    currentUser?.email === 'carlos.mendoza@colegio.edu.mx' ||
+    currentUser?.email === 'laura.soto@correo.com';
 
-  const [notices, setNotices] = useState<Notice[]>(() => {
-    const saved = localStorage.getItem('lumni_notices_v2');
-    return saved ? JSON.parse(saved) : mockNotices;
-  });
+  const scopeKey = !currentUser
+    ? 'guest'
+    : isDemo
+    ? 'demo'
+    : role === 'parent'
+    ? localStorage.getItem('lumni_parent_scope_id') || 'demo'
+    : currentUser.id || 'guest';
 
-  const [threads, setThreads] = useState<ChatThread[]>(() => {
-    const saved = localStorage.getItem('lumni_threads_v2');
-    return saved ? JSON.parse(saved) : mockThreads;
-  });
+  // Helper para leer del localStorage por scope
+  const getScopedData = useCallback(<T,>(keySuffix: string, fallbackDemo: T, fallbackClean: T, activeScope: string): T => {
+    if (activeScope === 'guest') return fallbackClean;
+    const storageKey = `lumni_acc_${activeScope}_${keySuffix}`;
+    const saved = localStorage.getItem(storageKey);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return activeScope === 'demo' ? fallbackDemo : fallbackClean;
+      }
+    }
+    return activeScope === 'demo' ? fallbackDemo : fallbackClean;
+  }, []);
 
-  const [projects, setProjects] = useState<Project[]>(() => {
-    const saved = localStorage.getItem('lumni_projects_v2');
-    return saved ? JSON.parse(saved) : mockProjects;
-  });
+  const getCleanSchoolInfo = useCallback((): SchoolInfo => {
+    return {
+      nombre: currentUser?.colegio || 'Colegio Lumni',
+      cct: '09DPR0001X',
+      ciclo: currentUser?.ciclo || '2026-2027',
+      direccion: 'Plantel Escolar',
+      telefono: '(55) 0000-0000',
+      director: currentUser?.nombre ? `${currentUser.nombre} ${currentUser.apellidos || ''}`.trim() : 'Director(a) Escolar',
+    };
+  }, [currentUser]);
 
-  const [tasks, setTasks] = useState<Task[]>(() => {
-    const saved = localStorage.getItem('lumni_tasks_v2');
-    return saved ? JSON.parse(saved) : mockTasks;
-  });
-
-  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>(() => {
-    const saved = localStorage.getItem('lumni_calendar_v2');
-    return saved ? JSON.parse(saved) : mockCalendarEvents;
-  });
-
-  const [incidentReports, setIncidentReports] = useState<StudentIncidentReport[]>(() => {
-    const saved = localStorage.getItem('lumni_incidents_v2');
-    return saved ? JSON.parse(saved) : mockIncidentReports;
-  });
-
-  const [schoolInfo, setSchoolInfo] = useState<SchoolInfo>(() => {
-    const saved = localStorage.getItem('lumni_school_v2');
-    return saved ? JSON.parse(saved) : mockSchoolInfo;
-  });
+  // Estados locales
+  const [students, setStudents] = useState<Student[]>(() => getScopedData('students', mockStudents, [], scopeKey));
+  const [subjects, setSubjects] = useState<Subject[]>(() => getScopedData('subjects', mockSubjects, cleanDefaultSubjects, scopeKey));
+  const [notices, setNotices] = useState<Notice[]>(() => getScopedData('notices', mockNotices, [], scopeKey));
+  const [threads, setThreads] = useState<ChatThread[]>(() => getScopedData('threads', mockThreads, [], scopeKey));
+  const [projects, setProjects] = useState<Project[]>(() => getScopedData('projects', mockProjects, [], scopeKey));
+  const [tasks, setTasks] = useState<Task[]>(() => getScopedData('tasks', mockTasks, [], scopeKey));
+  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>(() => getScopedData('calendar', mockCalendarEvents, cleanDefaultCalendar, scopeKey));
+  const [incidentReports, setIncidentReports] = useState<StudentIncidentReport[]>(() => getScopedData('incidents', mockIncidentReports, [], scopeKey));
+  const [schoolInfo, setSchoolInfo] = useState<SchoolInfo>(() => getScopedData('school', mockSchoolInfo, getCleanSchoolInfo(), scopeKey));
 
   const [activeTrimester, setActiveTrimester] = useState<number>(1);
 
-  // Guardar en LocalStorage
-  useEffect(() => {
-    localStorage.setItem('lumni_students_v2', JSON.stringify(students));
-  }, [students]);
+  // Referencia para saber cuál scope está cargado actualmente en el estado y evitar sobreescrituras por race-conditions
+  const loadedScopeRef = useRef<string>(scopeKey);
+  const isInitialLoadRef = useRef<boolean>(true);
 
+  // 1. Recargar datos del scope cuando cambia de usuario / cuenta
   useEffect(() => {
-    localStorage.setItem('lumni_subjects_v2', JSON.stringify(subjects));
-  }, [subjects]);
+    if (loadedScopeRef.current !== scopeKey || isInitialLoadRef.current) {
+      loadedScopeRef.current = scopeKey;
+      isInitialLoadRef.current = false;
 
-  useEffect(() => {
-    localStorage.setItem('lumni_notices_v2', JSON.stringify(notices));
-  }, [notices]);
+      const loadedStudents = getScopedData('students', mockStudents, [], scopeKey);
+      const loadedSubjects = getScopedData('subjects', mockSubjects, cleanDefaultSubjects, scopeKey);
+      const loadedNotices = getScopedData('notices', mockNotices, [], scopeKey);
+      const loadedThreads = getScopedData('threads', mockThreads, [], scopeKey);
+      const loadedProjects = getScopedData('projects', mockProjects, [], scopeKey);
+      const loadedTasks = getScopedData('tasks', mockTasks, [], scopeKey);
+      const loadedCalendar = getScopedData('calendar', mockCalendarEvents, cleanDefaultCalendar, scopeKey);
+      const loadedIncidents = getScopedData('incidents', mockIncidentReports, [], scopeKey);
+      const loadedSchool = getScopedData('school', mockSchoolInfo, getCleanSchoolInfo(), scopeKey);
 
-  useEffect(() => {
-    localStorage.setItem('lumni_threads_v2', JSON.stringify(threads));
-  }, [threads]);
+      setStudents(loadedStudents);
+      setSubjects(loadedSubjects);
+      setNotices(loadedNotices);
+      setThreads(loadedThreads);
+      setProjects(loadedProjects);
+      setTasks(loadedTasks);
+      setCalendarEvents(loadedCalendar);
+      setIncidentReports(loadedIncidents);
+      setSchoolInfo(loadedSchool);
 
-  useEffect(() => {
-    localStorage.setItem('lumni_projects_v2', JSON.stringify(projects));
-  }, [projects]);
+      // Si Firebase está configurado y es una cuenta real de maestro, cargar o inicializar en Firestore
+      if (isFirebaseConfigured && db && scopeKey !== 'guest' && scopeKey !== 'demo') {
+        const firestore = db;
+        const fetchFirestoreData = async () => {
+          try {
+            const classroomDoc = await getDoc(doc(firestore, 'classrooms', scopeKey));
+            if (classroomDoc.exists()) {
+              const fbData = classroomDoc.data();
+              if (fbData.students) setStudents(fbData.students);
+              if (fbData.subjects) setSubjects(fbData.subjects);
+              if (fbData.notices) setNotices(fbData.notices);
+              if (fbData.threads) setThreads(fbData.threads);
+              if (fbData.projects) setProjects(fbData.projects);
+              if (fbData.tasks) setTasks(fbData.tasks);
+              if (fbData.calendarEvents) setCalendarEvents(fbData.calendarEvents);
+              if (fbData.incidentReports) setIncidentReports(fbData.incidentReports);
+              if (fbData.schoolInfo) setSchoolInfo(fbData.schoolInfo);
+            } else if (role === 'teacher') {
+              // Inicializar aula limpia en Firestore para nueva cuenta de maestro
+              const cleanPayload = {
+                teacherId: scopeKey,
+                teacherEmail: currentUser?.email || '',
+                students: [],
+                subjects: cleanDefaultSubjects,
+                notices: [],
+                threads: [],
+                projects: [],
+                tasks: [],
+                calendarEvents: cleanDefaultCalendar,
+                incidentReports: [],
+                schoolInfo: getCleanSchoolInfo(),
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              };
+              await setDoc(doc(firestore, 'classrooms', scopeKey), cleanPayload);
+            }
+          } catch (err) {
+            console.warn('Could not sync with Firestore classroom:', err);
+          }
+        };
 
-  useEffect(() => {
-    localStorage.setItem('lumni_tasks_v2', JSON.stringify(tasks));
-  }, [tasks]);
+        fetchFirestoreData();
+      }
+    }
+  }, [scopeKey, getScopedData, getCleanSchoolInfo, currentUser, role]);
 
+  // 2. Guardar en LocalStorage y Firestore únicamente cuando los datos pertenecen al scope activo
   useEffect(() => {
-    localStorage.setItem('lumni_calendar_v2', JSON.stringify(calendarEvents));
-  }, [calendarEvents]);
+    if (scopeKey === 'guest' || loadedScopeRef.current !== scopeKey) return;
 
-  useEffect(() => {
-    localStorage.setItem('lumni_incidents_v2', JSON.stringify(incidentReports));
-  }, [incidentReports]);
+    localStorage.setItem(`lumni_acc_${scopeKey}_students`, JSON.stringify(students));
+    localStorage.setItem(`lumni_acc_${scopeKey}_subjects`, JSON.stringify(subjects));
+    localStorage.setItem(`lumni_acc_${scopeKey}_notices`, JSON.stringify(notices));
+    localStorage.setItem(`lumni_acc_${scopeKey}_threads`, JSON.stringify(threads));
+    localStorage.setItem(`lumni_acc_${scopeKey}_projects`, JSON.stringify(projects));
+    localStorage.setItem(`lumni_acc_${scopeKey}_tasks`, JSON.stringify(tasks));
+    localStorage.setItem(`lumni_acc_${scopeKey}_calendar`, JSON.stringify(calendarEvents));
+    localStorage.setItem(`lumni_acc_${scopeKey}_incidents`, JSON.stringify(incidentReports));
+    localStorage.setItem(`lumni_acc_${scopeKey}_school`, JSON.stringify(schoolInfo));
 
-  useEffect(() => {
-    localStorage.setItem('lumni_school_v2', JSON.stringify(schoolInfo));
-  }, [schoolInfo]);
+    // Sincronizar aula y directorio de alumnos con Firestore en segundo plano si es maestro
+    if (isFirebaseConfigured && db && scopeKey !== 'demo' && role === 'teacher') {
+      const firestore = db;
+      const timer = setTimeout(async () => {
+        try {
+          await setDoc(
+            doc(firestore, 'classrooms', scopeKey),
+            {
+              teacherId: scopeKey,
+              teacherEmail: currentUser?.email || '',
+              students,
+              subjects,
+              notices,
+              threads,
+              projects,
+              tasks,
+              calendarEvents,
+              incidentReports,
+              schoolInfo,
+              updatedAt: new Date().toISOString(),
+            },
+            { merge: true }
+          );
+
+          // Actualizar directorio de búsqueda para acceso de padres por CURP/Matrícula
+          for (const st of students) {
+            if (st.curp) {
+              await setDoc(
+                doc(firestore, 'student_lookup', st.curp.toUpperCase().trim()),
+                {
+                  studentId: st.id,
+                  teacherId: scopeKey,
+                  curp: st.curp.toUpperCase().trim(),
+                  matricula: st.matricula?.toUpperCase().trim() || '',
+                  studentNombre: st.nombre,
+                  studentApellidos: st.apellidos,
+                  tutorNombre: st.tutorNombre || '',
+                  tutorTelefono: st.tutorTelefono || '',
+                  tutorEmail: st.tutorEmail || '',
+                  colegio: schoolInfo.nombre,
+                  grupo: `${st.grado} ${st.grupo}`,
+                  ciclo: schoolInfo.ciclo,
+                  updatedAt: new Date().toISOString(),
+                },
+                { merge: true }
+              );
+            }
+            if (st.matricula) {
+              await setDoc(
+                doc(firestore, 'student_lookup', st.matricula.toUpperCase().trim()),
+                {
+                  studentId: st.id,
+                  teacherId: scopeKey,
+                  curp: st.curp?.toUpperCase().trim() || '',
+                  matricula: st.matricula.toUpperCase().trim(),
+                  studentNombre: st.nombre,
+                  studentApellidos: st.apellidos,
+                  tutorNombre: st.tutorNombre || '',
+                  tutorTelefono: st.tutorTelefono || '',
+                  tutorEmail: st.tutorEmail || '',
+                  colegio: schoolInfo.nombre,
+                  grupo: `${st.grado} ${st.grupo}`,
+                  ciclo: schoolInfo.ciclo,
+                  updatedAt: new Date().toISOString(),
+                },
+                { merge: true }
+              );
+            }
+          }
+        } catch (err) {
+          console.warn('Background Firestore sync error:', err);
+        }
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [students, subjects, notices, threads, projects, tasks, calendarEvents, incidentReports, schoolInfo, scopeKey, role, currentUser]);
 
   // Funciones de Alumnos
   const addStudent = (studentData: Omit<Student, 'id' | 'asistenciasPorFecha' | 'asistenciasTotales' | 'calificacionesTrimestres'>) => {
@@ -313,7 +476,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           studentNombre: meta.studentNombre,
           tutorNombre: meta.tutorNombre,
           tutorTelefono: meta.tutorTelefono,
-          teacherNombre: 'Docente Titular',
+          teacherNombre: schoolInfo.director || 'Docente Titular',
           ultimoMensaje: texto,
           ultimaFecha: fechaCompleta,
           mensajesNoLeidos: 0,
@@ -468,16 +631,36 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const resetToDefaultData = () => {
-    setStudents(mockStudents);
-    setSubjects(mockSubjects);
-    setNotices(mockNotices);
-    setThreads(mockThreads);
-    setProjects(mockProjects);
-    setTasks(mockTasks);
-    setCalendarEvents(mockCalendarEvents);
-    setIncidentReports(mockIncidentReports);
-    setSchoolInfo(mockSchoolInfo);
-    localStorage.clear();
+    if (scopeKey === 'demo') {
+      setStudents(mockStudents);
+      setSubjects(mockSubjects);
+      setNotices(mockNotices);
+      setThreads(mockThreads);
+      setProjects(mockProjects);
+      setTasks(mockTasks);
+      setCalendarEvents(mockCalendarEvents);
+      setIncidentReports(mockIncidentReports);
+      setSchoolInfo(mockSchoolInfo);
+      localStorage.removeItem('lumni_acc_demo_students');
+      localStorage.removeItem('lumni_acc_demo_subjects');
+      localStorage.removeItem('lumni_acc_demo_notices');
+      localStorage.removeItem('lumni_acc_demo_threads');
+      localStorage.removeItem('lumni_acc_demo_projects');
+      localStorage.removeItem('lumni_acc_demo_tasks');
+      localStorage.removeItem('lumni_acc_demo_calendar');
+      localStorage.removeItem('lumni_acc_demo_incidents');
+      localStorage.removeItem('lumni_acc_demo_school');
+    } else {
+      setStudents([]);
+      setSubjects(cleanDefaultSubjects);
+      setNotices([]);
+      setThreads([]);
+      setProjects([]);
+      setTasks([]);
+      setCalendarEvents(cleanDefaultCalendar);
+      setIncidentReports([]);
+      setSchoolInfo(getCleanSchoolInfo());
+    }
   };
 
   return (
