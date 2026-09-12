@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Navbar } from './Navbar';
 import { Sidebar } from './Sidebar';
 import { MobileAppBanner } from './MobileAppBanner';
+import { InstallAppModal } from './InstallAppModal';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
 import {
@@ -19,6 +20,7 @@ import {
   Settings,
   X,
   Sparkles,
+  Smartphone,
 } from 'lucide-react';
 
 export interface LayoutProps {
@@ -31,6 +33,8 @@ export const Layout: React.FC<LayoutProps> = ({ currentTab, setCurrentTab, child
   const { role } = useAuth();
   const { threads, notices, tasks, projects } = useData();
   const [isMoreDrawerOpen, setIsMoreDrawerOpen] = useState(false);
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
+
 
   const totalUnreadMessages = threads.reduce((acc, t) => acc + (t.mensajesNoLeidos || 0), 0);
 
@@ -194,12 +198,43 @@ export const Layout: React.FC<LayoutProps> = ({ currentTab, setCurrentTab, child
                 );
               })}
             </div>
+
+            {/* Install Mobile App Direct Option in Mobile Drawer */}
+            <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
+              <button
+                onClick={() => {
+                  setIsMoreDrawerOpen(false);
+                  setIsInstallModalOpen(true);
+                }}
+                className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-lg shadow-indigo-600/20 cursor-pointer"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-white/20">
+                    <Smartphone className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-xs font-extrabold">Descargar / Instalar en Celular</p>
+                    <p className="text-[10px] text-indigo-100/80">Acceso rápido en tu pantalla de inicio</p>
+                  </div>
+                </div>
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-white/20">
+                  Instalar
+                </span>
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       {/* PWA Mobile Installation Prompt Banner */}
       <MobileAppBanner />
+
+      {/* Install App Modal */}
+      <InstallAppModal
+        isOpen={isInstallModalOpen}
+        onClose={() => setIsInstallModalOpen(false)}
+      />
     </div>
   );
 };
+

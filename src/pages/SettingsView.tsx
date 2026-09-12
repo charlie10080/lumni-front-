@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Modal } from '../components/ui/Modal';
+import { InstallAppModal } from '../components/layout/InstallAppModal';
 import {
   Settings,
   Building,
@@ -22,6 +23,7 @@ import {
   FileJson,
   Check,
   AlertTriangle,
+  Smartphone,
 } from 'lucide-react';
 
 const AVATAR_OPTIONS = [
@@ -71,6 +73,8 @@ export const SettingsView: React.FC = () => {
 
   // Reset modal
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
+
 
   const handleSaveSchool = (e: React.FormEvent) => {
     e.preventDefault();
@@ -427,6 +431,39 @@ export const SettingsView: React.FC = () => {
             </Card>
           )}
 
+          {/* PWA Mobile App Card */}
+          <Card className="border-indigo-200 dark:border-indigo-500/30 bg-gradient-to-br from-indigo-50/50 to-white dark:from-indigo-950/20 dark:to-slate-900">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base text-indigo-700 dark:text-indigo-400">
+                <Smartphone className="w-5 h-5" />
+                Aplicación Móvil LUMNI (PWA)
+              </CardTitle>
+            </CardHeader>
+            <div className="space-y-3 text-xs text-slate-600 dark:text-slate-300">
+              <p>
+                LUMNI funciona como aplicación nativa en tu teléfono Android, iPhone o iPad sin ocupar memoria de descarga.
+              </p>
+              <div className="p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-900 dark:text-indigo-200 text-[11px] space-y-1">
+                <p className="font-bold flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                  Ventajas en celular:
+                </p>
+                <p>• Pase de lista y escáner QR a pantalla completa</p>
+                <p>• Notificaciones directas de mensajes</p>
+                <p>• Sin necesidad de descargar archivos pesados</p>
+              </div>
+              <Button
+                variant="primary"
+                size="sm"
+                className="w-full"
+                leftIcon={<Smartphone className="w-4 h-4" />}
+                onClick={() => setIsInstallModalOpen(true)}
+              >
+                Descargar / Instalar en mi Teléfono
+              </Button>
+            </div>
+          </Card>
+
           {/* Conclude School Cycle Card */}
           {role === 'teacher' && (
             <Card className="border-amber-200 dark:border-amber-500/20 bg-gradient-to-br from-white to-amber-50/20 dark:from-slate-900 dark:to-amber-950/10">
@@ -465,6 +502,13 @@ export const SettingsView: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Install App Modal */}
+      <InstallAppModal
+        isOpen={isInstallModalOpen}
+        onClose={() => setIsInstallModalOpen(false)}
+      />
+
 
       {/* Modal: Concluir Ciclo Escolar */}
       <Modal

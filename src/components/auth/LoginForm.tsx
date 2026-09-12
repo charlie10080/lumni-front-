@@ -3,6 +3,7 @@ import { useAuth, RegisterTeacherData } from '../../context/AuthContext';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { ForgotPasswordModal } from './ForgotPasswordModal';
+import { InstallAppModal } from '../layout/InstallAppModal';
 import {
   Sparkles,
   Lock,
@@ -17,6 +18,7 @@ import {
   UserPlus,
   ShieldCheck,
   GraduationCap,
+  Smartphone,
 } from 'lucide-react';
 
 export const LoginForm: React.FC = () => {
@@ -50,6 +52,8 @@ export const LoginForm: React.FC = () => {
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [isForgotOpen, setIsForgotOpen] = useState(false);
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
+
 
   // Login de Docente
   const handleTeacherLogin = async (e: React.FormEvent) => {
@@ -473,11 +477,27 @@ export const LoginForm: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Footer: Install Mobile App Helper Link */}
+        <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800 text-center">
+          <button
+            type="button"
+            onClick={() => setIsInstallModalOpen(true)}
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 transition cursor-pointer"
+          >
+            <Smartphone className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+            <span>📲 ¿Cómo instalar LUMNI en mi celular?</span>
+          </button>
+        </div>
       </div>
 
       {/* Forgot Password Modal */}
       <ForgotPasswordModal isOpen={isForgotOpen} onClose={() => setIsForgotOpen(false)} />
+
+      {/* Install App Modal */}
+      <InstallAppModal isOpen={isInstallModalOpen} onClose={() => setIsInstallModalOpen(false)} />
     </div>
   );
 };
+
 
