@@ -76,17 +76,15 @@ export const InstallAppModal: React.FC<InstallAppModalProps> = ({ isOpen, onClos
             <Smartphone className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="text-lg font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-              Descargar / Instalar LUMNI
-              <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
-                PWA Móvil
-              </span>
+            <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+              ¿Deseas instalar la app?
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Instala la aplicación en tu celular sin ocupar memoria de la tienda de aplicaciones.
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Instala LUMNI en tu pantalla de inicio para entrar directo en 1 toque.
             </p>
           </div>
         </div>
+
 
         {/* Device Tabs */}
         <div className="flex p-1 rounded-2xl bg-slate-100 dark:bg-slate-800/80 text-xs font-bold">

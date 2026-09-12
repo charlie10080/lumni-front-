@@ -51,12 +51,13 @@ export const Navbar: React.FC<{ onToggleSidebar?: () => void }> = () => {
             {/* Install Mobile App Button */}
             <button
               onClick={() => setShowInstallModal(true)}
-              title="Descargar / Instalar App Móvil"
+              title="¿Deseas instalar la app?"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800/60 shadow-xs transition cursor-pointer"
             >
               <Smartphone className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-              <span className="hidden sm:inline">Instalar App</span>
+              <span className="hidden sm:inline">¿Instalar App?</span>
             </button>
+
 
             {/* Theme Toggle Button (Modo Claro / Modo Oscuro) */}
             <button

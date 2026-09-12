@@ -213,15 +213,16 @@ export const Layout: React.FC<LayoutProps> = ({ currentTab, setCurrentTab, child
                     <Smartphone className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-left">
-                    <p className="text-xs font-extrabold">Descargar / Instalar en Celular</p>
+                    <p className="text-xs font-extrabold">¿Deseas instalar la app?</p>
                     <p className="text-[10px] text-indigo-100/80">Acceso rápido en tu pantalla de inicio</p>
                   </div>
                 </div>
-                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-white/20">
-                  Instalar
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-white/20">
+                  Sí, Instalar
                 </span>
               </button>
             </div>
+
           </div>
         </div>
       )}

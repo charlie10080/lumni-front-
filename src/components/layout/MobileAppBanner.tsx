@@ -87,57 +87,54 @@ export const MobileAppBanner: React.FC = () => {
           <X className="w-4 h-4" />
         </button>
 
-        <div className="flex items-start gap-3.5 pr-6">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-amber-500 flex items-center justify-center text-white shrink-0 shadow-md">
+        <div className="flex items-center gap-3.5 pr-6">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-amber-500 flex items-center justify-center text-white shrink-0 shadow-md">
             <Smartphone className="w-5 h-5" />
           </div>
 
-          <div className="space-y-1">
-            <h4 className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-              <span>Instalar App LUMNI Móvil</span>
-              <span className="px-1.5 py-0.2 rounded text-[9px] bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-extrabold uppercase">
-                PWA
-              </span>
+          <div className="space-y-0.5">
+            <h4 className="text-sm font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
+              <span>¿Deseas instalar la app?</span>
             </h4>
-            <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-tight">
-              Úsalo como App en tu teléfono: acceso rápido sin escribir la dirección y escáner QR a pantalla completa.
+            <p className="text-xs text-slate-600 dark:text-slate-400">
+              Instala LUMNI en tu teléfono para acceso rápido en 1 toque.
             </p>
           </div>
         </div>
 
         {showIOSInstructions ? (
-          <div className="mt-3 p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-500/20 text-[11px] text-indigo-900 dark:text-indigo-200 space-y-1.5">
+          <div className="mt-3 p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-500/20 text-xs text-indigo-900 dark:text-indigo-200 space-y-1.5">
             <p className="font-bold flex items-center gap-1.5">
               <Share className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-              1. Toca el botón "Compartir" en la barra inferior de Safari.
+              1. Toca "Compartir" en Safari (abajo).
             </p>
             <p className="font-bold flex items-center gap-1.5">
               <PlusSquare className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-              2. Selecciona "Agregar a pantalla de inicio".
+              2. Elige "Agregar a pantalla de inicio".
             </p>
             <button
               onClick={() => setShowIOSInstructions(false)}
-              className="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold underline mt-1 cursor-pointer block text-right w-full"
+              className="text-xs text-indigo-600 dark:text-indigo-400 font-bold underline mt-1 cursor-pointer block text-right w-full"
             >
-              Entendido
+              Cerrar
             </button>
           </div>
         ) : (
           <div className="flex items-center justify-end gap-2 mt-3 pt-2.5 border-t border-slate-200/60 dark:border-slate-800">
             <button
               onClick={handleDismiss}
-              className="text-[11px] font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 px-2 py-1 cursor-pointer"
+              className="text-xs font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 px-3 py-1.5 cursor-pointer rounded-xl"
             >
-              Más tarde
+              No
             </button>
             <Button
               variant="primary"
               size="sm"
-              leftIcon={<Download className="w-3.5 h-3.5" />}
+              leftIcon={<Download className="w-4 h-4" />}
               onClick={handleInstallClick}
-              className="py-1.5 text-xs font-bold shadow-md shadow-indigo-600/20"
+              className="py-1.5 px-4 text-xs font-bold shadow-md shadow-indigo-600/25"
             >
-              Instalar en Teléfono
+              Sí, Instalar
             </Button>
           </div>
         )}
@@ -145,3 +142,4 @@ export const MobileAppBanner: React.FC = () => {
     </div>
   );
 };
+
