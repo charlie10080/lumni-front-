@@ -1,0 +1,35 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Función para verificar autenticación
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Fotos de perfil y avatares (máx 5MB, solo imágenes)
+    match /avatars/{userId}/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && request.auth.uid == userId
+                    && request.resource.size < 5 * 1024 * 1024
+                    && request.resource.contentType.matches('image/.*');
+    }
+    
+    // Credenciales y fotos de alumnos
+    match /student_photos/{studentId}/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated()
+                    && request.resource.size < 5 * 1024 * 1024
+                    && request.resource.contentType.matches('image/.*');
+    }
+
+    // Adjuntos de avisos institucionales (imágenes o PDF, máx 10MB)
+    match /notices/{noticeId}/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated()
+                    && request.resource.size < 10 * 1024 * 1024
+                    && (request.resource.contentType.matches('image/.*') || request.resource.contentType == 'application/pdf');
+    }
+  }
+}

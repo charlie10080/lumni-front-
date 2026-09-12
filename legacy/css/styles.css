@@ -1,0 +1,144 @@
+html, body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+html {
+  background-color: #f8fafc;
+}
+html.dark {
+  background-color: #0f172a;
+  color-scheme: dark;
+}
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Mejoara Global de Legibilidad y Contraste en Modo Oscuro */
+html.dark {
+  color: #f8fafc;
+}
+
+html.dark .text-slate-400,
+html.dark .dark\:text-slate-400 {
+  color: #e2e8f0 !important; /* Slate 200: Claro y perfectamente legible */
+}
+
+html.dark .text-slate-500,
+html.dark .dark\:text-slate-500,
+html.dark .text-slate-600,
+html.dark .dark\:text-slate-600 {
+  color: #cbd5e1 !important; /* Slate 300: Contraste óptimo */
+}
+
+html.dark input, 
+html.dark select, 
+html.dark textarea {
+  color: #f8fafc !important;
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+html.dark input::placeholder, 
+html.dark textarea::placeholder {
+  color: #94a3b8 !important;
+}
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+      #print-modal-area, #print-modal-area *,
+      #print-parent-report, #print-parent-report *,
+      #print-boleta-area, #print-boleta-area * {
+        visibility: visible !important;
+      }
+      #print-modal-area, #print-parent-report, #print-boleta-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 24px;
+        background: white !important;
+        color: #0f172a !important;
+      }
+      #print-boleta-area {
+        max-width: 100% !important;
+      }
+    }
+
+/* Animaciones para el fondo del landing page */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rocket-fly {
+  0% {
+    transform: translate(0, 0) rotate(45deg);
+  }
+  25% {
+    transform: translate(15px, -15px) rotate(45deg);
+  }
+  50% {
+    transform: translate(0, -30px) rotate(45deg);
+  }
+  75% {
+    transform: translate(-15px, -15px) rotate(45deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(45deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+.animate-rocket {
+  animation: rocket-fly 4s ease-in-out infinite;
+}
+
+/* Nuevas animaciones de fondo */
+@keyframes spin-earth {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes cloud-drift-1 {
+  0% { transform: translateX(-50px) translateY(10px) scale(0.8); opacity: 0.8; }
+  50% { transform: translateX(20px) translateY(-5px) scale(0.9); opacity: 1; }
+  100% { transform: translateX(-50px) translateY(10px) scale(0.8); opacity: 0.8; }
+}
+
+@keyframes cloud-drift-2 {
+  0% { transform: translateX(30px) translateY(-20px) scale(1.1); opacity: 0.7; }
+  50% { transform: translateX(-20px) translateY(5px) scale(1); opacity: 0.9; }
+  100% { transform: translateX(30px) translateY(-20px) scale(1.1); opacity: 0.7; }
+}
+
+@keyframes stars-pulse {
+  0% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.3; }
+}
+
+.animate-spin-earth {
+  animation: spin-earth 30s linear infinite;
+}
+
+.animate-cloud-1 {
+  animation: cloud-drift-1 12s ease-in-out infinite;
+}
+
+.animate-cloud-2 {
+  animation: cloud-drift-2 15s ease-in-out infinite;
+}
+
+.animate-stars {
+  animation: stars-pulse 4s ease-in-out infinite;
+}

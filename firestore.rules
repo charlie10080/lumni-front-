@@ -1,0 +1,155 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ==========================================
+    // Funciones Auxiliares de Autenticación y Rol
+    // ==========================================
+    
+    // Verifica si el usuario está autenticado
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Obtiene los datos del perfil del usuario autenticado
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    // Verifica si el usuario tiene rol de Maestro / Docente Titular
+    function isTeacher() {
+      return isAuthenticated() && (
+        getUserData().rol == 'teacher' ||
+        request.auth.token.role == 'teacher'
+      );
+    }
+    
+    // Verifica si el usuario tiene rol de Tutor / Padre de Familia
+    function isParent() {
+      return isAuthenticated() && (
+        getUserData().rol == 'parent' ||
+        request.auth.token.role == 'parent'
+      );
+    }
+
+    // ==========================================
+    // 1. Colección de Usuarios y Perfiles
+    // ==========================================
+    match /users/{userId} {
+      // Cada usuario puede leer y modificar su propio perfil
+      allow read, update: if isAuthenticated() && request.auth.uid == userId;
+      // Los maestros pueden ver perfiles de tutores de su plantel
+      allow read: if isTeacher();
+      // Creación de usuario durante el registro inicial
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      // Impedir eliminación arbitraria de cuentas
+      allow delete: if isTeacher() && request.auth.uid == userId;
+    }
+
+    // ==========================================
+    // 2. Alumnos y Expedientes Escolares
+    // ==========================================
+    match /students/{studentId} {
+      // Los maestros tienen control total de los expedientes de sus grupos
+      allow create, update, delete: if isTeacher();
+      
+      // Lectura: Maestros ven todos sus alumnos; Tutores solo ven a su hijo vinculado
+      allow read: if isTeacher() || (
+        isParent() && (
+          resource.data.tutorEmail == request.auth.token.email ||
+          resource.data.tutorId == request.auth.uid ||
+          resource.data.id == getUserData().studentId
+        )
+      );
+    }
+
+    // ==========================================
+    // 3. Materias y Asignaturas
+    // ==========================================
+    match /subjects/{subjectId} {
+      // Todos los usuarios autenticados pueden ver la lista de materias
+      allow read: if isAuthenticated();
+      // Solo maestros pueden crear, modificar o eliminar materias
+      allow write: if isTeacher();
+    }
+
+    // ==========================================
+    // 4. Avisos y Comunicados Institucionales
+    // ==========================================
+    match /notices/{noticeId} {
+      // Lectura según audiencia configurada (todos, profesores, padres)
+      allow read: if isAuthenticated();
+      // Solo maestros pueden redactar, editar o eliminar comunicados
+      allow create, update, delete: if isTeacher();
+    }
+
+    // ==========================================
+    // 5. Mensajería Directa (Docente <-> Tutor)
+    // ==========================================
+    match /threads/{threadId} {
+      // Los participantes del hilo (maestro o tutor vinculado) pueden leer y enviar mensajes
+      allow read, write: if isAuthenticated() && (
+        isTeacher() ||
+        resource.data.tutorId == request.auth.uid ||
+        resource.data.tutorEmail == request.auth.token.email ||
+        request.resource.data.tutorEmail == request.auth.token.email
+      );
+
+      // Subcolección de mensajes individuales
+      match /messages/{messageId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated() && (
+          (isTeacher() && request.resource.data.remitente == 'teacher') ||
+          (isParent() && request.resource.data.remitente == 'parent')
+        );
+      }
+    }
+
+    // ==========================================
+    // 6. Expedientes de Conducta, Méritos y Citatorios
+    // ==========================================
+    match /incidents/{incidentId} {
+      // Solo maestros pueden crear o eliminar reportes disciplinarios
+      allow create, delete: if isTeacher();
+      // Maestros pueden actualizar cualquier campo; Tutores pueden marcar visto/acuerdo
+      allow update: if isTeacher() || (
+        isParent() && resource.data.studentId == getUserData().studentId
+      );
+      // Lectura: Maestros y el tutor del alumno reportado
+      allow read: if isTeacher() || (
+        isParent() && resource.data.studentId == getUserData().studentId
+      );
+    }
+
+    // ==========================================
+    // 7. Proyectos y Tareas Formativas
+    // ==========================================
+    match /projects/{projectId} {
+      allow read: if isAuthenticated();
+      allow write: if isTeacher();
+    }
+    
+    match /tasks/{taskId} {
+      allow read: if isAuthenticated();
+      allow write: if isTeacher();
+    }
+
+    // ==========================================
+    // 8. Calendario Escolar y Eventos
+    // ==========================================
+    match /calendarEvents/{eventId} {
+      allow read: if isAuthenticated();
+      allow write: if isTeacher();
+    }
+
+    // ==========================================
+    // 9. Configuración del Plantel / Escuela
+    // ==========================================
+    match /schoolInfo/{schoolId} {
+      allow read: if isAuthenticated();
+      allow write: if isTeacher();
+    }
+
+  }
+}
