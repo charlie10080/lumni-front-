@@ -144,24 +144,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
-    // Modo Local / Demo Fallback
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // Modo Local / Fallback para cualquier correo real
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
-    // Determinar si es usuario demo o local
-    let detectedRole: UserRole = 'teacher';
-    if (email.includes('tutor') || email.includes('soto') || email.includes('padre') || email.includes('familiar')) {
-      detectedRole = 'parent';
+    const isExplicitCarlosDemo = email.toLowerCase() === 'carlos.mendoza@colegio.edu.mx';
+    const isExplicitLauraDemo = email.toLowerCase() === 'laura.soto@correo.com';
+
+    let user: UserProfile;
+    if (isExplicitCarlosDemo) {
+      user = mockUsers.teacher;
+      setRole('teacher');
+    } else if (isExplicitLauraDemo) {
+      user = mockUsers.parent;
+      setRole('parent');
+    } else {
+      // Crear cuenta limpia con su propio correo y nombre
+      const userCleanId = `tea_${email.toLowerCase().replace(/[^a-zA-Z0-9]/g, '_')}`;
+      user = {
+        id: userCleanId,
+        email: email,
+        nombre: email.split('@')[0],
+        apellidos: '',
+        rol: 'teacher',
+        colegio: 'Colegio Lumni',
+        grupo: '3° A',
+        ciclo: '2026-2027',
+        maxAlumnos: 50,
+      };
+      setRole('teacher');
     }
 
-    setRole(detectedRole);
-    const user = mockUsers[detectedRole] || mockUsers.teacher;
     setCurrentUser(user);
     setIsAuthenticated(true);
     localStorage.setItem('lumni_is_authenticated', 'true');
-    localStorage.setItem('lumni_active_role', detectedRole);
-    localStorage.setItem(`lumni_user_${detectedRole}`, JSON.stringify(user));
+    localStorage.setItem('lumni_active_role', user.rol);
+    localStorage.setItem(`lumni_user_${user.rol}`, JSON.stringify(user));
     setIsLoading(false);
   };
+
 
   const registerTeacher = async (data: RegisterTeacherData) => {
     setIsLoading(true);

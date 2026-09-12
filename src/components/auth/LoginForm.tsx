@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 
 export const LoginForm: React.FC = () => {
-  const { login, registerTeacher, loginAsParentWithStudent, loginAs, isLoading } = useAuth();
+  const { login, registerTeacher, loginAsParentWithStudent, isLoading } = useAuth();
   
   // Tab principal: 'teacher' o 'parent'
   const [activeTab, setActiveTab] = useState<'teacher' | 'parent'>('teacher');
@@ -127,12 +127,6 @@ export const LoginForm: React.FC = () => {
     if (!res.success) {
       setError(res.error || 'No se encontró el alumno.');
     }
-  };
-
-  // Acceso de prueba con CURP predefinida
-  const handleSelectDemoStudent = (curp: string) => {
-    setParentCurp(curp);
-    setError('');
   };
 
   return (
@@ -396,17 +390,6 @@ export const LoginForm: React.FC = () => {
                 </Button>
               </form>
             )}
-
-            {/* Fast Demo Teacher Button */}
-            <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 text-center">
-              <button
-                type="button"
-                onClick={() => loginAs('teacher')}
-                className="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition cursor-pointer"
-              >
-                ⚡ Probar Demo Rápido de Maestro (Prof. Carlos Mendoza)
-              </button>
-            </div>
           </div>
         )}
 
@@ -421,7 +404,7 @@ export const LoginForm: React.FC = () => {
                 <span>Consulta Escolar para Padres de Familia</span>
               </div>
               <p className="leading-relaxed">
-                Ingresa la <strong>CURP</strong> o el <strong>Código de Matrícula</strong> de tu hijo(a) para consultar calificaciones, asistencia del día y avisos de forma instantánea.
+                Ingresa la <strong>CURP</strong> o el <strong>Código de Matrícula</strong> de tu hijo(a) proporcionado por el docente para consultar asistencias, notas y avisos.
               </p>
             </div>
 
@@ -429,7 +412,7 @@ export const LoginForm: React.FC = () => {
               <Input
                 label="CURP o Matrícula del Alumno *"
                 type="text"
-                placeholder="Ej. RAMJ120405HDFRRL01 o ALU-2026-001"
+                placeholder="Ej. RAMJ120405HDFRRL01 o MAT-001"
                 leftIcon={<Search className="w-4 h-4 text-amber-500" />}
                 value={parentCurp}
                 onChange={(e) => setParentCurp(e.target.value.toUpperCase())}
@@ -446,37 +429,9 @@ export const LoginForm: React.FC = () => {
                 Consultar Expediente del Alumno
               </Button>
             </form>
-
-            {/* Quick Demo Student Access for Parents */}
-            <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">
-                Alumnos de demostración (Haz clic para probar):
-              </p>
-              <div className="space-y-1.5">
-                {[
-                  { name: 'Mateo Ramírez Soto', curp: 'RAMJ120405HDFRRL01', grade: '3° B' },
-                  { name: 'Valeria González Díaz', curp: 'GODV120914MMNRL02', grade: '3° B' },
-                  { name: 'Santiago Cruz Reyes', curp: 'CURS120120HDFRYS03', grade: '3° B' },
-                ].map((stu) => (
-                  <button
-                    key={stu.curp}
-                    type="button"
-                    onClick={() => handleSelectDemoStudent(stu.curp)}
-                    className="w-full flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-left hover:border-amber-500/50 hover:bg-amber-500/5 transition cursor-pointer text-xs"
-                  >
-                    <div>
-                      <span className="font-bold text-slate-800 dark:text-slate-200">{stu.name}</span>
-                      <span className="text-[10px] text-slate-500 dark:text-slate-400 ml-1.5">({stu.grade})</span>
-                    </div>
-                    <span className="text-[10px] font-mono text-amber-600 dark:text-amber-400 font-semibold">
-                      {stu.curp}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
         )}
+
 
         {/* Footer: Install Mobile App Helper Link */}
         <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800 text-center">

@@ -95,6 +95,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // - Si es usuario demo (Prof. Carlos Mendoza / Laura Soto): 'demo'
   // - Si es padre de familia: el ID del maestro de su hijo ('lumni_parent_scope_id')
   // - Si es maestro registrado: su UID único de Firebase / cuenta
+  // Scope único de datos por cuenta
   const isDemo =
     currentUser?.id === 'usr_prof_01' ||
     currentUser?.id === 'usr_tutor_01' ||
@@ -106,7 +107,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     : isDemo
     ? 'demo'
     : role === 'parent'
-    ? localStorage.getItem('lumni_parent_scope_id') || 'demo'
+    ? localStorage.getItem('lumni_parent_scope_id') || 'guest'
     : currentUser.id || 'guest';
 
   // Helper para leer del localStorage por scope
@@ -135,7 +136,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [currentUser]);
 
-  // Estados locales
+  // Estados locales (100% limpios para toda cuenta nueva)
   const [students, setStudents] = useState<Student[]>(() => getScopedData('students', mockStudents, [], scopeKey));
   const [subjects, setSubjects] = useState<Subject[]>(() => getScopedData('subjects', mockSubjects, cleanDefaultSubjects, scopeKey));
   const [notices, setNotices] = useState<Notice[]>(() => getScopedData('notices', mockNotices, [], scopeKey));
@@ -145,6 +146,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>(() => getScopedData('calendar', mockCalendarEvents, cleanDefaultCalendar, scopeKey));
   const [incidentReports, setIncidentReports] = useState<StudentIncidentReport[]>(() => getScopedData('incidents', mockIncidentReports, [], scopeKey));
   const [schoolInfo, setSchoolInfo] = useState<SchoolInfo>(() => getScopedData('school', mockSchoolInfo, getCleanSchoolInfo(), scopeKey));
+
 
   const [activeTrimester, setActiveTrimester] = useState<number>(1);
 
