@@ -3,17 +3,34 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lumni - Plataforma de Gestión Escolar Inteligente</title>
-    <meta name="description" content="Plataforma de gestión escolar integral: control de asistencias con QR, calificaciones trimestrales, boletas oficiales y comunicación con padres." />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    
+    <!-- Responsive Viewport with Safe Area Inset Support for Mobile Phones -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    
+    <!-- Mobile App PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="LUMNI" />
+    <meta name="application-name" content="LUMNI" />
+    <meta name="format-detection" content="telephone=no" />
+    
+    <!-- Dynamic Theme Colors -->
+    <meta name="theme-color" content="#4f46e5" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#090d16" media="(prefers-color-scheme: dark)" />
+    
+    <title>LUMNI - Plataforma de Gestión Escolar Inteligente</title>
+    <meta name="description" content="Plataforma escolar móvil para docentes y familias: control de asistencias con QR, captura ágil de notas, boletas oficiales en PDF y chat privado." />
     
     <!-- Google Fonts: Inter & Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   </head>
-  <body class="h-full font-sans antialiased text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-[#090d16] selection:bg-indigo-500 selection:text-white">
-    <div id="root" class="min-h-full"></div>
+  <body class="h-full font-sans antialiased text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-[#090d16] selection:bg-indigo-500 selection:text-white touch-manipulation overscroll-none">
+    <div id="root" class="min-h-full flex flex-col"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

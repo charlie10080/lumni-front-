@@ -266,8 +266,112 @@ export const StudentsView: React.FC = () => {
         </div>
       </Card>
 
-      {/* Students Table */}
-      <Card className="p-0 overflow-hidden">
+      {/* Mobile Touch Cards View (Smartphones) */}
+      <div className="block md:hidden space-y-3">
+        {filteredStudents.length === 0 ? (
+          <Card className="p-8 text-center space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto border border-indigo-200 dark:border-indigo-800">
+              <UserPlus className="w-6 h-6" />
+            </div>
+            <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+              {students.length === 0 ? 'Aún no hay alumnos en tu aula' : 'Sin resultados'}
+            </h4>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              {students.length === 0
+                ? 'Agrega a tus alumnos para habilitar el pase de lista QR y generar credenciales escolares.'
+                : 'Intenta con otro término de búsqueda o cambia los filtros.'}
+            </p>
+            {students.length === 0 && (
+              <Button variant="primary" size="sm" className="w-full mt-2" leftIcon={<UserPlus className="w-4 h-4" />} onClick={handleOpenAdd}>
+                Registrar Mi Primer Alumno
+              </Button>
+            )}
+          </Card>
+        ) : (
+          filteredStudents.map((student) => (
+            <Card key={student.id} className="p-4 space-y-3 shadow-sm hover:border-indigo-500/30 transition">
+              {/* Card Header: Avatar & Main Info */}
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-bold text-white text-base shadow-md shrink-0">
+                    {student.nombre.charAt(0)}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                      {student.nombre} {student.apellidos}
+                    </h3>
+                    <p className="text-xs font-mono text-slate-500 dark:text-slate-400">
+                      {student.matricula} • <span className="font-semibold text-indigo-600 dark:text-indigo-400">{student.grado} {student.grupo}</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <button
+                    title="Editar"
+                    onClick={() => handleOpenEdit(student)}
+                    className="p-2 rounded-xl text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    title="Eliminar"
+                    onClick={() => {
+                      if (confirm(`¿Seguro que deseas dar de baja a ${student.nombre}?`)) {
+                        deleteStudent(student.id);
+                      }
+                    }}
+                    className="p-2 rounded-xl text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 cursor-pointer"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* CURP details */}
+              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] text-slate-400 font-semibold block uppercase">CURP</span>
+                  <span className="font-mono font-bold text-slate-800 dark:text-slate-200 text-xs">{student.curp}</span>
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                  Activo
+                </span>
+              </div>
+
+              {/* Tutor & Quick Action Buttons */}
+              <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-100 dark:border-slate-800">
+                <div className="min-w-0 flex-1">
+                  <p className="text-[11px] font-bold text-slate-800 dark:text-slate-200 truncate">
+                    {student.tutorNombre || 'Tutor no asignado'}
+                  </p>
+                  {student.tutorTelefono && (
+                    <a
+                      href={`tel:${student.tutorTelefono}`}
+                      className="text-[11px] text-indigo-600 dark:text-indigo-400 flex items-center gap-1 font-medium hover:underline mt-0.5"
+                    >
+                      <Phone className="w-3 h-3" /> {student.tutorTelefono}
+                    </a>
+                  )}
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  leftIcon={<QrCode className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />}
+                  onClick={() => setCredentialStudent(student)}
+                  className="shrink-0 text-xs py-1.5"
+                >
+                  Credencial
+                </Button>
+              </div>
+            </Card>
+          ))
+        )}
+      </div>
+
+      {/* Desktop Students Table (Tablets & Desktops) */}
+      <Card className="hidden md:block p-0 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-50 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800 text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">

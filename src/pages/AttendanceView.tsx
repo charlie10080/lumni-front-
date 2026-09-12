@@ -334,8 +334,98 @@ export const AttendanceView: React.FC = () => {
         </div>
       </Card>
 
-      {/* Attendance Table */}
-      <Card className="p-0 overflow-hidden">
+      {/* Mobile Attendance Quick Cards View (Smartphones) */}
+      <div className="block md:hidden space-y-3">
+        {displayStudents.length === 0 ? (
+          <Card className="p-8 text-center text-xs text-slate-400">
+            No hay alumnos con el filtro seleccionado para esta fecha.
+          </Card>
+        ) : (
+          displayStudents.map((student) => {
+            const record = student.asistenciasPorFecha[selectedDate];
+            const currentStatus = record?.status || 'pendiente';
+            const hora = record?.hora || '--:--';
+
+            return (
+              <Card key={student.id} className="p-4 space-y-3 shadow-sm">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold flex items-center justify-center text-sm border border-indigo-500/20 shrink-0">
+                      {student.nombre.charAt(0)}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-bold text-sm text-slate-900 dark:text-white truncate">
+                        {student.nombre} {student.apellidos}
+                      </p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                        {student.matricula} • {student.grado} {student.grupo}
+                      </p>
+                    </div>
+                  </div>
+
+                  <span className="text-[11px] font-mono px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shrink-0">
+                    {hora}
+                  </span>
+                </div>
+
+                {/* 4 Large Touch Pills for Attendance */}
+                <div className="grid grid-cols-4 gap-1.5 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setAttendance(student.id, selectedDate, 'presente')}
+                    className={`py-2 px-1 rounded-xl text-xs font-bold transition text-center cursor-pointer ${
+                      currentStatus === 'presente'
+                        ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 active:bg-emerald-100'
+                    }`}
+                  >
+                    ✓ Pres.
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setAttendance(student.id, selectedDate, 'retardo')}
+                    className={`py-2 px-1 rounded-xl text-xs font-bold transition text-center cursor-pointer ${
+                      currentStatus === 'retardo'
+                        ? 'bg-amber-600 text-white shadow-md shadow-amber-600/30'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 active:bg-amber-100'
+                    }`}
+                  >
+                    ⏳ Ret.
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setAttendance(student.id, selectedDate, 'falta')}
+                    className={`py-2 px-1 rounded-xl text-xs font-bold transition text-center cursor-pointer ${
+                      currentStatus === 'falta'
+                        ? 'bg-rose-600 text-white shadow-md shadow-rose-600/30'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 active:bg-rose-100'
+                    }`}
+                  >
+                    ✕ Falta
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setAttendance(student.id, selectedDate, 'justificada')}
+                    className={`py-2 px-1 rounded-xl text-xs font-bold transition text-center cursor-pointer ${
+                      currentStatus === 'justificada'
+                        ? 'bg-sky-600 text-white shadow-md shadow-sky-600/30'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 active:bg-sky-100'
+                    }`}
+                  >
+                    📄 Just.
+                  </button>
+                </div>
+              </Card>
+            );
+          })
+        )}
+      </div>
+
+      {/* Desktop Attendance Table */}
+      <Card className="hidden md:block p-0 overflow-hidden">
         <CardHeader className="p-4 m-0 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <CardTitle className="text-base flex items-center gap-2">
             Lista del Grupo • Fecha: <span className="text-indigo-600 dark:text-indigo-400">{selectedDate}</span>

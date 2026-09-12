@@ -43,6 +43,7 @@ export const GradesView: React.FC = () => {
   const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
   const [newSubjectName, setNewSubjectName] = useState('');
   const [newSubjectCode, setNewSubjectCode] = useState('');
+  const [mobileSubjectIdx, setMobileSubjectIdx] = useState(0);
 
   // Modal y estado para Importación de Excel
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
@@ -585,8 +586,96 @@ export const GradesView: React.FC = () => {
         </span>
       </Card>
 
-      {/* Spreadsheet Card */}
-      <Card className="p-0 overflow-hidden">
+      {/* Mobile Touch Gradebook View (Smartphones) */}
+      <div className="block md:hidden space-y-4">
+        {/* Mobile Subject Horizontal Pill Bar */}
+        {subjects.length > 0 && (
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none">
+            {subjects.map((sub, idx) => (
+              <button
+                key={sub.id}
+                type="button"
+                onClick={() => setMobileSubjectIdx(idx)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer shrink-0 ${
+                  mobileSubjectIdx === idx
+                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/25'
+                    : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
+                }`}
+              >
+                {sub.nombre}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {filteredStudents.length === 0 ? (
+          <Card className="p-8 text-center text-xs text-slate-400">
+            Aún no hay alumnos en tu grupo para capturar calificaciones.
+          </Card>
+        ) : (
+          filteredStudents.map((student) => {
+            const activeSub = subjects[mobileSubjectIdx] || subjects[0];
+            const currentGrade = activeSub ? student.calificacionesTrimestres[tr]?.[activeSub.nombre] : null;
+            const avg = viewMode === 'annual' ? calculateStudentAnnualAverage(student) : calculateStudentTrimesterAverage(student, tr);
+
+            return (
+              <Card key={student.id} className="p-4 space-y-3 shadow-sm">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <h3 className="font-bold text-sm text-slate-900 dark:text-white truncate">
+                      {student.nombre} {student.apellidos}
+                    </h3>
+                    <p className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
+                      {student.matricula} • {student.grado} {student.grupo}
+                    </p>
+                  </div>
+
+                  <div className="text-right">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block">Promedio</span>
+                    <span className="inline-block px-2 py-0.5 rounded-lg text-xs font-black bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30">
+                      {avg}
+                    </span>
+                  </div>
+                </div>
+
+                {activeSub && (
+                  <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-700 dark:text-slate-300 truncate">
+                        {activeSub.nombre}
+                      </span>
+                      <span className="text-xs font-black text-indigo-600 dark:text-indigo-400">
+                        Nota: {currentGrade !== null && currentGrade !== undefined ? currentGrade : '-'}
+                      </span>
+                    </div>
+
+                    {/* Fast Touch Grade Selector (5, 6, 7, 8, 9, 10) */}
+                    <div className="grid grid-cols-6 gap-1">
+                      {[5, 6, 7, 8, 9, 10].map((num) => (
+                        <button
+                          key={num}
+                          type="button"
+                          onClick={() => updateGrade(student.id, tr, activeSub.nombre, num)}
+                          className={`py-2 rounded-xl text-xs font-black transition cursor-pointer text-center ${
+                            currentGrade === num
+                              ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30 scale-105'
+                              : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 active:bg-indigo-50'
+                          }`}
+                        >
+                          {num}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </Card>
+            );
+          })
+        )}
+      </div>
+
+      {/* Desktop Spreadsheet Card (Tablets & Desktops) */}
+      <Card className="hidden md:block p-0 overflow-hidden">
         <CardHeader className="p-4 m-0 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <CardTitle className="text-base flex items-center gap-2">
             <Calculator className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />

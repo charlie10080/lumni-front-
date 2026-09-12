@@ -203,56 +203,101 @@ export const DashboardView: React.FC<{ onNavigate: (tab: string) => void }> = ({
                 </div>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
-                  <thead>
-                    <tr className="border-b border-slate-200 dark:border-slate-800 text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      <th className="py-3 px-3">Alumno</th>
-                      <th className="py-3 px-3">CURP</th>
-                      <th className="py-3 px-3 text-center">Asistencias</th>
-                      <th className="py-3 px-3 text-center">Último Estado</th>
-                      <th className="py-3 px-3 text-right">Promedio T1</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-700 dark:text-slate-300">
-                    {students.slice(0, 4).map((student) => {
-                      const gradesObj = student.calificacionesTrimestres[1] || {};
-                      const scores = Object.values(gradesObj).filter((g): g is number => typeof g === 'number');
-                      const avg = scores.length > 0 ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : '-';
-                      const lastStatus = student.asistenciasPorFecha[todayStr]?.status || student.asistenciasPorFecha['2026-09-11']?.status || 'pendiente';
+              <div>
+                {/* Mobile Cards View (< md) */}
+                <div className="block md:hidden divide-y divide-slate-100 dark:divide-slate-800/60">
+                  {students.slice(0, 4).map((student) => {
+                    const gradesObj = student.calificacionesTrimestres[1] || {};
+                    const scores = Object.values(gradesObj).filter((g): g is number => typeof g === 'number');
+                    const avg = scores.length > 0 ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : '-';
+                    const lastStatus = student.asistenciasPorFecha[todayStr]?.status || student.asistenciasPorFecha['2026-09-11']?.status || 'pendiente';
 
-                      return (
-                        <tr key={student.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition">
-                          <td className="py-3 px-3 font-medium text-slate-900 dark:text-white flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-xs text-indigo-600 dark:text-indigo-400 border border-slate-200 dark:border-slate-700">
+                    return (
+                      <div key={student.id} className="p-3.5 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 flex items-center justify-center font-bold text-xs border border-indigo-200 dark:border-indigo-800/40 shrink-0">
                               {student.nombre.charAt(0)}
                             </div>
-                            <div>
-                              <p className="font-semibold text-slate-900 dark:text-white">{student.nombre} {student.apellidos}</p>
-                              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">{student.matricula}</p>
+                            <div className="min-w-0">
+                              <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                                {student.nombre} {student.apellidos}
+                              </p>
+                              <p className="text-[10px] text-slate-400 font-mono truncate">{student.curp.slice(0, 10)}...</p>
                             </div>
-                          </td>
-                          <td className="py-3 px-3 text-xs font-mono text-slate-500 dark:text-slate-400">
-                            {student.curp.slice(0, 10)}...
-                          </td>
-                          <td className="py-3 px-3 text-center text-xs">
-                            <span className="text-emerald-600 dark:text-emerald-400 font-bold">{student.asistenciasTotales.presentes}P</span> /{' '}
-                            <span className="text-amber-600 dark:text-amber-400 font-bold">{student.asistenciasTotales.retardos}R</span> /{' '}
-                            <span className="text-rose-600 dark:text-rose-400 font-bold">{student.asistenciasTotales.faltas}F</span>
-                          </td>
-                          <td className="py-3 px-3 text-center">
-                            <AttendanceBadge status={lastStatus} />
-                          </td>
-                          <td className="py-3 px-3 text-right font-bold">
-                            <span className="px-2 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/20 font-bold text-xs">
-                              {avg}
+                          </div>
+                          <div className="text-right shrink-0">
+                            <span className="px-2 py-0.5 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 font-bold text-xs border border-indigo-200 dark:border-indigo-500/20">
+                              Prom: {avg}
                             </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-100 dark:border-slate-800/40">
+                          <div className="flex items-center gap-2 text-[11px]">
+                            <span className="text-emerald-600 font-bold">{student.asistenciasTotales.presentes}P</span>
+                            <span className="text-amber-600 font-bold">{student.asistenciasTotales.retardos}R</span>
+                            <span className="text-rose-600 font-bold">{student.asistenciasTotales.faltas}F</span>
+                          </div>
+                          <AttendanceBadge status={lastStatus} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Desktop Table (>= md) */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full text-left text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-200 dark:border-slate-800 text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        <th className="py-3 px-3">Alumno</th>
+                        <th className="py-3 px-3">CURP</th>
+                        <th className="py-3 px-3 text-center">Asistencias</th>
+                        <th className="py-3 px-3 text-center">Último Estado</th>
+                        <th className="py-3 px-3 text-right">Promedio T1</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-700 dark:text-slate-300">
+                      {students.slice(0, 4).map((student) => {
+                        const gradesObj = student.calificacionesTrimestres[1] || {};
+                        const scores = Object.values(gradesObj).filter((g): g is number => typeof g === 'number');
+                        const avg = scores.length > 0 ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : '-';
+                        const lastStatus = student.asistenciasPorFecha[todayStr]?.status || student.asistenciasPorFecha['2026-09-11']?.status || 'pendiente';
+
+                        return (
+                          <tr key={student.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition">
+                            <td className="py-3 px-3 font-medium text-slate-900 dark:text-white flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-xs text-indigo-600 dark:text-indigo-400 border border-slate-200 dark:border-slate-700">
+                                {student.nombre.charAt(0)}
+                              </div>
+                              <div>
+                                <p className="font-semibold text-slate-900 dark:text-white">{student.nombre} {student.apellidos}</p>
+                                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">{student.matricula}</p>
+                              </div>
+                            </td>
+                            <td className="py-3 px-3 text-xs font-mono text-slate-500 dark:text-slate-400">
+                              {student.curp.slice(0, 10)}...
+                            </td>
+                            <td className="py-3 px-3 text-center text-xs">
+                              <span className="text-emerald-600 dark:text-emerald-400 font-bold">{student.asistenciasTotales.presentes}P</span> /{' '}
+                              <span className="text-amber-600 dark:text-amber-400 font-bold">{student.asistenciasTotales.retardos}R</span> /{' '}
+                              <span className="text-rose-600 dark:text-rose-400 font-bold">{student.asistenciasTotales.faltas}F</span>
+                            </td>
+                            <td className="py-3 px-3 text-center">
+                              <AttendanceBadge status={lastStatus} />
+                            </td>
+                            <td className="py-3 px-3 text-right font-bold">
+                              <span className="px-2 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/20 font-bold text-xs">
+                                {avg}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
           </Card>
