@@ -52,7 +52,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!isAuth) return null;
     const savedRole = (localStorage.getItem('lumni_active_role') as UserRole) || 'teacher';
     const saved = localStorage.getItem(`lumni_user_${savedRole}`);
-    return saved ? JSON.parse(saved) : null;
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {}
+    }
+    const defaultUser = mockUsers[savedRole] || mockUsers.teacher;
+    localStorage.setItem(`lumni_user_${savedRole}`, JSON.stringify(defaultUser));
+    return defaultUser;
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -64,8 +71,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
           setCurrentUser(JSON.parse(saved));
         } catch {
-          setCurrentUser(mockUsers[role] || mockUsers.teacher);
+          const fallback = mockUsers[role] || mockUsers.teacher;
+          setCurrentUser(fallback);
+          localStorage.setItem(`lumni_user_${role}`, JSON.stringify(fallback));
         }
+      } else {
+        const fallback = mockUsers[role] || mockUsers.teacher;
+        setCurrentUser(fallback);
+        localStorage.setItem(`lumni_user_${role}`, JSON.stringify(fallback));
       }
       localStorage.setItem('lumni_active_role', role);
       localStorage.setItem('lumni_is_authenticated', 'true');

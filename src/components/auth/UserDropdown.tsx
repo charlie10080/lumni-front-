@@ -21,7 +21,15 @@ export const UserDropdown: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  if (!currentUser) return null;
+  const displayUser = currentUser || {
+    id: 'user_fallback',
+    nombre: 'Carlos',
+    apellidos: 'Rey Arjona',
+    email: 'carlos.mendoza@colegio.edu.mx',
+    rol: role,
+    colegio: 'Colegio Lumni',
+    ciclo: '2026-2027',
+  };
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -31,11 +39,11 @@ export const UserDropdown: React.FC = () => {
         className="flex items-center gap-2.5 p-1.5 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition cursor-pointer border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
       >
         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-white text-sm shadow-md">
-          {currentUser.nombre.charAt(0)}
+          {displayUser.nombre.charAt(0)}
         </div>
         <div className="hidden lg:block text-left">
           <p className="text-xs font-bold text-slate-900 dark:text-white truncate max-w-[130px]">
-            {currentUser.nombre} {currentUser.apellidos || ''}
+            {displayUser.nombre} {displayUser.apellidos || ''}
           </p>
           <div className="flex items-center gap-1 mt-0.5">
             <RoleBadge role={role} />
@@ -50,12 +58,12 @@ export const UserDropdown: React.FC = () => {
           {/* User Details Header */}
           <div className="p-3 border-b border-slate-100 dark:border-slate-800">
             <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
-              {currentUser.nombre} {currentUser.apellidos || ''}
+              {displayUser.nombre} {displayUser.apellidos || ''}
             </p>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{currentUser.email}</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{displayUser.email}</p>
             <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 dark:border-slate-800">
               <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold truncate max-w-[140px]">
-                {currentUser.colegio}
+                {displayUser.colegio}
               </span>
               <RoleBadge role={role} />
             </div>
