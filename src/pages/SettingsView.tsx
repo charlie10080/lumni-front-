@@ -6,6 +6,8 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Modal } from '../components/ui/Modal';
 import { InstallAppModal } from '../components/layout/InstallAppModal';
+import { PrivacyPolicyModal } from '../components/legal/PrivacyPolicyModal';
+import { DeleteAccountModal } from '../components/legal/DeleteAccountModal';
 import {
   Settings,
   Building,
@@ -24,6 +26,10 @@ import {
   Check,
   AlertTriangle,
   Smartphone,
+  ShieldCheck,
+  Lock,
+  Trash2,
+  FileText,
 } from 'lucide-react';
 
 const AVATAR_OPTIONS = [
@@ -74,6 +80,10 @@ export const SettingsView: React.FC = () => {
   // Reset modal
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
+
+  // Privacy & Right to be Forgotten Modals
+  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
+  const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);
 
 
   const handleSaveSchool = (e: React.FormEvent) => {
@@ -370,6 +380,76 @@ export const SettingsView: React.FC = () => {
               </div>
             </div>
           </Card>
+
+          {/* 4. Privacy, Protection of Data & Right to be Forgotten */}
+          <Card className="border-indigo-100 dark:border-indigo-900/40 bg-gradient-to-br from-white via-indigo-50/15 to-slate-50 dark:from-slate-900 dark:via-indigo-950/15 dark:to-slate-900">
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <CardTitle className="flex items-center gap-2 text-base text-slate-900 dark:text-white">
+                <ShieldCheck className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                Privacidad, Protección de Datos & Derecho al Olvido (ARCO)
+              </CardTitle>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 flex items-center gap-1">
+                  <Lock className="w-3 h-3 text-emerald-500" /> Cifrado AES-256
+                </span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20">
+                  LFPDPPP & SEP
+                </span>
+              </div>
+            </CardHeader>
+
+            <div className="space-y-4 text-xs text-slate-600 dark:text-slate-300">
+              <p className="leading-relaxed">
+                LUMNI opera bajo estrictos estándares de confidencialidad escolar. Declaramos con total transparencia qué datos recopilamos y para qué, garantizamos la no comercialización de información de menores ni docentes, y ponemos a tu disposición el ejercicio de tu <strong>Derecho al Olvido</strong> de forma autónoma.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                {/* Card Left: Privacy Policy Modal Trigger */}
+                <div className="p-3.5 rounded-2xl bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 space-y-2 flex flex-col justify-between">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-white">
+                      <FileText className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                      <span>Aviso de Privacidad & Terceros</span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Conoce a detalle qué datos se recopilan (alumnos, tutores y docentes), finalidades pedagógicas, infraestructura en Google Firebase y procesamiento seguro de suscripciones vía pasarela certificada (sin almacenar tarjetas).
+                    </p>
+                  </div>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="w-full text-indigo-600 dark:text-indigo-400 font-bold mt-2"
+                    leftIcon={<ShieldCheck className="w-4 h-4" />}
+                    onClick={() => setIsPrivacyModalOpen(true)}
+                  >
+                    Ver Políticas de Privacidad
+                  </Button>
+                </div>
+
+                {/* Card Right: Delete Account & Right to be Forgotten */}
+                <div className="p-3.5 rounded-2xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200/80 dark:border-rose-900/40 space-y-2 flex flex-col justify-between">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2 font-bold text-rose-700 dark:text-rose-400">
+                      <Trash2 className="w-4 h-4 text-rose-600" />
+                      <span>Derecho al Olvido (Borrado Total)</span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Tienes derecho a la destrucción definitiva de tu perfil, historial de notas, asistencias, expedientes de alumnos y chats, tanto en la nube como localmente. Puedes descargar tu copia JSON antes de proceder.
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full border-rose-300 text-rose-600 hover:bg-rose-50 dark:border-rose-800 dark:text-rose-400 dark:hover:bg-rose-950/40 font-bold mt-2"
+                    leftIcon={<Trash2 className="w-4 h-4 text-rose-500" />}
+                    onClick={() => setIsDeleteAccountModalOpen(true)}
+                  >
+                    Eliminar mi Cuenta y Datos
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </Card>
         </div>
 
         {/* Right Col: Backend, Subscription & Conclude Cycle */}
@@ -597,6 +677,19 @@ export const SettingsView: React.FC = () => {
           </div>
         </div>
       </Modal>
+
+      {/* Privacy Policy Modal */}
+      <PrivacyPolicyModal
+        isOpen={isPrivacyModalOpen}
+        onClose={() => setIsPrivacyModalOpen(false)}
+        onOpenDeleteAccount={() => setIsDeleteAccountModalOpen(true)}
+      />
+
+      {/* Delete Account Modal (Derecho al Olvido) */}
+      <DeleteAccountModal
+        isOpen={isDeleteAccountModalOpen}
+        onClose={() => setIsDeleteAccountModalOpen(false)}
+      />
     </div>
   );
 };

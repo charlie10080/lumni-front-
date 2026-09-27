@@ -235,3 +235,58 @@ html.dark .glass-card-hover:hover {
     border: none !important;
   }
 }
+
+/* ========================================================
+   ANIMACIONES Y RESPONSIVIDAD PARA ROTACIÓN MÓVIL Y TABLET
+   ======================================================== */
+@keyframes slide-right {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-right {
+  animation: slide-right 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out forwards;
+}
+
+/* Soporte para rotación y zonas seguras (Notch / Isla Dinámica / Cámara Frontal) */
+@supports (padding: env(safe-area-inset-top)) {
+  .safe-padding-x {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+}
+

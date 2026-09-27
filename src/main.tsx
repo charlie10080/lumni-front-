@@ -9,6 +9,23 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   </React.StrictMode>
 );
 
+// Programmatic screen orientation unlock to allow full 360° device rotation on mobile phones and tablets
+if (typeof window !== 'undefined' && 'screen' in window && window.screen.orientation) {
+  const unlockScreen = () => {
+    try {
+      if (typeof window.screen.orientation.unlock === 'function') {
+        window.screen.orientation.unlock();
+      }
+    } catch {
+      // Ignore unsupported browsers
+    }
+  };
+
+  unlockScreen();
+  window.addEventListener('orientationchange', unlockScreen);
+  window.addEventListener('resize', unlockScreen);
+}
+
 // Register Service Worker for PWA installability and offline support
 if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
   window.addEventListener('load', () => {
@@ -22,4 +39,5 @@ if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
       });
   });
 }
+
 

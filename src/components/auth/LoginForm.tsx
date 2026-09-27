@@ -3,6 +3,7 @@ import { useAuth, RegisterTeacherData } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { ForgotPasswordModal } from './ForgotPasswordModal';
 import { InstallAppModal } from '../layout/InstallAppModal';
+import { PrivacyPolicyModal } from '../legal/PrivacyPolicyModal';
 import { ThreeGlobeBackground } from './ThreeGlobeBackground';
 import {
   Sparkles,
@@ -56,6 +57,7 @@ export const LoginForm: React.FC = () => {
   const [successMsg, setSuccessMsg] = useState('');
   const [isForgotOpen, setIsForgotOpen] = useState(false);
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
+  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
 
   // Login de Docente
   const handleTeacherLogin = async (e: React.FormEvent) => {
@@ -484,6 +486,18 @@ export const LoginForm: React.FC = () => {
                     </>
                   )}
                 </button>
+
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 text-center mt-2.5 leading-relaxed">
+                  Al registrarte, confirmas que aceptas nuestras{' '}
+                  <button
+                    type="button"
+                    onClick={() => setIsPrivacyModalOpen(true)}
+                    className="text-indigo-600 dark:text-indigo-400 font-bold underline hover:text-indigo-500 cursor-pointer"
+                  >
+                    Políticas de Privacidad
+                  </button>{' '}
+                  y el tratamiento de datos exclusivamente para fines escolares.
+                </p>
               </div>
             </form>
           )}
@@ -557,12 +571,25 @@ export const LoginForm: React.FC = () => {
               <span>¿Deseas instalar la app en tu celular?</span>
             </button>
           </div>
+
+          {/* Privacy Policy Link */}
+          <div className="pt-3 text-center w-full border-t border-slate-100 dark:border-white/5 mt-3">
+            <button
+              type="button"
+              onClick={() => setIsPrivacyModalOpen(true)}
+              className="inline-flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium transition cursor-pointer"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+              <span>Políticas de Privacidad & Protección de Datos</span>
+            </button>
+          </div>
         </main>
       </div>
 
       {/* Modales */}
       <ForgotPasswordModal isOpen={isForgotOpen} onClose={() => setIsForgotOpen(false)} />
       <InstallAppModal isOpen={isInstallModalOpen} onClose={() => setIsInstallModalOpen(false)} />
+      <PrivacyPolicyModal isOpen={isPrivacyModalOpen} onClose={() => setIsPrivacyModalOpen(false)} />
     </div>
   );
 };

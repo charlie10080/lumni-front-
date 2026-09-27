@@ -34,7 +34,7 @@ export const Layout: React.FC<LayoutProps> = ({ currentTab, setCurrentTab, child
   const { threads, notices, tasks, projects } = useData();
   const [isMoreDrawerOpen, setIsMoreDrawerOpen] = useState(false);
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
-
+  const [isSidebarOpenMobile, setIsSidebarOpenMobile] = useState(false);
 
   const totalUnreadMessages = threads.reduce((acc, t) => acc + (t.mensajesNoLeidos || 0), 0);
 
@@ -69,29 +69,38 @@ export const Layout: React.FC<LayoutProps> = ({ currentTab, setCurrentTab, child
   const handleSelectTab = (tabId: string) => {
     setCurrentTab(tabId);
     setIsMoreDrawerOpen(false);
+    setIsSidebarOpenMobile(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const isMoreActive = moreDrawerItems.some((item) => item.id === currentTab);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#090d16] text-app-primary flex flex-col selection:bg-indigo-500 selection:text-white transition-colors duration-200 relative">
+    <div className="min-h-screen min-h-[100dvh] bg-slate-50 dark:bg-[#090d16] text-app-primary flex flex-col selection:bg-indigo-500 selection:text-white transition-colors duration-200 relative">
       {/* Top Mobile & Desktop Navbar */}
-      <Navbar />
+      <Navbar
+        onToggleSidebar={() => setIsSidebarOpenMobile(!isSidebarOpenMobile)}
+        isSidebarOpen={isSidebarOpenMobile}
+      />
 
       {/* Main Workspace Layout */}
       <div className="flex-1 flex w-full">
-        {/* Desktop Sidebar (Hidden on mobile) */}
-        <Sidebar currentTab={currentTab} setCurrentTab={setCurrentTab} />
+        {/* Desktop Docked Sidebar + Mobile/Tablet Slide-Out Drawer */}
+        <Sidebar
+          currentTab={currentTab}
+          setCurrentTab={setCurrentTab}
+          isOpenMobile={isSidebarOpenMobile}
+          onCloseMobile={() => setIsSidebarOpenMobile(false)}
+        />
 
         {/* Dynamic Page Content */}
-        <main className="flex-1 p-3.5 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full pb-28 md:pb-8">
+        <main className="flex-1 p-3.5 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full pb-28 md:pb-8 pl-[max(0.875rem,env(safe-area-inset-left))] pr-[max(0.875rem,env(safe-area-inset-right))]">
           {children}
         </main>
       </div>
 
-      {/* Mobile Bottom Navigation Bar (Estilo App Nativa iOS/Android) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#090d16]/95 backdrop-blur-xl border-t border-slate-200/80 dark:border-slate-800/80 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-2 pt-1.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] flex items-center justify-around">
+      {/* Mobile Bottom Navigation Bar (Estilo App Nativa iOS/Android con Safe Area) */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#090d16]/95 backdrop-blur-xl border-t border-slate-200/80 dark:border-slate-800/80 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-2 pt-1.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] pl-[max(0.5rem,env(safe-area-inset-left))] pr-[max(0.5rem,env(safe-area-inset-right))] flex items-center justify-around">
         {primaryMobileTabs.map((item) => {
           const Icon = item.icon;
           const isActive = currentTab === item.id && !isMoreDrawerOpen;

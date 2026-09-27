@@ -15,14 +15,23 @@ import {
   FolderKanban,
   CheckSquare,
   Calendar,
+  X,
+  Sparkles,
 } from 'lucide-react';
 
 export interface SidebarProps {
   currentTab: string;
   setCurrentTab: (tab: string) => void;
+  isOpenMobile?: boolean;
+  onCloseMobile?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ currentTab, setCurrentTab }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  currentTab,
+  setCurrentTab,
+  isOpenMobile,
+  onCloseMobile,
+}) => {
   const { role, currentUser } = useAuth();
   const { threads, notices, tasks, projects } = useData();
 
@@ -44,8 +53,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, setCurrentTab }) =
 
   const filteredItems = navItems.filter((item) => item.roles.includes(role));
 
-  return (
-    <aside className="w-64 shrink-0 hidden md:flex flex-col justify-between bg-white/95 dark:bg-slate-900/90 border-r border-app p-4 min-h-[calc(100vh-65px)] transition-colors">
+  const handleItemClick = (id: string) => {
+    setCurrentTab(id);
+    if (onCloseMobile) {
+      onCloseMobile();
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const renderNavContent = () => (
+    <div className="flex flex-col justify-between h-full space-y-6">
       <div className="space-y-6">
         {/* Navigation Items */}
         <div className="space-y-1">
@@ -58,7 +75,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, setCurrentTab }) =
             return (
               <button
                 key={item.id}
-                onClick={() => setCurrentTab(item.id)}
+                onClick={() => handleItemClick(item.id)}
                 className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer ${
                   isActive
                     ? 'bg-indigo-50 dark:bg-indigo-600/15 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/30 shadow-xs'
@@ -92,7 +109,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, setCurrentTab }) =
               Registra la entrada matutina con la cámara del dispositivo.
             </p>
             <button
-              onClick={() => setCurrentTab('attendance')}
+              onClick={() => handleItemClick('attendance')}
               className="w-full py-1.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition shadow-sm shadow-indigo-600/20 cursor-pointer"
             >
               Abrir Escáner
@@ -103,7 +120,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, setCurrentTab }) =
 
       {/* Subscription or School Status Footer */}
       {role === 'teacher' && currentUser?.suscripcion && (
-        <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
+        <div className="pt-4 border-t border-slate-200 dark:border-slate-800 shrink-0">
           <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
@@ -120,6 +137,50 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, setCurrentTab }) =
           </div>
         </div>
       )}
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* 1. Desktop Docked Sidebar (>= 1024px screen width) */}
+      <aside className="w-64 shrink-0 hidden lg:flex flex-col justify-between bg-white/95 dark:bg-slate-900/90 border-r border-app p-4 sticky top-[65px] h-[calc(100dvh-65px)] overflow-y-auto transition-colors">
+        {renderNavContent()}
+      </aside>
+
+      {/* 2. Responsive Slide-Out Drawer for Mobile Phones, Tablets & Landscape Mode (< 1024px) */}
+      {isOpenMobile && (
+        <div className="lg:hidden fixed inset-0 z-50 flex">
+          {/* Backdrop overlay */}
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs animate-fade-in"
+            onClick={onCloseMobile}
+            aria-hidden="true"
+          />
+
+          {/* Drawer container */}
+          <aside className="relative z-10 w-72 max-w-[85vw] bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-4 h-full flex flex-col justify-between overflow-y-auto shadow-2xl animate-slide-right pl-[max(1rem,env(safe-area-inset-left))] pr-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            {/* Drawer Header with Title and Close Button */}
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-500 flex items-center justify-center text-white">
+                  <Sparkles className="w-3.5 h-3.5" />
+                </div>
+                <span className="font-extrabold text-sm text-brand tracking-tight">Navegación Escolar</span>
+              </div>
+              <button
+                type="button"
+                onClick={onCloseMobile}
+                aria-label="Cerrar navegación"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white bg-slate-100 dark:bg-slate-800 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {renderNavContent()}
+          </aside>
+        </div>
+      )}
+    </>
   );
 };

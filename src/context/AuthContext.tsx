@@ -8,8 +8,9 @@ import {
   updateProfile as updateFirebaseProfile,
   signOut as firebaseSignOut,
   sendPasswordResetEmail,
+  deleteUser,
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, deleteDoc } from 'firebase/firestore';
 
 export interface RegisterTeacherData {
   nombre: string;
@@ -34,6 +35,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   sendPasswordReset: (email: string) => Promise<boolean>;
   updateProfile: (profile: Partial<UserProfile>) => void;
+  deleteAccountAndData: () => Promise<{ success: boolean; error?: string }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -465,6 +467,95 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   };
 
+  const deleteAccountAndData = async (): Promise<{ success: boolean; error?: string }> => {
+    setIsLoading(true);
+    try {
+      const activeUserId = currentUser?.id;
+      const fbUser = auth?.currentUser;
+
+      // 1. Si Firebase está activo y configurado, borrar en Firestore
+      if (isFirebaseConfigured && db && activeUserId && activeUserId !== 'usr_prof_01' && activeUserId !== 'usr_tutor_01') {
+        try {
+          // Si el usuario es maestro, desvincular los registros de búsqueda de sus alumnos
+          const classroomRef = doc(db, 'classrooms', activeUserId);
+          const classroomSnap = await getDoc(classroomRef);
+          if (classroomSnap.exists()) {
+            const clData = classroomSnap.data();
+            const studentsList = clData?.students || [];
+            for (const st of studentsList) {
+              if (st.curp) {
+                try {
+                  await deleteDoc(doc(db, 'student_lookup', st.curp.toUpperCase().trim()));
+                } catch (e) {
+                  console.warn('Error deleting student_lookup index:', st.curp, e);
+                }
+              }
+              if (st.matricula) {
+                try {
+                  await deleteDoc(doc(db, 'student_lookup', st.matricula.toUpperCase().trim()));
+                } catch (e) {
+                  console.warn('Error deleting student_lookup index:', st.matricula, e);
+                }
+              }
+            }
+            // Eliminar documento de aula
+            await deleteDoc(classroomRef);
+          }
+
+          // Eliminar documento de perfil de usuario
+          await deleteDoc(doc(db, 'users', activeUserId));
+        } catch (dbErr) {
+          console.warn('Error deleting Firestore data during right-to-be-forgotten:', dbErr);
+        }
+
+        // Eliminar cuenta en Firebase Authentication
+        if (fbUser) {
+          try {
+            await deleteUser(fbUser);
+          } catch (authErr: any) {
+            console.warn('Firebase deleteUser error (will proceed with local wipe):', authErr);
+          }
+        }
+      }
+
+      // 2. Limpieza de LocalStorage para este usuario y sesión
+      if (activeUserId) {
+        localStorage.removeItem(`lumni_acc_${activeUserId}_students`);
+        localStorage.removeItem(`lumni_acc_${activeUserId}_subjects`);
+        localStorage.removeItem(`lumni_acc_${activeUserId}_notices`);
+        localStorage.removeItem(`lumni_acc_${activeUserId}_threads`);
+        localStorage.removeItem(`lumni_acc_${activeUserId}_projects`);
+        localStorage.removeItem(`lumni_acc_${activeUserId}_tasks`);
+        localStorage.removeItem(`lumni_acc_${activeUserId}_calendar`);
+        localStorage.removeItem(`lumni_acc_${activeUserId}_incidents`);
+        localStorage.removeItem(`lumni_acc_${activeUserId}_school`);
+      }
+
+      // Limpiar claves de sesión global
+      localStorage.removeItem('lumni_is_authenticated');
+      localStorage.removeItem('lumni_active_role');
+      localStorage.removeItem('lumni_parent_scope_id');
+      localStorage.removeItem('lumni_parent_student_id');
+      localStorage.removeItem('lumni_user_teacher');
+      localStorage.removeItem('lumni_user_parent');
+
+      // 3. Desconexión de Firebase y reseteo de estado
+      if (isFirebaseConfigured && auth) {
+        try {
+          await firebaseSignOut(auth);
+        } catch {}
+      }
+
+      setIsAuthenticated(false);
+      setCurrentUser(null);
+      setIsLoading(false);
+      return { success: true };
+    } catch (err: any) {
+      setIsLoading(false);
+      return { success: false, error: err.message || 'Error al eliminar la cuenta y los datos.' };
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -480,6 +571,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         logout,
         sendPasswordReset,
         updateProfile,
+        deleteAccountAndData,
       }}
     >
       {children}

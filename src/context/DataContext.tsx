@@ -39,6 +39,7 @@ interface DataContextType {
   activeTrimester: number;
   setActiveTrimester: (trimester: number) => void;
   addStudent: (student: Omit<Student, 'id' | 'asistenciasPorFecha' | 'asistenciasTotales' | 'calificacionesTrimestres'>) => void;
+  addBulkStudents: (students: Array<Omit<Student, 'id' | 'asistenciasPorFecha' | 'asistenciasTotales' | 'calificacionesTrimestres'>>) => void;
   updateStudent: (id: string, data: Partial<Student>) => void;
   deleteStudent: (id: string) => void;
   addSubject: (name: string, clave?: string) => void;
@@ -329,6 +330,21 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       calificacionesTrimestres: { 1: {}, 2: {}, 3: {} },
     };
     setStudents((prev) => [newStudent, ...prev]);
+  };
+
+  const addBulkStudents = (
+    newStudentsData: Array<Omit<Student, 'id' | 'asistenciasPorFecha' | 'asistenciasTotales' | 'calificacionesTrimestres'>>
+  ) => {
+    const baseTimestamp = Date.now();
+    const createdStudents: Student[] = newStudentsData.map((data, index) => ({
+      ...data,
+      id: `stu_${baseTimestamp}_${index}_${Math.random().toString(36).substring(2, 6)}`,
+      asistenciasPorFecha: {},
+      asistenciasTotales: { presentes: 0, retardos: 0, faltas: 0, justificadas: 0 },
+      calificacionesTrimestres: { 1: {}, 2: {}, 3: {} },
+    }));
+
+    setStudents((prev) => [...createdStudents, ...prev]);
   };
 
   const updateStudent = (id: string, data: Partial<Student>) => {
@@ -680,6 +696,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         activeTrimester,
         setActiveTrimester,
         addStudent,
+        addBulkStudents,
         updateStudent,
         deleteStudent,
         addSubject,

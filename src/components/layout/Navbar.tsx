@@ -2,11 +2,16 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
 import { useTheme } from '../../context/ThemeContext';
-import { Sparkles, Bell, Sun, Moon, Smartphone } from 'lucide-react';
+import { Sparkles, Bell, Sun, Moon, Smartphone, Menu, X } from 'lucide-react';
 import { UserDropdown } from '../auth/UserDropdown';
 import { InstallAppModal } from './InstallAppModal';
 
-export const Navbar: React.FC<{ onToggleSidebar?: () => void }> = () => {
+export interface NavbarProps {
+  onToggleSidebar?: () => void;
+  isSidebarOpen?: boolean;
+}
+
+export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarOpen }) => {
   const { role } = useAuth();
   const { schoolInfo, notices } = useData();
   const { theme, toggleTheme } = useTheme();
@@ -14,24 +19,36 @@ export const Navbar: React.FC<{ onToggleSidebar?: () => void }> = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full glass-panel border-b border-slate-200 dark:border-slate-800 px-4 lg:px-8 py-3">
+      <header className="sticky top-0 z-40 w-full glass-panel border-b border-slate-200 dark:border-slate-800 px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3 pl-[max(0.75rem,env(safe-area-inset-left))] pr-[max(0.75rem,env(safe-area-inset-right))] transition-all">
         <div className="flex items-center justify-between">
-          {/* Logo & School Branding */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-amber-400 flex items-center justify-center shadow-lg shadow-indigo-500/20 ring-2 ring-indigo-400/20">
-                <Sparkles className="w-5 h-5 text-white" />
+          {/* Logo, Sidebar Toggle & School Branding */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Sidebar toggle button (visible on tablets, phones, and landscape) */}
+            {onToggleSidebar && (
+              <button
+                type="button"
+                onClick={onToggleSidebar}
+                aria-label={isSidebarOpen ? 'Cerrar menú' : 'Abrir menú'}
+                className="p-2 rounded-xl text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition cursor-pointer"
+              >
+                {isSidebarOpen ? <X className="w-5 h-5 text-indigo-600 dark:text-indigo-400" /> : <Menu className="w-5 h-5" />}
+              </button>
+            )}
+
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-amber-400 flex items-center justify-center shadow-lg shadow-indigo-500/20 ring-2 ring-indigo-400/20 shrink-0">
+                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xl font-extrabold tracking-tight text-brand">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <span className="text-lg sm:text-xl font-extrabold tracking-tight text-brand">
                     LUMNI
                   </span>
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20 dark:border-indigo-500/30 uppercase">
+                  <span className="text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20 dark:border-indigo-500/30 uppercase">
                     v2.0
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium hidden sm:block truncate max-w-xs">
+                <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium hidden sm:block truncate max-w-xs">
                   {schoolInfo.nombre} • Ciclo {schoolInfo.ciclo}
                 </p>
               </div>

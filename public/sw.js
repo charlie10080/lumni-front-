@@ -1,5 +1,5 @@
 // Service Worker for LUMNI PWA
-const CACHE_NAME = 'lumni-cache-v1';
+const CACHE_NAME = 'lumni-cache-v3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -33,7 +33,7 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch: Network-first for navigation & API, Cache-first for static assets
+// Fetch: Network-first for navigation, manifest & API, Cache-first for static assets
 self.addEventListener('fetch', (event) => {
   const request = event.request;
 
@@ -42,12 +42,20 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Navigation requests (HTML)
-  if (request.mode === 'navigate') {
+  // Navigation requests (HTML) and Manifest: Always Network-first to ensure fresh orientation settings
+  if (request.mode === 'navigate' || request.url.includes('manifest.json')) {
     event.respondWith(
-      fetch(request).catch(() => {
-        return caches.match('/index.html') || caches.match('/');
-      })
+      fetch(request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          return caches.match(request) || caches.match('/index.html') || caches.match('/');
+        })
     );
     return;
   }

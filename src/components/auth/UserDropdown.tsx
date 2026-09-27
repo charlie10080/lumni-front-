@@ -1,14 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { RoleBadge } from '../ui/Badge';
+import { PrivacyPolicyModal } from '../legal/PrivacyPolicyModal';
 import {
   LogOut,
   ChevronDown,
+  ShieldCheck,
 } from 'lucide-react';
 
 export const UserDropdown: React.FC = () => {
   const { currentUser, role, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -69,8 +72,22 @@ export const UserDropdown: React.FC = () => {
             </div>
           </div>
 
-          {/* Logout Button */}
+          {/* Privacy Policy Link */}
           <div className="pt-1">
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                setIsPrivacyOpen(true);
+              }}
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+            >
+              <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span>Aviso de Privacidad</span>
+            </button>
+          </div>
+
+          {/* Logout Button */}
+          <div className="pt-1 border-t border-slate-100 dark:border-slate-800 mt-1">
             <button
               onClick={() => {
                 setIsOpen(false);
@@ -84,6 +101,12 @@ export const UserDropdown: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Privacy Policy Modal */}
+      <PrivacyPolicyModal
+        isOpen={isPrivacyOpen}
+        onClose={() => setIsPrivacyOpen(false)}
+      />
     </div>
   );
 };
