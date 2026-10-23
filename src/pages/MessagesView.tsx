@@ -6,7 +6,7 @@ import { Button } from '../components/ui/Button';
 import { MessageSquare, Send, CheckCheck, UserCheck, ShieldCheck, Phone, ArrowLeft } from 'lucide-react';
 
 export const MessagesView: React.FC = () => {
-  const { threads, students, sendMessage, markThreadRead } = useData();
+  const { threads, students, sendMessage, openChat, markThreadRead } = useData();
   const { currentUser, role } = useAuth();
   
   // Buscar alumno asociado al tutor si es rol parent
@@ -60,8 +60,10 @@ export const MessagesView: React.FC = () => {
   const activeStudentId = activeThread?.studentId;
   const activeUnread = activeThread?.mensajesNoLeidos || 0;
   useEffect(() => {
+    if (activeStudentId) openChat(activeStudentId);
+  }, [activeStudentId]);
+  useEffect(() => {
     if (activeStudentId && activeUnread > 0) markThreadRead(activeStudentId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeStudentId, activeUnread]);
 
   const handleSend = (e: React.FormEvent) => {
