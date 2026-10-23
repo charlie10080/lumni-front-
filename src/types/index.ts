@@ -68,6 +68,8 @@ export interface Student {
   activo: boolean;
   fotoUrl?: string;
   qrCode?: string;
+  /** Código aleatorio para que el padre entre sin CURP (ver utils/parentView.ts) */
+  codigoAcceso?: string;
   
   // Datos del Tutor
   tutorNombre: string;

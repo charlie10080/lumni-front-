@@ -105,6 +105,12 @@ export const StudentCredentialModal: React.FC<StudentCredentialModalProps> = ({
               <p className="text-[9px] uppercase font-bold text-slate-400">Matrícula</p>
               <p className="font-mono text-sm font-black text-white">{student.matricula}</p>
               <p className="text-[8px] text-slate-400 mt-0.5">Pase de lista matutino</p>
+              {student.codigoAcceso && (
+                <>
+                  <p className="text-[9px] uppercase font-bold text-slate-400 mt-2">Código para padres</p>
+                  <p className="font-mono text-sm font-black text-emerald-300">{student.codigoAcceso}</p>
+                </>
+              )}
             </div>
             <div className="w-24 h-24 bg-white rounded-lg p-1.5 shrink-0 flex items-center justify-center shadow-md">
               <img src={qrUrl} alt={`QR ${student.matricula}`} className="w-full h-full object-contain" />

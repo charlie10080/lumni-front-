@@ -11,6 +11,7 @@ import {
   deleteUser,
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, deleteDoc } from 'firebase/firestore';
+import { parentViewKeys } from '../utils/parentView';
 
 export interface RegisterTeacherData {
   nombre: string;
@@ -308,41 +309,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     let foundStudent: any = null;
     let foundTeacherId = 'demo';
+    let viewKey = '';
 
-    // 1. Consultar Firestore `/student_lookup/${cleanInput}`
+    // 1. Consultar la vista individual del alumno `/parent_views/${cleanInput}` (solo sus datos)
     if (isFirebaseConfigured && db) {
       try {
-        const lookupSnap = await getDoc(doc(db, 'student_lookup', cleanInput));
-        if (lookupSnap.exists()) {
-          const lookupData = lookupSnap.data();
-          foundTeacherId = lookupData.teacherId;
-
-          // Obtener los datos completos del aula del docente
-          const classroomSnap = await getDoc(doc(db, 'classrooms', foundTeacherId));
-          if (classroomSnap.exists()) {
-            const clData = classroomSnap.data();
-            const stuList = clData.students || [];
-            foundStudent = stuList.find(
-              (s: any) =>
-                s.id === lookupData.studentId ||
-                (s.curp && s.curp.toUpperCase() === cleanInput) ||
-                (s.matricula && s.matricula.toUpperCase() === cleanInput)
-            );
-
-            // Cachear aula en localStorage para navegación offline rápida del tutor
-            localStorage.setItem(`lumni_acc_${foundTeacherId}_students`, JSON.stringify(stuList));
-            if (clData.subjects) localStorage.setItem(`lumni_acc_${foundTeacherId}_subjects`, JSON.stringify(clData.subjects));
-            if (clData.notices) localStorage.setItem(`lumni_acc_${foundTeacherId}_notices`, JSON.stringify(clData.notices));
-            if (clData.threads) localStorage.setItem(`lumni_acc_${foundTeacherId}_threads`, JSON.stringify(clData.threads));
-            if (clData.projects) localStorage.setItem(`lumni_acc_${foundTeacherId}_projects`, JSON.stringify(clData.projects));
-            if (clData.tasks) localStorage.setItem(`lumni_acc_${foundTeacherId}_tasks`, JSON.stringify(clData.tasks));
-            if (clData.calendarEvents) localStorage.setItem(`lumni_acc_${foundTeacherId}_calendar`, JSON.stringify(clData.calendarEvents));
-            if (clData.incidentReports) localStorage.setItem(`lumni_acc_${foundTeacherId}_incidents`, JSON.stringify(clData.incidentReports));
-            if (clData.schoolInfo) localStorage.setItem(`lumni_acc_${foundTeacherId}_school`, JSON.stringify(clData.schoolInfo));
-          }
+        const viewSnap = await getDoc(doc(db, 'parent_views', cleanInput));
+        if (viewSnap.exists()) {
+          const view = viewSnap.data();
+          foundStudent = view.student;
+          // Scope propio del padre: no pisa la caché local del aula del docente
+          foundTeacherId = `parent_${view.studentId}`;
+          viewKey = cleanInput;
+          const cache = (suffix: string, value: unknown) => {
+            if (value) localStorage.setItem(`lumni_acc_${foundTeacherId}_${suffix}`, JSON.stringify(value));
+          };
+          cache('students', [view.student]);
+          cache('subjects', view.subjects);
+          cache('notices', view.notices);
+          cache('threads', view.threads);
+          cache('projects', view.projects);
+          cache('tasks', view.tasks);
+          cache('calendar', view.calendarEvents);
+          cache('incidents', view.incidentReports);
+          cache('school', view.schoolInfo);
         }
       } catch (err) {
-        console.warn('Firestore student lookup error:', err);
+        console.warn('Firestore parent view error:', err);
       }
     }
 
@@ -414,6 +407,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('lumni_user_parent', JSON.stringify(parentProfile));
     localStorage.setItem('lumni_parent_scope_id', foundTeacherId);
     localStorage.setItem('lumni_parent_student_id', foundStudent.id);
+    if (viewKey) localStorage.setItem('lumni_parent_view_key', viewKey);
+    else localStorage.removeItem('lumni_parent_view_key');
 
     setIsLoading(false);
     return { success: true, student: foundStudent };
@@ -439,6 +434,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('lumni_active_role');
     localStorage.removeItem('lumni_parent_scope_id');
     localStorage.removeItem('lumni_parent_student_id');
+    localStorage.removeItem('lumni_parent_view_key');
     localStorage.removeItem('lumni_user_teacher');
     localStorage.removeItem('lumni_user_parent');
     setIsLoading(false);
@@ -483,18 +479,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const clData = classroomSnap.data();
             const studentsList = clData?.students || [];
             for (const st of studentsList) {
-              if (st.curp) {
+              for (const key of parentViewKeys(st)) {
                 try {
-                  await deleteDoc(doc(db, 'student_lookup', st.curp.toUpperCase().trim()));
+                  await deleteDoc(doc(db, 'parent_views', key));
                 } catch (e) {
-                  console.warn('Error deleting student_lookup index:', st.curp, e);
-                }
-              }
-              if (st.matricula) {
-                try {
-                  await deleteDoc(doc(db, 'student_lookup', st.matricula.toUpperCase().trim()));
-                } catch (e) {
-                  console.warn('Error deleting student_lookup index:', st.matricula, e);
+                  console.warn('Error deleting parent view:', key, e);
                 }
               }
             }

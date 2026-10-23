@@ -24,7 +24,8 @@ import {
 } from '../services/mockData';
 import { useAuth } from './AuthContext';
 import { db, isFirebaseConfigured } from '../config/firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
+import { buildParentView, generateAccessCode, parentViewKeys } from '../utils/parentView';
 
 interface DataContextType {
   students: Student[];
@@ -186,6 +187,25 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const firestore = db;
         const fetchFirestoreData = async () => {
           try {
+            if (role === 'parent') {
+              // Los padres solo leen su vista individual; nunca el aula completa
+              const viewKey = localStorage.getItem('lumni_parent_view_key');
+              if (!viewKey) return;
+              const viewDoc = await getDoc(doc(firestore, 'parent_views', viewKey));
+              if (viewDoc.exists()) {
+                const v = viewDoc.data();
+                if (v.student) setStudents([v.student]);
+                if (v.subjects) setSubjects(v.subjects);
+                if (v.notices) setNotices(v.notices);
+                if (v.threads) setThreads(v.threads);
+                if (v.projects) setProjects(v.projects);
+                if (v.tasks) setTasks(v.tasks);
+                if (v.calendarEvents) setCalendarEvents(v.calendarEvents);
+                if (v.incidentReports) setIncidentReports(v.incidentReports);
+                if (v.schoolInfo) setSchoolInfo(v.schoolInfo);
+              }
+              return;
+            }
             const classroomDoc = await getDoc(doc(firestore, 'classrooms', scopeKey));
             if (classroomDoc.exists()) {
               const fbData = classroomDoc.data();
@@ -227,6 +247,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [scopeKey, getScopedData, getCleanSchoolInfo, currentUser, role]);
 
+  // Asigna un código de acceso aleatorio a los alumnos que aún no lo tienen (solo maestros)
+  useEffect(() => {
+    if (role !== 'teacher' || scopeKey === 'guest' || scopeKey === 'demo' || loadedScopeRef.current !== scopeKey) return;
+    if (students.some((s) => !s.codigoAcceso)) {
+      setStudents((prev) => prev.map((s) => (s.codigoAcceso ? s : { ...s, codigoAcceso: generateAccessCode() })));
+    }
+  }, [students, role, scopeKey]);
+
   // 2. Guardar en LocalStorage y Firestore únicamente cuando los datos pertenecen al scope activo
   useEffect(() => {
     if (scopeKey === 'guest' || loadedScopeRef.current !== scopeKey) return;
@@ -265,49 +293,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             { merge: true }
           );
 
-          // Actualizar directorio de búsqueda para acceso de padres por CURP/Matrícula
+          // Vista de padres: un documento por alumno con solo sus datos, consultable por CURP, matrícula o código
+          const classroom = { subjects, notices, threads, projects, tasks, calendarEvents, incidentReports, schoolInfo };
           for (const st of students) {
-            if (st.curp) {
-              await setDoc(
-                doc(firestore, 'student_lookup', st.curp.toUpperCase().trim()),
-                {
-                  studentId: st.id,
-                  teacherId: scopeKey,
-                  curp: st.curp.toUpperCase().trim(),
-                  matricula: st.matricula?.toUpperCase().trim() || '',
-                  studentNombre: st.nombre,
-                  studentApellidos: st.apellidos,
-                  tutorNombre: st.tutorNombre || '',
-                  tutorTelefono: st.tutorTelefono || '',
-                  tutorEmail: st.tutorEmail || '',
-                  colegio: schoolInfo.nombre,
-                  grupo: `${st.grado} ${st.grupo}`,
-                  ciclo: schoolInfo.ciclo,
-                  updatedAt: new Date().toISOString(),
-                },
-                { merge: true }
-              );
-            }
-            if (st.matricula) {
-              await setDoc(
-                doc(firestore, 'student_lookup', st.matricula.toUpperCase().trim()),
-                {
-                  studentId: st.id,
-                  teacherId: scopeKey,
-                  curp: st.curp?.toUpperCase().trim() || '',
-                  matricula: st.matricula.toUpperCase().trim(),
-                  studentNombre: st.nombre,
-                  studentApellidos: st.apellidos,
-                  tutorNombre: st.tutorNombre || '',
-                  tutorTelefono: st.tutorTelefono || '',
-                  tutorEmail: st.tutorEmail || '',
-                  colegio: schoolInfo.nombre,
-                  grupo: `${st.grado} ${st.grupo}`,
-                  ciclo: schoolInfo.ciclo,
-                  updatedAt: new Date().toISOString(),
-                },
-                { merge: true }
-              );
+            const view = buildParentView(scopeKey, st, classroom);
+            for (const key of parentViewKeys(st)) {
+              await setDoc(doc(firestore, 'parent_views', key), view);
             }
           }
         } catch (err) {
@@ -354,6 +345,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteStudent = (id: string) => {
+    const removed = students.find((s) => s.id === id);
+    if (removed && isFirebaseConfigured && db && role === 'teacher') {
+      // Revocar el acceso de los padres a este alumno
+      const firestore = db;
+      parentViewKeys(removed).forEach((key) => {
+        deleteDoc(doc(firestore, 'parent_views', key)).catch((e) => console.warn('Error deleting parent view:', key, e));
+      });
+    }
     setStudents((prev) => prev.filter((s) => s.id !== id));
   };
 

@@ -43,20 +43,29 @@ service cloud.firestore {
     // 2. Aulas de Docentes Multi-Tenant (/classrooms/{teacherId})
     // ==========================================
     match /classrooms/{teacherId} {
-      // El maestro titular tiene acceso total y exclusivo a su aula
+      // Solo el maestro titular accede a su aula completa. Los padres ya no leen esta colección.
       allow read, write: if isAuthenticated() && request.auth.uid == teacherId;
-      // Los padres/tutores autenticados pueden leer el aula de su docente asignado
-      allow read: if isAuthenticated();
     }
 
     // ==========================================
-    // 3. Directorio de Búsqueda para Padres (/student_lookup/{lookupKey})
+    // 3. Vista de padres (/parent_views/{clave})
     // ==========================================
+    // Un documento por alumno, con SOLO los datos de ese alumno. La clave es su CURP,
+    // matrícula o código de acceso. Se puede leer con la clave exacta, pero no listar.
+    match /parent_views/{key} {
+      allow get: if true;
+      allow list: if false;
+      allow create: if isAuthenticated() && request.resource.data.teacherId == request.auth.uid;
+      allow update: if isAuthenticated() && resource.data.teacherId == request.auth.uid
+                    && request.resource.data.teacherId == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.teacherId == request.auth.uid;
+    }
+
+    // Índice anterior (contenía teléfonos y correos de tutores y era público): ya no se lee ni se escribe.
+    // Cada docente puede borrar los suyos.
     match /student_lookup/{lookupKey} {
-      // Permite búsqueda por CURP o Matrícula para acceso escolar de familias
-      allow read: if true;
-      // Solo maestros autenticados pueden registrar y actualizar los índices de búsqueda de sus alumnos
-      allow write: if isAuthenticated();
+      allow read, create, update: if false;
+      allow delete: if isAuthenticated() && resource.data.teacherId == request.auth.uid;
     }
 
     // ==========================================

@@ -327,7 +327,7 @@ export const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({
                 <ul className="list-disc pl-5 space-y-1">
                   <li>Se elimina de forma permanente tu perfil de usuario y credenciales de acceso de Firebase Auth.</li>
                   <li>Se borra de manera definitiva la base de datos de tu aula (<code className="font-mono">classrooms</code>), incluyendo alumnos, notas, asistencias, avisos e historial de incidencias.</li>
-                  <li>Se desvinculan y destruyen las claves de acceso de los tutores vinculados (<code className="font-mono">student_lookup</code>).</li>
+                  <li>Se desvinculan y destruyen las claves de acceso de los tutores vinculados (<code className="font-mono">parent_views</code>).</li>
                   <li>Se limpian todas las copias de seguridad temporales en la memoria local (<code className="font-mono">localStorage</code>) del navegador.</li>
                   <li>Esta acción es <strong>inmediata e irrevocable</strong>, sin periodos de retención oculta de datos.</li>
                 </ul>
