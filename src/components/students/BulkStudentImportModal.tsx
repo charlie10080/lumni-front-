@@ -276,7 +276,15 @@ export const BulkStudentImportModal: React.FC<BulkStudentImportModalProps> = ({
                     >
                       <td className="py-2 px-3 text-slate-400 font-mono text-[10px]">{st.index}</td>
                       <td className="py-2 px-3 font-semibold text-slate-900 dark:text-white">
-                        {st.nombre} {st.apellidos}
+                        {st.apellidos} {st.nombre}
+                        {st.isNameSplit && (
+                          <span className="block text-[10px] font-medium text-amber-600 dark:text-amber-400">
+                            Apellidos: {st.apellidos} · Nombre: {st.nombre}
+                          </span>
+                        )}
+                        {st.error && (
+                          <span className="block text-[10px] font-bold text-rose-600 dark:text-rose-400">✕ {st.error}</span>
+                        )}
                       </td>
                       <td className="py-2 px-3 font-mono text-[11px]">
                         <span className="text-indigo-600 dark:text-indigo-400 font-bold">
