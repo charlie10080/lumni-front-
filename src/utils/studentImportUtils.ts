@@ -215,6 +215,37 @@ export const downloadStudentExcelTemplate = (schoolInfo?: SchoolInfo) => {
   XLSX.writeFile(wb, fileName);
 };
 
+// Partículas que forman parte de un apellido compuesto (DE LA CRUZ, DEL VALLE, VAN DER BERG...)
+const SURNAME_PARTICLES = new Set(['DE', 'DEL', 'LA', 'LAS', 'LOS', 'Y', 'MC', 'MAC', 'VAN', 'VON', 'DER', 'SAN', 'SANTA', 'DA', 'DI']);
+
+/**
+ * Separa un nombre completo escrito con los apellidos primero, como en las listas de la SEP:
+ * "BRAVO JIMENEZ SAMUEL VLADIMIR" -> { primerApellido: 'BRAVO', segundoApellido: 'JIMENEZ', nombre: 'SAMUEL VLADIMIR' }.
+ * Devuelve null si no hay suficientes palabras para separar.
+ */
+export const splitFullNameSurnamesFirst = (
+  full: string
+): { nombre: string; primerApellido: string; segundoApellido: string } | null => {
+  const words = full.trim().split(/\s+/).filter(Boolean);
+  if (words.length < 2) return null;
+  let i = 0;
+  const takeSurname = (): string => {
+    const parts: string[] = [];
+    while (i < words.length - 1 && SURNAME_PARTICLES.has(cleanText(words[i]))) parts.push(words[i++]);
+    if (i < words.length - 1) parts.push(words[i++]);
+    return parts.join(' ');
+  };
+  const primerApellido = takeSurname();
+  // Con solo dos palabras: un apellido y un nombre
+  const segundoApellido = words.length - i >= 2 ? takeSurname() : '';
+  const nombre = words.slice(i).join(' ');
+  if (!primerApellido || !nombre) return null;
+  return { nombre, primerApellido, segundoApellido };
+};
+
+// Filas de ejemplo de la plantilla: si el docente no las borra, no se registran
+const TEMPLATE_EXAMPLE_NAMES = new Set(['JUAN CARLOS PEREZ', 'SOFIA VALENTINA LOPEZ', 'MATEO HERNANDEZ']);
+
 export interface ParsedStudentRow {
   index: number;
   nombre: string;
@@ -235,6 +266,8 @@ export interface ParsedStudentRow {
   tutorTelefono: string;
   tutorParentesco: string;
   isValid: boolean;
+  /** El nombre venía completo en una sola columna y se separó en apellidos y nombre */
+  isNameSplit?: boolean;
   error?: string;
 }
 
@@ -298,7 +331,7 @@ export const parseStudentExcelFile = async (
             return '';
           };
 
-          const nombreRaw = getVal(['NOMBRE(S)', 'NOMBRES', 'NOMBRE']);
+          let nombreRaw = getVal(['NOMBRE(S)', 'NOMBRES', 'NOMBRE']);
           let ap1Raw = getVal(['PRIMER APELLIDO', 'APELLIDO PATERNO', 'PATERNO']);
           let ap2Raw = getVal(['SEGUNDO APELLIDO', 'APELLIDO MATERNO', 'MATERNO']);
           const apellidosCompuesto = getVal(['APELLIDOS', 'APELLIDO']);
@@ -310,7 +343,24 @@ export const parseStudentExcelFile = async (
             ap2Raw = parts.slice(1).join(' ');
           }
 
+          // Nombre completo en una sola columna (lista de la SEP: apellidos primero) y sin apellidos aparte
+          let isNameSplit = false;
+          if (nombreRaw && !ap1Raw && !ap2Raw && !apellidosCompuesto) {
+            const split = splitFullNameSurnamesFirst(nombreRaw);
+            if (split) {
+              nombreRaw = split.nombre;
+              ap1Raw = split.primerApellido;
+              ap2Raw = split.segundoApellido;
+              isNameSplit = true;
+            }
+          }
+
           const fullApellidos = [ap1Raw, ap2Raw].filter(Boolean).join(' ') || apellidosCompuesto;
+
+          if (TEMPLATE_EXAMPLE_NAMES.has(cleanText(`${nombreRaw} ${ap1Raw}`))) {
+            // Fila de ejemplo de la plantilla que no se borró
+            return;
+          }
 
           if (!nombreRaw && !fullApellidos) {
             // Fila completamente vacía o de instrucciones en blanco
@@ -399,7 +449,8 @@ export const parseStudentExcelFile = async (
             tutorTelefono,
             tutorParentesco,
             isValid,
-            error: !isValid ? 'Falta nombre o apellidos' : undefined,
+            isNameSplit,
+            error: !isValid ? (nombreRaw.trim() ? 'Faltan los apellidos' : 'Falta el nombre') : undefined,
           });
         });
 

@@ -15,10 +15,12 @@ const ReportsView = lazy(() => import('./pages/ReportsView').then((m) => ({ defa
 const SettingsView = lazy(() => import('./pages/SettingsView').then((m) => ({ default: m.SettingsView })));
 const ProjectsView = lazy(() => import('./pages/ProjectsView').then((m) => ({ default: m.ProjectsView })));
 const TasksView = lazy(() => import('./pages/TasksView').then((m) => ({ default: m.TasksView })));
+const ParentAttendanceView = lazy(() => import('./pages/ParentAttendanceView').then((m) => ({ default: m.ParentAttendanceView })));
+const AdminView = lazy(() => import('./pages/AdminView').then((m) => ({ default: m.AdminView })));
 const CalendarView = lazy(() => import('./pages/CalendarView').then((m) => ({ default: m.CalendarView })));
 
 export const AppContent: React.FC = () => {
-  const { isAuthenticated, role } = useAuth();
+  const { isAuthenticated, role, isAdmin } = useAuth();
   const [currentTab, setCurrentTab] = useState('dashboard');
 
   if (!isAuthenticated) {
@@ -33,7 +35,7 @@ export const AppContent: React.FC = () => {
       case 'students':
         return <StudentsView />;
       case 'attendance':
-        return <AttendanceView />;
+        return role === 'parent' ? <ParentAttendanceView /> : <AttendanceView />;
       case 'grades':
         return <GradesView />;
       case 'projects':
@@ -50,6 +52,8 @@ export const AppContent: React.FC = () => {
         return <CalendarView />;
       case 'settings':
         return <SettingsView />;
+      case 'admin':
+        return isAdmin ? <AdminView /> : <DashboardView onNavigate={(tab) => setCurrentTab(tab)} />;
       default:
         return <DashboardView onNavigate={(tab) => setCurrentTab(tab)} />;
     }

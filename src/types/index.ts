@@ -28,6 +28,15 @@ export interface UserProfile {
   suscripcion?: UserSubscription;
   studentId?: string;
   createdAt?: string;
+  // Gestionados por el administrador (el maestro no puede modificarlos; ver firestore.rules)
+  estado?: 'activo' | 'bloqueado';
+  vigenteHasta?: string; // AAAA-MM-DD; sin valor = sin vencimiento
+  notaAdmin?: string;
+  // Uso, que registra la propia app del maestro
+  ultimoIngreso?: string;
+  ingresos?: number;
+  numAlumnos?: number;
+  ultimaActividad?: string;
 }
 
 // ==========================================

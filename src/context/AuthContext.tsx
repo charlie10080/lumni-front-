@@ -12,6 +12,8 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, deleteDoc } from 'firebase/firestore';
 import { removeParentAccess } from '../services/parentAccess';
+import { checkIsAdmin, fetchTeacherProfile, reportLogin } from '../services/teacherAdmin';
+import { accountStatus, ACCOUNT_BLOCKED_MESSAGE } from '../utils/account';
 
 export interface RegisterTeacherData {
   nombre: string;
@@ -27,6 +29,8 @@ interface AuthContextType {
   currentUser: UserProfile | null;
   role: UserRole;
   isAuthenticated: boolean;
+  /** El usuario es administrador de la plataforma (existe admins/{uid}) */
+  isAdmin: boolean;
   isLoading: boolean;
   login: (email: string, pass: string) => Promise<void>;
   registerTeacher: (data: RegisterTeacherData) => Promise<void>;
@@ -66,6 +70,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+
+  // Con la sesión de Firebase restaurada: confirma si es administrador y si su cuenta sigue activa
+  useEffect(() => {
+    if (!isAuthenticated || role !== 'teacher' || !isFirebaseConfigured || !auth || !db) return;
+    const firebaseAuth = auth;
+    const firestore = db;
+    let cancelled = false;
+    firebaseAuth.authStateReady().then(async () => {
+      const user = firebaseAuth.currentUser;
+      if (!user || cancelled) return;
+      const profile = await fetchTeacherProfile(firestore, user.uid);
+      if (cancelled) return;
+      if (profile && accountStatus(profile) !== 'activo') {
+        await firebaseSignOut(firebaseAuth).catch(() => undefined);
+        ['lumni_is_authenticated', 'lumni_active_role', 'lumni_user_teacher'].forEach((k) => localStorage.removeItem(k));
+        window.location.reload();
+        return;
+      }
+      setIsAdmin(await checkIsAdmin(firestore, user.uid));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated, role]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -138,6 +167,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         }
 
+        // Cuenta bloqueada por el administrador o con vigencia vencida
+        if (accountStatus(userProfile) !== 'activo') {
+          await firebaseSignOut(auth).catch(() => undefined);
+          throw new Error(ACCOUNT_BLOCKED_MESSAGE);
+        }
+
+        if (db) {
+          reportLogin(db, fbUser.uid);
+          setIsAdmin(await checkIsAdmin(db, fbUser.uid));
+        }
+
         setRole('teacher');
         setCurrentUser(userProfile);
         setIsAuthenticated(true);
@@ -147,16 +187,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoading(false);
         return;
       } catch (err: any) {
+        // Con Firebase configurado no hay modo local de respaldo: una cuenta bloqueada no debe poder entrar
         console.warn('Firebase login check:', err);
+        setIsLoading(false);
+        if (err?.message === ACCOUNT_BLOCKED_MESSAGE) throw err;
         if (
           err.code === 'auth/wrong-password' ||
           err.code === 'auth/user-not-found' ||
           err.code === 'auth/invalid-credential' ||
           err.code === 'auth/invalid-email'
         ) {
-          setIsLoading(false);
           throw new Error('Correo o contraseña incorrectos.');
         }
+        if (err.code === 'auth/too-many-requests') {
+          throw new Error('Demasiados intentos. Espera unos minutos e inténtalo de nuevo.');
+        }
+        throw new Error('No se pudo iniciar sesión. Revisa tu conexión e inténtalo de nuevo.');
       }
     }
 
@@ -361,6 +407,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 const match = parsed.find(
                   (s: any) =>
                     (s.curp && s.curp.toUpperCase() === cleanInput) ||
+                    (s.codigoAcceso && s.codigoAcceso.toUpperCase() === cleanInput) ||
                     (s.matricula && s.matricula.toUpperCase() === cleanInput) ||
                     (s.id && s.id.toUpperCase() === cleanInput)
                 );
@@ -438,6 +485,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     await new Promise((resolve) => setTimeout(resolve, 200));
     setIsAuthenticated(false);
+    setIsAdmin(false);
     setCurrentUser(null);
     localStorage.removeItem('lumni_is_authenticated');
     localStorage.removeItem('lumni_active_role');
@@ -554,6 +602,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         currentUser,
         role,
         isAuthenticated,
+        isAdmin,
         isLoading,
         login,
         registerTeacher,

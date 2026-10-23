@@ -502,7 +502,7 @@ export const LoginForm: React.FC = () => {
             </form>
           )}
 
-          {/* FORMULARIO: PADRES Y TUTORES (CONSULTA POR CURP / MATRÍCULA) */}
+          {/* FORMULARIO: PADRES Y TUTORES (CONSULTA POR CURP / CÓDIGO) */}
           {activeTab === 'parent' && (
             <form onSubmit={handleParentLookup} className="w-full space-y-4" data-purpose="parent-form">
               <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-500/20 text-xs text-amber-900 dark:text-amber-200">
@@ -517,7 +517,7 @@ export const LoginForm: React.FC = () => {
 
               <div className="space-y-1.5">
                 <label className="block text-[10px] sm:text-xs font-bold tracking-wider text-slate-500 dark:text-slate-400 uppercase" htmlFor="parentCurpInput">
-                  CURP O MATRÍCULA DEL ALUMNO
+                  CURP O CÓDIGO DEL ALUMNO
                 </label>
                 <div className="relative flex items-center">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -530,7 +530,7 @@ export const LoginForm: React.FC = () => {
                     required
                     value={parentCurp}
                     onChange={(e) => setParentCurp(e.target.value.toUpperCase())}
-                    placeholder="Ej. RAMJ120405HDFRRL01 o MAT-001"
+                    placeholder="Ej. RAMJ120405HDFRRL01 o K7M2Q9XA"
                     className="input-glass w-full rounded-xl pl-10 pr-4 py-3 text-xs sm:text-sm outline-none uppercase font-mono"
                   />
                 </div>
