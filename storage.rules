@@ -16,18 +16,16 @@ service firebase.storage {
                     && request.resource.contentType.matches('image/.*');
     }
     
-    // Credenciales y fotos de alumnos
+    // Fotos de alumnos (menores): sin uso en la app actual, cerradas hasta definir
+    // acceso por docente dueño del aula.
     match /student_photos/{studentId}/{fileName} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated()
-                    && request.resource.size < 5 * 1024 * 1024
-                    && request.resource.contentType.matches('image/.*');
+      allow read, write: if false;
     }
 
     // Adjuntos de avisos institucionales (imágenes o PDF, máx 10MB)
     match /notices/{noticeId}/{fileName} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated()
+      allow write: if false // sin uso actual; reabrir solo para docentes
                     && request.resource.size < 10 * 1024 * 1024
                     && (request.resource.contentType.matches('image/.*') || request.resource.contentType == 'application/pdf');
     }
