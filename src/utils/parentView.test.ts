@@ -1,14 +1,29 @@
 import { describe, expect, it } from 'vitest';
-import { buildParentView, generateAccessCode, parentViewKeys } from './parentView';
+import { buildParentView, generateAccessCode, legacyParentKeys, parentViewFingerprint } from './parentView';
 import type { Student } from '../types';
 
 const student = (id: string, extra: Partial<Student> = {}) =>
   ({ id, curp: `CURP${id}`, matricula: `LUM-2026-00${id}`, nombre: `N${id}`, ...extra }) as Student;
 
-describe('parentViewKeys', () => {
-  it('incluye código, CURP y matrícula en mayúsculas sin repetir', () => {
-    expect(parentViewKeys(student('1', { codigoAcceso: 'abc234', curp: 'x1' }))).toEqual(['ABC234', 'X1', 'LUM-2026-001']);
-    expect(parentViewKeys(student('2', { curp: 'same', matricula: 'SAME' }))).toEqual(['SAME']);
+describe('legacyParentKeys', () => {
+  it('devuelve CURP y matrícula en mayúsculas, sin el código ni repetidos', () => {
+    expect(legacyParentKeys(student('1', { codigoAcceso: 'abc234', curp: 'x1' }))).toEqual(['X1', 'LUM-2026-001']);
+    expect(legacyParentKeys(student('2', { curp: 'same', matricula: 'SAME' }))).toEqual(['SAME']);
+    expect(legacyParentKeys(student('3', { codigoAcceso: 'x1', curp: 'X1', matricula: '' }))).toEqual([]);
+  });
+});
+
+describe('parentViewFingerprint', () => {
+  const classroom = {
+    subjects: [], notices: [], projects: [], tasks: [], calendarEvents: [], threads: [], incidentReports: [],
+    schoolInfo: {} as never,
+  };
+  it('no cambia con la fecha de actualización pero sí con los datos', () => {
+    const a = buildParentView('t', student('1'), classroom);
+    const b = { ...buildParentView('t', student('1'), classroom), updatedAt: 'otra' };
+    const c = buildParentView('t', student('1', { nombre: 'Otro' }), classroom);
+    expect(parentViewFingerprint(a)).toBe(parentViewFingerprint(b));
+    expect(parentViewFingerprint(a)).not.toBe(parentViewFingerprint(c));
   });
 });
 

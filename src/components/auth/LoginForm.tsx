@@ -49,7 +49,7 @@ export const LoginForm: React.FC = () => {
   const [regConfirmPassword, setRegConfirmPassword] = useState('');
   const [showRegPassword, setShowRegPassword] = useState(false);
 
-  // Estados Formulario Tutor (CURP o Matrícula)
+  // Estados Formulario Tutor (CURP o código)
   const [parentCurp, setParentCurp] = useState('');
 
   // Estados de Error y Modales
@@ -123,7 +123,7 @@ export const LoginForm: React.FC = () => {
     setSuccessMsg('');
 
     if (!parentCurp.trim()) {
-      setError('Por favor ingresa la CURP o Matrícula del alumno.');
+      setError('Por favor ingresa la CURP o el código del alumno.');
       return;
     }
 
@@ -511,7 +511,7 @@ export const LoginForm: React.FC = () => {
                   <span>Portal de Consulta para Familias</span>
                 </div>
                 <p className="leading-relaxed text-[11px] sm:text-xs">
-                  Ingresa la <strong>CURP</strong> o la <strong>Matrícula</strong> del alumno proporcionada por el docente para ver asistencias, avisos y calificaciones.
+                  Ingresa la <strong>CURP</strong> o el <strong>código</strong> del alumno proporcionada por el docente para ver asistencias, avisos y calificaciones.
                 </p>
               </div>
 

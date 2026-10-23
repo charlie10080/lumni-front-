@@ -11,7 +11,7 @@ import {
   deleteUser,
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, deleteDoc } from 'firebase/firestore';
-import { parentViewKeys } from '../utils/parentView';
+import { removeParentAccess } from '../services/parentAccess';
 
 export interface RegisterTeacherData {
   nombre: string;
@@ -304,7 +304,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const cleanInput = curpOrCode.trim().toUpperCase();
     if (!cleanInput) {
       setIsLoading(false);
-      return { success: false, error: 'Por favor ingresa la CURP o Matrícula del alumno.' };
+      return { success: false, error: 'Por favor ingresa la CURP o el código del alumno.' };
     }
 
     let foundStudent: any = null;
@@ -314,13 +314,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // 1. Consultar la vista individual del alumno `/parent_views/${cleanInput}` (solo sus datos)
     if (isFirebaseConfigured && db) {
       try {
-        const viewSnap = await getDoc(doc(db, 'parent_views', cleanInput));
+        // La clave puede ser el código de acceso o la CURP (que apunta al código)
+        let code = cleanInput;
+        let viewSnap = await getDoc(doc(db, 'parent_views', code));
+        if (!viewSnap.exists()) {
+          const indexSnap = await getDoc(doc(db, 'parent_index', cleanInput));
+          if (indexSnap.exists()) {
+            code = indexSnap.data().code;
+            viewSnap = await getDoc(doc(db, 'parent_views', code));
+          }
+        }
         if (viewSnap.exists()) {
           const view = viewSnap.data();
           foundStudent = view.student;
           // Scope propio del padre: no pisa la caché local del aula del docente
           foundTeacherId = `parent_${view.studentId}`;
-          viewKey = cleanInput;
+          viewKey = code;
           const cache = (suffix: string, value: unknown) => {
             if (value) localStorage.setItem(`lumni_acc_${foundTeacherId}_${suffix}`, JSON.stringify(value));
           };
@@ -479,13 +488,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const clData = classroomSnap.data();
             const studentsList = clData?.students || [];
             for (const st of studentsList) {
-              for (const key of parentViewKeys(st)) {
-                try {
-                  await deleteDoc(doc(db, 'parent_views', key));
-                } catch (e) {
-                  console.warn('Error deleting parent view:', key, e);
-                }
-              }
+              await removeParentAccess(db, st);
             }
             // Eliminar documento de aula
             await deleteDoc(classroomRef);

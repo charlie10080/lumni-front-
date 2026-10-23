@@ -1,3 +1,4 @@
+import { StudentAvatar } from './StudentAvatar';
 import React from 'react';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
@@ -60,17 +61,7 @@ export const StudentCredentialModal: React.FC<StudentCredentialModalProps> = ({
           <div className="grid grid-cols-3 gap-3 items-center mb-3">
             {/* Left: Avatar / Photo */}
             <div className="col-span-1 flex flex-col items-center text-center">
-              {student.fotoUrl ? (
-                <img
-                  src={student.fotoUrl}
-                  alt={student.nombre}
-                  className="w-18 h-18 rounded-2xl object-cover shadow-lg ring-2 ring-indigo-400/40 mb-1 border border-white/20 bg-slate-800"
-                />
-              ) : (
-                <div className="w-18 h-18 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-black text-2xl text-white shadow-lg ring-2 ring-indigo-400/40 mb-1">
-                  {student.nombre.charAt(0)}
-                </div>
-              )}
+              <StudentAvatar genero={student.genero} className="w-18 h-18 rounded-2xl text-4xl ring-2 ring-indigo-400/40 mb-1" />
               <span className="text-[9px] text-emerald-400 font-bold uppercase tracking-wider">● Vigente</span>
             </div>
 

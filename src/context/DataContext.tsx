@@ -1,9 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   Student,
   Subject,
   Notice,
   ChatThread,
+  ChatMessage,
   SchoolInfo,
   AttendanceStatus,
   Project,
@@ -24,8 +25,18 @@ import {
 } from '../services/mockData';
 import { useAuth } from './AuthContext';
 import { db, isFirebaseConfigured } from '../config/firebase';
-import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
-import { buildParentView, generateAccessCode, parentViewKeys } from '../utils/parentView';
+import { doc, getDoc, setDoc, collection, onSnapshot, query, orderBy, limit, increment, writeBatch } from 'firebase/firestore';
+import {
+  mergeThreads,
+  toChatMessages,
+  MAX_CHAT_LENGTH,
+  META_PREVIEW_LENGTH,
+  type ChatMeta,
+  type ChatSender,
+  type RemoteChatMessage,
+} from '../utils/chat';
+import { generateAccessCode } from '../utils/parentView';
+import { syncParentAccess, removeParentAccess, migrateLegacyParentKeys } from '../services/parentAccess';
 
 interface DataContextType {
   students: Student[];
@@ -66,6 +77,8 @@ interface DataContextType {
     sender: 'teacher' | 'parent',
     meta?: { studentId: string; studentNombre: string; tutorNombre: string; tutorTelefono: string }
   ) => void;
+  openChat: (studentId: string) => void;
+  markThreadRead: (studentId: string) => void;
   exportFullBackupJSON: () => void;
   importBackupJSON: (jsonData: string) => boolean;
   resetToDefaultData: () => void;
@@ -151,6 +164,73 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 
   const [activeTrimester, setActiveTrimester] = useState<number>(1);
+
+  // Chat maestro-padre en vivo. Para no leer de más:
+  //  - un documento resumen por alumno (parent_chats/{codigo}): último mensaje y no leídos
+  //  - los mensajes (parent_chats/{codigo}/messages) solo del hilo abierto, los últimos 50
+  const [chatMetas, setChatMetas] = useState<Record<string, ChatMeta | undefined>>({});
+  const [chatMessages, setChatMessages] = useState<Record<string, ChatMessage[]>>({});
+  const [openStudentId, setOpenStudentId] = useState<string>('');
+  const chatEnabled =
+    isFirebaseConfigured && !!db && scopeKey !== 'guest' && scopeKey !== 'demo' && (role === 'teacher' || role === 'parent');
+  const viewer: ChatSender = role === 'parent' ? 'parent' : 'teacher';
+  const studentsRef = useRef(students);
+  studentsRef.current = students;
+  const chatKeys = students.map((st) => `${st.id}:${st.codigoAcceso || ''}`).join('|');
+  // El padre solo tiene un hilo; el maestro abre el que elija en la bandeja
+  const activeChatStudentId = role === 'parent' ? students[0]?.id || '' : openStudentId;
+  const codeOf = (studentId: string) => students.find((st) => st.id === studentId)?.codigoAcceso;
+
+  // Resúmenes: un listener por alumno (el padre, uno solo)
+  useEffect(() => {
+    setChatMetas({});
+    if (!chatEnabled || !db) return;
+    const firestore = db;
+    const unsubscribers = studentsRef.current
+      .filter((st) => st.codigoAcceso)
+      .map((st) =>
+        onSnapshot(
+          doc(firestore, 'parent_chats', st.codigoAcceso as string),
+          (snap) => setChatMetas((prev) => ({ ...prev, [st.id]: snap.exists() ? (snap.data() as ChatMeta) : undefined })),
+          (err) => console.warn('Chat summary listener error:', err)
+        )
+      );
+    return () => unsubscribers.forEach((unsub) => unsub());
+  }, [chatEnabled, chatKeys, scopeKey]);
+
+  // Mensajes: solo del hilo abierto
+  useEffect(() => {
+    if (!chatEnabled || !db || !activeChatStudentId) return;
+    const code = studentsRef.current.find((st) => st.id === activeChatStudentId)?.codigoAcceso;
+    if (!code) return;
+    return onSnapshot(
+      query(collection(db, 'parent_chats', code, 'messages'), orderBy('createdAt', 'desc'), limit(50)),
+      (snap) => {
+        const docs = snap.docs.map((d) => ({ id: d.id, data: d.data() as RemoteChatMessage }));
+        setChatMessages((prev) => ({ ...prev, [activeChatStudentId]: toChatMessages(docs) }));
+      },
+      (err) => console.warn('Chat messages listener error:', err)
+    );
+  }, [chatEnabled, activeChatStudentId, chatKeys, scopeKey]);
+
+  const mergedThreads = useMemo(
+    () =>
+      chatEnabled
+        ? mergeThreads(threads, students, chatMetas, chatMessages, viewer, schoolInfo.director || 'Docente Titular')
+        : threads,
+    [chatEnabled, threads, students, chatMetas, chatMessages, viewer, schoolInfo.director]
+  );
+
+  const openChat = (studentId: string) => setOpenStudentId(studentId);
+
+  const markThreadRead = (studentId: string) => {
+    const code = codeOf(studentId);
+    if (!chatEnabled || !db || !code) return;
+    const counter = viewer === 'teacher' ? 'unreadTeacher' : 'unreadParent';
+    setDoc(doc(db, 'parent_chats', code), { [counter]: 0 }, { merge: true }).catch((e) =>
+      console.warn('Error marking chat as read:', e)
+    );
+  };
 
   // Referencia para saber cuál scope está cargado actualmente en el estado y evitar sobreescrituras por race-conditions
   const loadedScopeRef = useRef<string>(scopeKey);
@@ -250,8 +330,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Asigna un código de acceso aleatorio a los alumnos que aún no lo tienen (solo maestros)
   useEffect(() => {
     if (role !== 'teacher' || scopeKey === 'guest' || scopeKey === 'demo' || loadedScopeRef.current !== scopeKey) return;
-    if (students.some((s) => !s.codigoAcceso)) {
-      setStudents((prev) => prev.map((s) => (s.codigoAcceso ? s : { ...s, codigoAcceso: generateAccessCode() })));
+    if (students.some((s) => !s.codigoAcceso || s.fotoUrl)) {
+      // También se descartan las fotos antiguas (ya no se usan y ocupaban espacio en el aula)
+      setStudents((prev) =>
+        prev.map(({ fotoUrl: _foto, ...s }) => (s.codigoAcceso ? s : { ...s, codigoAcceso: generateAccessCode() }))
+      );
     }
   }, [students, role, scopeKey]);
 
@@ -282,7 +365,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
               students,
               subjects,
               notices,
-              threads,
+              threads: threads.map((t) => ({ ...t, mensajes: [] })),
               projects,
               tasks,
               calendarEvents,
@@ -293,14 +376,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             { merge: true }
           );
 
-          // Vista de padres: un documento por alumno con solo sus datos, consultable por CURP, matrícula o código
-          const classroom = { subjects, notices, threads, projects, tasks, calendarEvents, incidentReports, schoolInfo };
-          for (const st of students) {
-            const view = buildParentView(scopeKey, st, classroom);
-            for (const key of parentViewKeys(st)) {
-              await setDoc(doc(firestore, 'parent_views', key), view);
-            }
-          }
+          // Vista de padres: un documento por alumno con solo sus datos (solo se escribe lo que cambió)
+          await migrateLegacyParentKeys(firestore, scopeKey, students);
+          const classroom = { subjects, notices, threads: threads.map((t) => ({ ...t, mensajes: [] })), projects, tasks, calendarEvents, incidentReports, schoolInfo };
+          await syncParentAccess(firestore, scopeKey, students, classroom);
         } catch (err) {
           console.warn('Background Firestore sync error:', err);
         }
@@ -348,10 +427,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const removed = students.find((s) => s.id === id);
     if (removed && isFirebaseConfigured && db && role === 'teacher') {
       // Revocar el acceso de los padres a este alumno
-      const firestore = db;
-      parentViewKeys(removed).forEach((key) => {
-        deleteDoc(doc(firestore, 'parent_views', key)).catch((e) => console.warn('Error deleting parent view:', key, e));
-      });
+      removeParentAccess(db, removed);
     }
     setStudents((prev) => prev.filter((s) => s.id !== id));
   };
@@ -474,7 +550,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Mensajes
-  const sendMessage = (
+  const sendLocalMessage = (
     threadId: string,
     texto: string,
     sender: 'teacher' | 'parent',
@@ -528,6 +604,39 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           ],
         };
       });
+    });
+  };
+
+  const sendMessage = (
+    threadId: string,
+    texto: string,
+    sender: 'teacher' | 'parent',
+    meta?: { studentId: string; studentNombre: string; tutorNombre: string; tutorTelefono: string }
+  ) => {
+    const studentId = meta?.studentId || threads.find((th) => th.id === threadId)?.studentId;
+    const code = students.find((st) => st.id === studentId)?.codigoAcceso;
+    const text = texto.trim().slice(0, MAX_CHAT_LENGTH);
+    if (!chatEnabled || !db || !code || !studentId || !text) {
+      sendLocalMessage(threadId, texto, sender, meta);
+      return;
+    }
+    const createdAt = new Date().toISOString();
+    const message: RemoteChatMessage = { remitente: sender, texto: text, createdAt, studentId };
+    const summary = {
+      studentId,
+      lastText: text.slice(0, META_PREVIEW_LENGTH),
+      lastAt: createdAt,
+      lastFrom: sender,
+      // El que escribe ya vio el hilo; el otro suma un no leído
+      unreadTeacher: sender === 'parent' ? increment(1) : 0,
+      unreadParent: sender === 'teacher' ? increment(1) : 0,
+    };
+    const batch = writeBatch(db);
+    batch.set(doc(collection(db, 'parent_chats', code, 'messages')), message);
+    batch.set(doc(db, 'parent_chats', code), summary, { merge: true });
+    batch.commit().catch((err) => {
+      console.warn('Could not send chat message:', err);
+      sendLocalMessage(threadId, texto, sender, meta);
     });
   };
 
@@ -686,7 +795,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         students,
         subjects,
         notices,
-        threads,
+        threads: mergedThreads,
         projects,
         tasks,
         calendarEvents,
@@ -715,6 +824,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         deleteIncidentReport,
         toggleIncidentStatus,
         sendMessage,
+        openChat,
+        markThreadRead,
         updateSchoolInfo,
         exportFullBackupJSON,
         importBackupJSON,

@@ -61,6 +61,66 @@ service cloud.firestore {
       allow delete: if isAuthenticated() && resource.data.teacherId == request.auth.uid;
     }
 
+    // ==========================================
+    // 3a. Índice de CURP (/parent_index/{CURP}) -> código de acceso del alumno
+    // ==========================================
+    // Se consulta por la CURP exacta (no se puede listar). Solo el docente dueño lo escribe.
+    match /parent_index/{curp} {
+      allow get: if true;
+      allow list: if false;
+      allow create: if isAuthenticated() && request.resource.data.teacherId == request.auth.uid
+                    && request.resource.data.code is string;
+      allow update: if isAuthenticated() && resource.data.teacherId == request.auth.uid
+                    && request.resource.data.teacherId == request.auth.uid
+                    && request.resource.data.code is string;
+      allow delete: if isAuthenticated() && resource.data.teacherId == request.auth.uid;
+    }
+
+    // ==========================================
+    // 3b. Chat maestro-padre
+    // ==========================================
+    // /parent_chats/{codigoAcceso}            -> resumen (último mensaje y no leídos)
+    // /parent_chats/{codigoAcceso}/messages/* -> mensajes
+    // La clave es el código de acceso del alumno (también es una clave de parent_views).
+    // Quien conoce el código es el padre; el maestro dueño se verifica con parent_views.teacherId.
+    match /parent_chats/{code} {
+      function viewPath() {
+        return /databases/$(database)/documents/parent_views/$(code);
+      }
+      function isChatTeacher() {
+        return isAuthenticated() && exists(viewPath()) && get(viewPath()).data.teacherId == request.auth.uid;
+      }
+      function validSummary() {
+        let d = request.resource.data;
+        return d.keys().hasOnly(['studentId', 'lastText', 'lastAt', 'lastFrom', 'unreadTeacher', 'unreadParent'])
+          && (!('lastText' in d) || (d.lastText is string && d.lastText.size() <= 200))
+          && (!('lastFrom' in d) || d.lastFrom in ['teacher', 'parent'])
+          && (!('unreadTeacher' in d) || (d.unreadTeacher is int && d.unreadTeacher >= 0))
+          && (!('unreadParent' in d) || (d.unreadParent is int && d.unreadParent >= 0));
+      }
+
+      allow read: if exists(viewPath());
+      allow create, update: if exists(viewPath()) && validSummary();
+
+      match /messages/{msgId} {
+        function validMessage() {
+          let d = request.resource.data;
+          return d.keys().hasOnly(['remitente', 'texto', 'createdAt', 'studentId'])
+            && d.remitente in ['teacher', 'parent']
+            && d.texto is string && d.texto.size() > 0 && d.texto.size() <= 1000
+            && d.createdAt is string
+            && d.studentId is string
+            && (d.remitente == 'parent' || isChatTeacher());
+        }
+
+        allow read: if exists(viewPath());
+        allow create: if exists(viewPath()) && validMessage();
+        // Los mensajes no se editan; solo el docente puede borrarlos
+        allow update: if false;
+        allow delete: if isChatTeacher();
+      }
+    }
+
     // Índice anterior (contenía teléfonos y correos de tutores y era público): ya no se lee ni se escribe.
     // Cada docente puede borrar los suyos.
     match /student_lookup/{lookupKey} {

@@ -37,11 +37,29 @@ export const generateAccessCode = (length = 8): string => {
   return Array.from(bytes, (b) => CODE_ALPHABET[b % CODE_ALPHABET.length]).join('');
 };
 
-/** Claves con las que un padre puede entrar: CURP, matrícula o código de acceso. */
-export const parentViewKeys = (student: Student): string[] =>
-  [student.codigoAcceso, student.curp, student.matricula]
-    .map((k) => (k || '').toUpperCase().trim())
-    .filter((k, i, all) => k && all.indexOf(k) === i);
+export const normalizeKey = (value?: string): string => (value || '').toUpperCase().trim();
+
+/** Claves antiguas (CURP y matrícula) que ya no abren una vista directa; se limpian al migrar. */
+export const legacyParentKeys = (student: Student): string[] =>
+  [student.curp, student.matricula]
+    .map(normalizeKey)
+    .filter((k, i, all) => k && k !== normalizeKey(student.codigoAcceso) && all.indexOf(k) === i);
+
+/** Hash corto (FNV-1a) para saber si un documento cambió sin volver a escribirlo. */
+export const hashString = (input: string): string => {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return (h >>> 0).toString(36);
+};
+
+/** Huella de la vista, sin la fecha de actualización (que cambia siempre). */
+export const parentViewFingerprint = (view: ParentView): string => {
+  const { updatedAt: _updatedAt, ...rest } = view;
+  return hashString(JSON.stringify(rest));
+};
 
 /**
  * Datos que ve un padre: únicamente los de su hijo más la información general del aula.

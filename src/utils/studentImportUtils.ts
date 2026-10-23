@@ -234,7 +234,6 @@ export interface ParsedStudentRow {
   tutorNombre: string;
   tutorTelefono: string;
   tutorParentesco: string;
-  fotoUrl?: string;
   isValid: boolean;
   error?: string;
 }
