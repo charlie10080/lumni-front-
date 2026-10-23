@@ -30,7 +30,10 @@ service cloud.firestore {
     // ==========================================
     match /users/{userId} {
       // Cada usuario lee y actualiza su propio perfil
-      allow read, update: if isAuthenticated() && request.auth.uid == userId;
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      // Nadie puede cambiar su propio rol (evita escalar privilegios a 'teacher'/'admin')
+      allow update: if isAuthenticated() && request.auth.uid == userId
+                    && request.resource.data.get('rol', null) == resource.data.get('rol', null);
       // Creación de usuario durante el registro inicial
       allow create: if isAuthenticated() && request.auth.uid == userId;
       allow delete: if isAuthenticated() && request.auth.uid == userId;
@@ -59,10 +62,12 @@ service cloud.firestore {
     // ==========================================
     // 4. Colecciones Clásicas (Retrocompatibilidad)
     // ==========================================
+    // Colecciones heredadas sin uso en la app actual: cerradas por completo.
+    // (Antes permitían a cualquier usuario autenticado leer y escribir datos de alumnos.)
     match /students/{studentId} {
-      allow read, write: if isAuthenticated();
+      allow read, write: if false;
     }
-    
+
     match /subjects/{subjectId} {
       allow read: if isAuthenticated();
       allow write: if isTeacher();
@@ -74,14 +79,14 @@ service cloud.firestore {
     }
     
     match /threads/{threadId} {
-      allow read, write: if isAuthenticated();
+      allow read, write: if false;
       match /messages/{messageId} {
-        allow read, write: if isAuthenticated();
+        allow read, write: if false;
       }
     }
     
     match /incidents/{incidentId} {
-      allow read, write: if isAuthenticated();
+      allow read, write: if false;
     }
     
     match /projects/{projectId} {

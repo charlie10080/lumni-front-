@@ -1,21 +1,21 @@
-import React, { useState } from 'react';
+import React, { Suspense, lazy, useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { DataProvider } from './context/DataContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { LoginForm } from './components/auth/LoginForm';
 import { Layout } from './components/layout/Layout';
-import { DashboardView } from './pages/DashboardView';
-import { ParentPortalView } from './pages/ParentPortalView';
-import { StudentsView } from './pages/StudentsView';
-import { AttendanceView } from './pages/AttendanceView';
-import { GradesView } from './pages/GradesView';
-import { NoticesView } from './pages/NoticesView';
-import { MessagesView } from './pages/MessagesView';
-import { ReportsView } from './pages/ReportsView';
-import { SettingsView } from './pages/SettingsView';
-import { ProjectsView } from './pages/ProjectsView';
-import { TasksView } from './pages/TasksView';
-import { CalendarView } from './pages/CalendarView';
+const DashboardView = lazy(() => import('./pages/DashboardView').then((m) => ({ default: m.DashboardView })));
+const ParentPortalView = lazy(() => import('./pages/ParentPortalView').then((m) => ({ default: m.ParentPortalView })));
+const StudentsView = lazy(() => import('./pages/StudentsView').then((m) => ({ default: m.StudentsView })));
+const AttendanceView = lazy(() => import('./pages/AttendanceView').then((m) => ({ default: m.AttendanceView })));
+const GradesView = lazy(() => import('./pages/GradesView').then((m) => ({ default: m.GradesView })));
+const NoticesView = lazy(() => import('./pages/NoticesView').then((m) => ({ default: m.NoticesView })));
+const MessagesView = lazy(() => import('./pages/MessagesView').then((m) => ({ default: m.MessagesView })));
+const ReportsView = lazy(() => import('./pages/ReportsView').then((m) => ({ default: m.ReportsView })));
+const SettingsView = lazy(() => import('./pages/SettingsView').then((m) => ({ default: m.SettingsView })));
+const ProjectsView = lazy(() => import('./pages/ProjectsView').then((m) => ({ default: m.ProjectsView })));
+const TasksView = lazy(() => import('./pages/TasksView').then((m) => ({ default: m.TasksView })));
+const CalendarView = lazy(() => import('./pages/CalendarView').then((m) => ({ default: m.CalendarView })));
 
 export const AppContent: React.FC = () => {
   const { isAuthenticated, role } = useAuth();
@@ -57,7 +57,9 @@ export const AppContent: React.FC = () => {
 
   return (
     <Layout currentTab={currentTab} setCurrentTab={setCurrentTab}>
-      {renderContent()}
+      <Suspense fallback={<div className="p-8 text-center text-sm text-slate-500">Cargando...</div>}>
+        {renderContent()}
+      </Suspense>
     </Layout>
   );
 };
