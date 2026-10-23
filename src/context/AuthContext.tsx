@@ -407,6 +407,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 const match = parsed.find(
                   (s: any) =>
                     (s.curp && s.curp.toUpperCase() === cleanInput) ||
+                    (s.codigoAcceso && s.codigoAcceso.toUpperCase() === cleanInput) ||
                     (s.matricula && s.matricula.toUpperCase() === cleanInput) ||
                     (s.id && s.id.toUpperCase() === cleanInput)
                 );
