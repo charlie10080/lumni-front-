@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 import { Card } from '../components/ui/Card';
@@ -6,7 +6,7 @@ import { Button } from '../components/ui/Button';
 import { MessageSquare, Send, CheckCheck, UserCheck, ShieldCheck, Phone, ArrowLeft } from 'lucide-react';
 
 export const MessagesView: React.FC = () => {
-  const { threads, students, sendMessage } = useData();
+  const { threads, students, sendMessage, markThreadRead } = useData();
   const { currentUser, role } = useAuth();
   
   // Buscar alumno asociado al tutor si es rol parent
@@ -55,6 +55,14 @@ export const MessagesView: React.FC = () => {
     role === 'parent'
       ? parentThread
       : threads.find((t) => t.id === activeThreadId) || filteredThreads[0] || threads[0];
+
+  // Al abrir un hilo (o llegar mensajes nuevos mientras está abierto) se marcan como leídos
+  const activeStudentId = activeThread?.studentId;
+  const activeUnread = activeThread?.mensajesNoLeidos || 0;
+  useEffect(() => {
+    if (activeStudentId && activeUnread > 0) markThreadRead(activeStudentId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeStudentId, activeUnread]);
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();

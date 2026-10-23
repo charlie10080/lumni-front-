@@ -66,6 +66,7 @@ export interface Student {
   grupo: string;
   turno: 'Matutino' | 'Vespertino';
   activo: boolean;
+  /** @deprecated Ya no se guardan fotos de menores; se usa un personaje según el género. */
   fotoUrl?: string;
   qrCode?: string;
   /** Código aleatorio para que el padre entre sin CURP (ver utils/parentView.ts) */

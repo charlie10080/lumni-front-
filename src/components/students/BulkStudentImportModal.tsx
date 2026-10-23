@@ -107,7 +107,6 @@ export const BulkStudentImportModal: React.FC<BulkStudentImportModalProps> = ({
       tutorTelefono: row.tutorTelefono,
       tutorParentesco: row.tutorParentesco,
       activo: true,
-      fotoUrl: row.fotoUrl,
     }));
 
     onImportStudents(toImport);

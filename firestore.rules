@@ -61,6 +61,36 @@ service cloud.firestore {
       allow delete: if isAuthenticated() && resource.data.teacherId == request.auth.uid;
     }
 
+    // ==========================================
+    // 3b. Chat maestro-padre (/parent_chats/{codigoAcceso}/messages/{id})
+    // ==========================================
+    // La clave es el código de acceso del alumno (también es una clave de parent_views).
+    // Quien conoce el código es el padre; el maestro dueño se verifica con parent_views.teacherId.
+    match /parent_chats/{code}/messages/{msgId} {
+      function viewPath() {
+        return /databases/$(database)/documents/parent_views/$(code);
+      }
+      function isChatTeacher() {
+        return isAuthenticated() && exists(viewPath()) && get(viewPath()).data.teacherId == request.auth.uid;
+      }
+      function validMessage() {
+        let d = request.resource.data;
+        return d.keys().hasOnly(['remitente', 'texto', 'createdAt', 'studentId', 'leido'])
+          && d.remitente in ['teacher', 'parent']
+          && d.texto is string && d.texto.size() > 0 && d.texto.size() <= 1000
+          && d.createdAt is string
+          && d.studentId is string
+          && (d.remitente == 'parent' || isChatTeacher());
+      }
+
+      allow read: if exists(viewPath());
+      allow create: if exists(viewPath()) && validMessage();
+      // Solo se puede marcar como leído; el contenido no se edita
+      allow update: if exists(viewPath())
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['leido']);
+      allow delete: if isChatTeacher();
+    }
+
     // Índice anterior (contenía teléfonos y correos de tutores y era público): ya no se lee ni se escribe.
     // Cada docente puede borrar los suyos.
     match /student_lookup/{lookupKey} {

@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useData } from '../context/DataContext';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
+import { StudentAvatar } from '../components/students/StudentAvatar';
 import { Input } from '../components/ui/Input';
 import { Modal } from '../components/ui/Modal';
 import { StudentCredentialModal } from '../components/students/StudentCredentialModal';
@@ -20,7 +21,6 @@ import {
   Sparkles,
   Download,
   FileSpreadsheet,
-  Camera,
   CheckCircle2,
 } from 'lucide-react';
 
@@ -38,7 +38,6 @@ export const StudentsView: React.FC = () => {
   const [credentialStudent, setCredentialStudent] = useState<Student | null>(null);
   const [importSuccessMsg, setImportSuccessMsg] = useState<string | null>(null);
 
-  const photoInputRef = useRef<HTMLInputElement>(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -56,7 +55,6 @@ export const StudentsView: React.FC = () => {
     tutorEmail: '',
     tutorParentesco: 'Madre',
     activo: true,
-    fotoUrl: '',
   });
 
   const filteredStudents = students.filter((student) => {
@@ -156,7 +154,6 @@ export const StudentsView: React.FC = () => {
       tutorEmail: '',
       tutorParentesco: 'Madre',
       activo: true,
-      fotoUrl: '',
     });
     setIsModalOpen(true);
   };
@@ -178,36 +175,8 @@ export const StudentsView: React.FC = () => {
       tutorEmail: student.tutorEmail || '',
       tutorParentesco: student.tutorParentesco || 'Madre',
       activo: student.activo,
-      fotoUrl: student.fotoUrl || '',
     });
     setIsModalOpen(true);
-  };
-
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const size = 240;
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          const minDim = Math.min(img.width, img.height);
-          const startX = (img.width - minDim) / 2;
-          const startY = (img.height - minDim) / 2;
-          ctx.drawImage(img, startX, startY, minDim, minDim, 0, 0, size, size);
-          const compressed = canvas.toDataURL('image/jpeg', 0.85);
-          setFormData((prev) => ({ ...prev, fotoUrl: compressed }));
-        }
-      };
-      img.src = event.target?.result as string;
-    };
-    reader.readAsDataURL(file);
   };
 
   const handleImportStudents = (
@@ -374,17 +343,7 @@ export const StudentsView: React.FC = () => {
               {/* Card Header: Avatar & Main Info */}
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  {student.fotoUrl ? (
-                    <img
-                      src={student.fotoUrl}
-                      alt={student.nombre}
-                      className="w-11 h-11 rounded-2xl object-cover shadow-sm ring-1 ring-indigo-500/30 shrink-0 bg-slate-800"
-                    />
-                  ) : (
-                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-bold text-white text-base shadow-md shrink-0">
-                      {student.nombre.charAt(0)}
-                    </div>
-                  )}
+                  <StudentAvatar genero={student.genero} className="w-11 h-11 rounded-2xl text-2xl" />
                   <div>
                     <h3 className="font-bold text-sm text-slate-900 dark:text-white">
                       {student.nombre} {student.apellidos}
@@ -503,17 +462,7 @@ export const StudentsView: React.FC = () => {
                 filteredStudents.map((student) => (
                   <tr key={student.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition">
                     <td className="py-3.5 px-4 font-medium text-slate-900 dark:text-white flex items-center gap-3">
-                      {student.fotoUrl ? (
-                        <img
-                          src={student.fotoUrl}
-                          alt={student.nombre}
-                          className="w-9 h-9 rounded-xl object-cover shadow-xs ring-1 ring-indigo-500/30 shrink-0 bg-slate-800"
-                        />
-                      ) : (
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-bold text-white text-xs shadow-md shrink-0">
-                          {student.nombre.charAt(0)}
-                        </div>
-                      )}
+                      <StudentAvatar genero={student.genero} className="w-9 h-9 rounded-xl text-lg" />
                       <div>
                         <p className="font-semibold text-slate-900 dark:text-white">{student.nombre} {student.apellidos}</p>
                         <span className="inline-flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
@@ -583,61 +532,12 @@ export const StudentsView: React.FC = () => {
         maxWidth="lg"
       >
         <form onSubmit={handleSave} className="space-y-4">
-          {/* Fotografía Oficial del Alumno */}
-          <div className="flex flex-col sm:flex-row items-center gap-4 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800">
-            <div className="relative shrink-0">
-              {formData.fotoUrl ? (
-                <img
-                  src={formData.fotoUrl}
-                  alt="Foto del alumno"
-                  className="w-20 h-20 rounded-2xl object-cover shadow-md ring-2 ring-indigo-500/40 border border-white dark:border-slate-800 bg-slate-800"
-                />
-              ) : (
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center font-bold text-2xl shadow-md ring-2 ring-indigo-500/20">
-                  {formData.nombre ? formData.nombre.charAt(0).toUpperCase() : '👤'}
-                </div>
-              )}
-            </div>
-
-            <div className="flex-1 space-y-2 text-center sm:text-left">
-              <div>
-                <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">
-                  Fotografía Oficial del Estudiante
-                </label>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  Se mostrará en la credencial escolar con código QR y en el expediente digital.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2 flex-wrap justify-center sm:justify-start">
-                <input
-                  type="file"
-                  ref={photoInputRef}
-                  accept="image/*"
-                  onChange={handlePhotoUpload}
-                  className="hidden"
-                />
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  leftIcon={<Camera className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />}
-                  onClick={() => photoInputRef.current?.click()}
-                >
-                  {formData.fotoUrl ? 'Cambiar Fotografía' : 'Subir Fotografía'}
-                </Button>
-
-                {formData.fotoUrl && (
-                  <button
-                    type="button"
-                    onClick={() => setFormData({ ...formData, fotoUrl: '' })}
-                    className="text-xs text-rose-600 dark:text-rose-400 hover:underline px-2 py-1 cursor-pointer font-medium"
-                  >
-                    Quitar foto
-                  </button>
-                )}
-              </div>
-            </div>
+          {/* Personaje del alumno (según su género) */}
+          <div className="flex items-center gap-4 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800">
+            <StudentAvatar genero={formData.genero} className="w-16 h-16 rounded-2xl text-4xl ring-2 ring-indigo-500/20" />
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              El alumno se representa con un personaje según su género. No se guardan fotografías de menores.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
