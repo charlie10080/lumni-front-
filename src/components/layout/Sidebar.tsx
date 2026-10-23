@@ -17,6 +17,7 @@ import {
   Calendar,
   X,
   Sparkles,
+  ShieldCheck,
 } from 'lucide-react';
 
 export interface SidebarProps {
@@ -32,7 +33,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isOpenMobile,
   onCloseMobile,
 }) => {
-  const { role, currentUser } = useAuth();
+  const { role, currentUser, isAdmin } = useAuth();
   const { threads, notices, tasks, projects } = useData();
 
   const totalUnreadMessages = threads.reduce((acc, t) => acc + (t.mensajesNoLeidos || 0), 0);
@@ -49,6 +50,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'reports', label: 'Boletas & Reportes', icon: FileSpreadsheet, roles: ['teacher'] },
     { id: 'calendar', label: 'Calendario Escolar', icon: Calendar, roles: ['teacher', 'parent'] },
     { id: 'settings', label: 'Configuración', icon: Settings, roles: ['teacher'] },
+    ...(isAdmin ? [{ id: 'admin', label: 'Administrador', icon: ShieldCheck, roles: ['teacher'] }] : []),
   ];
 
   const filteredItems = navItems.filter((item) => item.roles.includes(role));

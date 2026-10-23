@@ -37,6 +37,7 @@ import {
 } from '../utils/chat';
 import { generateAccessCode } from '../utils/parentView';
 import { syncParentAccess, removeParentAccess, migrateLegacyParentKeys } from '../services/parentAccess';
+import { reportUsage } from '../services/teacherAdmin';
 
 interface DataContextType {
   students: Student[];
@@ -380,6 +381,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           await migrateLegacyParentKeys(firestore, scopeKey, students);
           const classroom = { subjects, notices, threads: threads.map((t) => ({ ...t, mensajes: [] })), projects, tasks, calendarEvents, incidentReports, schoolInfo };
           await syncParentAccess(firestore, scopeKey, students, classroom);
+          reportUsage(firestore, scopeKey, students.length);
         } catch (err) {
           console.warn('Background Firestore sync error:', err);
         }

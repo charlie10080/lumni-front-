@@ -25,18 +25,51 @@ service cloud.firestore {
       );
     }
     
+    // Administrador de la plataforma: existe el documento /admins/{uid} (solo se crea a mano en la consola)
+    function isAdmin() {
+      return isAuthenticated() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // Cuenta no bloqueada (un perfil sin estado se considera activo).
+    // La vigencia (vigenteHasta) se aplica en la app al iniciar sesión; aquí solo se corta por bloqueo.
+    function isActiveAccount() {
+      let p = /databases/$(database)/documents/users/$(request.auth.uid);
+      return !exists(p) || get(p).data.get('estado', 'activo') != 'bloqueado';
+    }
+
+    // Campos que solo controla el administrador
+    function adminOnlyFieldsUnchanged() {
+      return request.resource.data.get('estado', null) == resource.data.get('estado', null)
+        && request.resource.data.get('vigenteHasta', null) == resource.data.get('vigenteHasta', null)
+        && request.resource.data.get('notaAdmin', null) == resource.data.get('notaAdmin', null);
+    }
+
+    // ==========================================
+    // 0. Administradores (/admins/{uid})
+    // ==========================================
+    match /admins/{uid} {
+      // Cada quien solo puede comprobar si él mismo es admin; nadie crea admins desde la app
+      allow get: if isAuthenticated() && request.auth.uid == uid;
+      allow list, write: if false;
+    }
+
     // ==========================================
     // 1. Perfiles de Usuario (/users/{userId})
     // ==========================================
     match /users/{userId} {
-      // Cada usuario lee y actualiza su propio perfil
-      allow read: if isAuthenticated() && request.auth.uid == userId;
-      // Nadie puede cambiar su propio rol (evita escalar privilegios a 'teacher'/'admin')
-      allow update: if isAuthenticated() && request.auth.uid == userId
-                    && request.resource.data.get('rol', null) == resource.data.get('rol', null);
-      // Creación de usuario durante el registro inicial
-      allow create: if isAuthenticated() && request.auth.uid == userId;
-      allow delete: if isAuthenticated() && request.auth.uid == userId;
+      // Cada usuario lee su perfil; el administrador lee todos
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      // Nadie puede cambiar su propio rol ni los campos de bloqueo/vigencia (solo el admin)
+      allow update: if (isAuthenticated() && request.auth.uid == userId
+                    && request.resource.data.get('rol', null) == resource.data.get('rol', null)
+                    && adminOnlyFieldsUnchanged())
+                    || (isAdmin() && request.resource.data.get('rol', null) == resource.data.get('rol', null));
+      // Creación de usuario durante el registro inicial (sin bloqueo ni vigencia propios)
+      allow create: if isAuthenticated() && request.auth.uid == userId
+                    && !('estado' in request.resource.data) && !('vigenteHasta' in request.resource.data)
+                    && !('notaAdmin' in request.resource.data);
+      // Un usuario no puede borrar su perfil (así no se salta un bloqueo)
+      allow delete: if false;
     }
 
     // ==========================================
@@ -44,7 +77,8 @@ service cloud.firestore {
     // ==========================================
     match /classrooms/{teacherId} {
       // Solo el maestro titular accede a su aula completa. Los padres ya no leen esta colección.
-      allow read, write: if isAuthenticated() && request.auth.uid == teacherId;
+      allow read: if isAuthenticated() && request.auth.uid == teacherId;
+      allow write: if isAuthenticated() && request.auth.uid == teacherId && isActiveAccount();
     }
 
     // ==========================================
@@ -55,9 +89,9 @@ service cloud.firestore {
     match /parent_views/{key} {
       allow get: if true;
       allow list: if false;
-      allow create: if isAuthenticated() && request.resource.data.teacherId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.teacherId == request.auth.uid && isActiveAccount();
       allow update: if isAuthenticated() && resource.data.teacherId == request.auth.uid
-                    && request.resource.data.teacherId == request.auth.uid;
+                    && request.resource.data.teacherId == request.auth.uid && isActiveAccount();
       allow delete: if isAuthenticated() && resource.data.teacherId == request.auth.uid;
     }
 
@@ -69,10 +103,10 @@ service cloud.firestore {
       allow get: if true;
       allow list: if false;
       allow create: if isAuthenticated() && request.resource.data.teacherId == request.auth.uid
-                    && request.resource.data.code is string;
+                    && request.resource.data.code is string && isActiveAccount();
       allow update: if isAuthenticated() && resource.data.teacherId == request.auth.uid
                     && request.resource.data.teacherId == request.auth.uid
-                    && request.resource.data.code is string;
+                    && request.resource.data.code is string && isActiveAccount();
       allow delete: if isAuthenticated() && resource.data.teacherId == request.auth.uid;
     }
 
